@@ -10121,6 +10121,7 @@ GameObject:
   - component: {fileID: 2132123706}
   - component: {fileID: 2132123705}
   - component: {fileID: 2132123704}
+  - component: {fileID: 2132123707}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -10202,6 +10203,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 14.844, y: 0, z: 0}
+--- !u!114 &2132123707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2132123703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd185901aa35934d857a48bdf7eef75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dodgeballPrefab: {fileID: 442128810330926062, guid: 249c291a7735b4d41bbf93143ff3d5c5, type: 3}
+  shootingForce: 10
 --- !u!1 &2146797114 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -9070493210130169274, guid: 2577b6e75f990b14b8c0a0836e439e01, type: 3}
