@@ -25,10 +25,10 @@ public class ActivateRagdoll : MonoBehaviour
     }
 
     // This function is called when the dodgeball collides with the player
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collider)
     {
         // Check if the player collided with the trigger
-        if (other.gameObject.CompareTag("Dodgeball"))
+        if (collider.gameObject.CompareTag("Dodgeball"))
         {
             // Disable the animator component
             animator.enabled = false;
