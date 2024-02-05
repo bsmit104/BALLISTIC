@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerShooting : MonoBehaviour
 {
     public GameObject dodgeballPrefab;  // Reference to your dodgeball prefab
-    public float shootingForce = 10f;   // Adjust the force as needed
+    public float shootingForce = 100f;   // Adjust the force as needed
 
     // Update is called once per frame
     void Update()

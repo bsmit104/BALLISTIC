@@ -17,7 +17,7 @@ public class ActivateRagdoll : MonoBehaviour
     void Update()
     {
         // Check for a key press
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             // Toggle the Animator component on/off
             animator.enabled = !animator.enabled;
