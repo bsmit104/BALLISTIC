@@ -45,6 +45,7 @@ public class Dodgeball : MonoBehaviour
         freeLook.m_Follow = newLookTarget;
         freeLook.m_LookAt = newLookTarget;
 
+        // ===== Zoom out to have a dramatic effect for the death =====
         // increase the height for the bottom rig/middle rig/top rig
         freeLook.m_Orbits[0].m_Height = Mathf.Lerp(freeLook.m_Orbits[0].m_Height, 2, 2f);
         freeLook.m_Orbits[1].m_Height = Mathf.Lerp(freeLook.m_Orbits[1].m_Height, 4, 2f);
@@ -54,6 +55,7 @@ public class Dodgeball : MonoBehaviour
         freeLook.m_Orbits[0].m_Radius = Mathf.Lerp(freeLook.m_Orbits[0].m_Radius, 5, 2f);
         freeLook.m_Orbits[1].m_Radius = Mathf.Lerp(freeLook.m_Orbits[1].m_Radius, 6, 2f);
         freeLook.m_Orbits[2].m_Radius = Mathf.Lerp(freeLook.m_Orbits[2].m_Radius, 7, 2f);
+        // =============================================================
     }
 }
 
