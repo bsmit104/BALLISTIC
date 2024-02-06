@@ -5,10 +5,15 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float walkSpeed = 1f;
+    public float walkSpeed = 2f;
     public float sprintSpeed = 5f;
     public float realSpeed = 0f;
     public float rotationSpeed = 10f;
+
+    [HideInInspector] public Vector3 dir;
+    float horizontal;
+    float vertical;
+    CharacterController controller;
 
     public GameObject dodgeballPrefab;      // Reference to your dodgeball prefab
     public Transform throwPoint;            // Point from where the dodgeball is thrown
@@ -29,6 +34,8 @@ public class PlayerController : MonoBehaviour
         // Get the Rigidbody component attached to the character
         rb = GetComponent<Rigidbody>();
 
+        controller = GetComponent<CharacterController>();
+
         // Get the animator component from the attached animator object
         animator = GetComponentInChildren<Animator>();
     }
@@ -37,20 +44,38 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Handle character movement in the Update method for better responsiveness
-        HandleRotation();
+        // HandleRotation();
         HandleMovement();
         HandleThrowBall();
     }
 
     void HandleRotation()
     {
-        float horizontal = Input.GetAxis("Horizontal");
+        horizontal = Input.GetAxis("Horizontal");
+        vertical = Input.GetAxis("Vertical");
 
-        if (horizontal != 0f)
+        // Player rotates with A and D keys
+        //if (horizontal != 0f)
+        //{
+        //    // Rotate the character based on the input
+        //    Quaternion deltaRotation = Quaternion.Euler(Vector3.up * horizontal * rotationSpeed * Time.deltaTime);
+        //    rb.MoveRotation(rb.rotation * deltaRotation);
+        //}
+
+        // Player rotates with camera
+        if (horizontal != 0f || vertical != 0f)
         {
-            // Rotate the character based on the input
-            Quaternion deltaRotation = Quaternion.Euler(Vector3.up * horizontal * rotationSpeed * Time.deltaTime);
-            rb.MoveRotation(rb.rotation * deltaRotation);
+            // Get the camera's forward direction without the y-component
+            Vector3 cameraForward = Camera.main.transform.forward;
+            cameraForward.y = 0f;
+            cameraForward.Normalize();
+
+            // Calculate the rotation angle based on the input and camera direction
+            float targetAngle = Mathf.Atan2(horizontal, vertical) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
+
+            // Smoothly interpolate towards the target rotation
+            Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
         /*
@@ -70,18 +95,20 @@ public class PlayerController : MonoBehaviour
 
     void HandleMovement()
     {
-        float vertical = Input.GetAxis("Vertical");
-        float horizontal = Input.GetAxis("Horizontal");
+        horizontal = Input.GetAxis("Horizontal");
+        vertical = Input.GetAxis("Vertical");
 
         bool isMovingForward = vertical > 0f;
         bool isMovingBackward = vertical < 0f;
+        bool isStrafingRight = horizontal > 0f;
+        bool isStrafingLeft = horizontal < 0f;
         bool isSprinting = isMovingForward && Input.GetKey(KeyCode.LeftShift);
 
         // Set the speed based on the input
         float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         // Move the character based on the input
-        Vector3 movement = transform.forward * vertical * realSpeed * Time.deltaTime;
+        Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Time.deltaTime;
         rb.MovePosition(rb.position + movement);
 
         // Trigger the walk animation when moving forward and not holding the sprint key
@@ -89,6 +116,12 @@ public class PlayerController : MonoBehaviour
 
         // Trigger the walkBackwards animation when moving backward and not holding the sprint key
         animator.SetBool("isWalkingBack", isMovingBackward && !isSprinting && !isMovingForward);
+
+        // Trigger the rightStrafe animation when moving right
+        animator.SetBool("isStrafingRight", isStrafingRight);
+
+        // Trigger the leftStrafe animation when moving left
+        animator.SetBool("isStrafingLeft", isStrafingLeft);
 
         // Trigger the sprint animation when moving forward and holding the sprint key
         animator.SetBool("isSprinting", isSprinting);

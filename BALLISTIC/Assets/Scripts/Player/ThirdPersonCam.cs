@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class ThirdPersonCam : MonoBehaviour
 {
@@ -12,7 +13,11 @@ public class ThirdPersonCam : MonoBehaviour
     public float rotationSpeed = 10f;
     public float mouseSensitivity = 2f;
 
-*/
+    */
+
+    public Cinemachine.AxisState xAxis, yAxis;
+    [SerializeField] Transform camFollowPos;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +28,9 @@ public class ThirdPersonCam : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        xAxis.Update(Time.deltaTime);
+        yAxis.Update(Time.deltaTime);
+
         /*
         // Rotate player based on mouse input
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -38,5 +46,11 @@ public class ThirdPersonCam : MonoBehaviour
         float newRotationX = Mathf.Clamp(currentRotation.x - mouseY, -90f, 90f);
         transform.localRotation = Quaternion.Euler(newRotationX, currentRotation.y, currentRotation.z);
         */
+    }
+
+    private void LateUpdate()
+    {
+        camFollowPos.localEulerAngles = new Vector3(yAxis.Value, camFollowPos.localEulerAngles.y, camFollowPos.localEulerAngles.z);
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, xAxis.Value, transform.eulerAngles.z);
     }
 }

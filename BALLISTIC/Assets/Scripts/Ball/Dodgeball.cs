@@ -5,14 +5,19 @@ using UnityEngine;
 public class Dodgeball : MonoBehaviour
 {
     private Animator ragdollAnimator;
+    private bool isDead = false; // Tracks if ball is "dead" (ball has hit the floor already)
 
     private void OnCollisionEnter(Collision collider)
     {
         // Check if the collided GameObject has the "Player" tag
-        if (collider.gameObject.CompareTag("Player"))
+        if (!isDead && collider.gameObject.CompareTag("Player"))
         {
             // Activate the ragdoll for the player
             ActivatePlayerRagdoll(collider.gameObject);
+        }
+        else if (collider.gameObject.CompareTag("isGround"))
+        {
+            isDead = true;
         }
     }
 
