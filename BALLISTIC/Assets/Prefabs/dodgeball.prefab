@@ -14,8 +14,10 @@ GameObject:
   - component: {fileID: 7797195609591241170}
   - component: {fileID: 3926895427765993253}
   - component: {fileID: 7165026073672892444}
+  - component: {fileID: 5520319901365421591}
+  - component: {fileID: 1437923237954681535}
   m_Layer: 0
-  m_Name: Dodgeball
+  m_Name: dodgeball
   m_TagString: Dodgeball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,7 +36,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5085831315859747276
 MeshFilter:
@@ -146,3 +148,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64becf458c73011428caf3f8dc15db97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5520319901365421591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8643168369346660436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
+--- !u!114 &1437923237954681535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8643168369346660436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 593032498
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 5520319901365421591}
