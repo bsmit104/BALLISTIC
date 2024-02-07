@@ -69,6 +69,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private Rigidbody rb;
     private Animator animator;
 
+    public Cinemachine.AxisState xAxis, yAxis;
+    [SerializeField] Transform camFollowPos;
+
     // * ========================================================
 
     // * Networked Attributes ===================================
@@ -118,6 +121,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // Detect changes, and trigger event listeners.
     public override void Render()
     {
+        HandleLook();
         foreach (var attrName in detector.DetectChanges(this))
         {
             networkChangeListeners[attrName]();
@@ -152,7 +156,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             _local = this;
             cmra.SetActive(true);
             cinemachineCamera.SetActive(true);
-            //gameObject.GetComponent<ThirdPersonCam>().enabled = true;
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
             Debug.Log("Spawned Local Player");
         }
         else
@@ -180,6 +187,18 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         HandleMovement(data);
         HandleThrowBall(data);
+    }
+
+    void HandleLook()
+    {
+        if (!Object.HasInputAuthority) return;
+        
+        xAxis.Update(Time.deltaTime);
+        yAxis.Update(Time.deltaTime);
+
+        camFollowPos.localEulerAngles = new Vector3(yAxis.Value, camFollowPos.localEulerAngles.y, camFollowPos.localEulerAngles.z);
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, xAxis.Value, transform.eulerAngles.z);
+        RPC_UpdateLookDirection(xAxis.Value, GetRef);
     }
 
     void HandleMovement(NetworkInputData data)
@@ -299,5 +318,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         //     freeLook.m_Orbits[2].m_Radius = Mathf.Lerp(freeLook.m_Orbits[2].m_Radius, 7, 2f);
         //     // =============================================================
         // }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_UpdateLookDirection(float yRot, PlayerRef player)
+    {
+        if (GetRef != player) return;
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
     }
 }
