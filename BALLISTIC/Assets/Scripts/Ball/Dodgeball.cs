@@ -1,19 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 
 public class Dodgeball : MonoBehaviour
 {
     private Animator ragdollAnimator;
     private bool isDead = false; // Tracks if ball is "dead" (ball has hit the floor already)
+    public GameObject source;
+    public NetworkRunner runner;
 
     private void OnCollisionEnter(Collision collider)
     {
         // Check if the collided GameObject has the "Player" tag
-        if (!isDead && collider.gameObject.CompareTag("Player"))
+        if (!isDead && collider.gameObject.CompareTag("Player") && collider.gameObject != source)
         {
+            Debug.Log("hit player");
             // Activate the ragdoll for the player
-            ActivatePlayerRagdoll(collider.gameObject);
+            NetworkPlayer player = collider.gameObject.GetComponent<NetworkPlayer>();
+            if (player && runner.IsServer)
+            {
+                Debug.Log("send message");
+                player.ActivatePlayerRagdoll();
+            }
         }
         else if (collider.gameObject.CompareTag("isGround"))
         {
@@ -25,6 +34,9 @@ public class Dodgeball : MonoBehaviour
     {
         // Assuming the ragdoll components are part of the player's hierarchy
         ragdollAnimator = player.GetComponentInChildren<Animator>();
+        if (ragdollAnimator == null) {
+            return;
+        }
         ragdollAnimator.enabled = false;
 
         // get the player controller script from the parent object

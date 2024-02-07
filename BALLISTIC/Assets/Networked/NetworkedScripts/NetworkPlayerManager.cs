@@ -74,7 +74,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         data.horizontal = Input.GetAxis("Horizontal");
         data.vertical = Input.GetAxis("Vertical");
         data.sprintButtonPressed = Input.GetKey(KeyCode.LeftShift);
-        data.throwButtonPressed = Input.GetMouseButtonDown(0);
+        data.throwButtonPressed = Input.GetMouseButton(0);
 
         input.Set(data);
     }

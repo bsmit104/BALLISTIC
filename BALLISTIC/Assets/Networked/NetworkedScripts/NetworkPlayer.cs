@@ -20,6 +20,27 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     /// </summary>
     public static NetworkPlayer Local { get { return _local; } }
 
+    private PlayerRef _playerRef = PlayerRef.None;
+    public PlayerRef GetRef { 
+        get 
+        {
+            if (_playerRef == PlayerRef.None)
+            {
+                foreach (var playerRef in Runner.ActivePlayers)
+                {
+                    if (Runner.TryGetPlayerObject(playerRef, out NetworkObject obj))
+                    {
+                        if (obj.gameObject.GetComponent<NetworkPlayer>() == this)
+                        {
+                            _playerRef = playerRef;
+                        }
+                    }
+                }
+            }
+            return _playerRef; 
+        } 
+    }
+
     [Tooltip("The player's camera. Will be set active if the player instance is the local client. Should be deactivated by default.")]
     [SerializeField] private GameObject cmra;
     [SerializeField] private GameObject cinemachineCamera;
@@ -106,7 +127,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             _local = this;
             cmra.SetActive(true);
             cinemachineCamera.SetActive(true);
-            gameObject.GetComponent<ThirdPersonCam>().enabled = true;
+            //gameObject.GetComponent<ThirdPersonCam>().enabled = true;
             Debug.Log("Spawned Local Player");
         }
         else
@@ -187,30 +208,89 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         dodgeball.GetComponent<SphereCollider>().enabled = true;
     }
 
+    bool alreadyPressed = false;
+
     void HandleThrowBall(NetworkInputData data)
     {
-        if (data.throwButtonPressed && !IsThrowing())
+        if (!data.throwButtonPressed)
+        {
+            alreadyPressed = false;
+        }
+        if (data.throwButtonPressed && !alreadyPressed && !IsThrowing())
         {
             // Set the last throw time to the current time
             lastThrowTime = Time.time;
 
             // instantiate the dodgeball at the throw point
-            GameObject dodgeball = Instantiate(dodgeballPrefab, throwPoint.position, throwPoint.rotation);
+            GameObject dodgeball = Instantiate(dodgeballPrefab, throwPoint.position + (transform.forward * 0.5f), throwPoint.rotation);
+            dodgeball.GetComponent<Dodgeball>().source = gameObject;
+            dodgeball.GetComponent<Dodgeball>().runner = Runner;
             // disable the dodgeballs collider for .25 seconds
-            dodgeball.GetComponent<SphereCollider>().enabled = false;
+            //dodgeball.GetComponent<SphereCollider>().enabled = false;
 
             // Apply force to throw the dodgeball
             Rigidbody dodgeballRb = dodgeball.GetComponent<Rigidbody>();
             // find the children of the player object called "mixamorig:Spine1"
-            Transform spine1 = transform.Find("Animated/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1");
+            //Transform spine1 = transform.Find("Animated/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1");
             // apply the force in the direction of the mixamo:Spine1 bone
 
-            dodgeballRb.AddForce(transform.forward * throwForce, ForceMode.Impulse);
+            dodgeballRb.AddForce((transform.forward + new Vector3(0, 0.05f, 0)) * throwForce, ForceMode.Impulse);
 
             // Start the coroutine to enable the collider after a delay
-            StartCoroutine(EnableColliderAfterDelay(dodgeball));
+            //StartCoroutine(EnableColliderAfterDelay(dodgeball));
         }
     }
 
     // * ========================================================
+
+    // * Remote Procedure Calls =================================
+
+    public void ActivatePlayerRagdoll()
+    {
+        RPC_ActivatePlayerRagdoll(GetRef);
+    }
+
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_ActivatePlayerRagdoll(PlayerRef player)
+    {
+        if (player != GetRef)
+        {
+            return;
+        }
+
+        animator.enabled = false;
+
+        // get the player controller script from the parent object
+        enabled = false;
+
+        // get and disable the player's rigidbody and collider
+        GetComponent<Rigidbody>().isKinematic = true;
+        GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Discrete;
+        GetComponent<CapsuleCollider>().enabled = false;
+
+        // if (Object.HasInputAuthority)
+        // {
+        //     // get cinemachine camera and change the look at target to the player's head
+        //     Cinemachine.CinemachineFreeLook freeLook = GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
+
+        //     // find the child in children that is called "LookTargetOnDeath"
+        //     Transform newLookTarget = transform.Find("Animated/mixamorig:Hips/LookTargetOnDeath");
+        //     // set the cinemachine look at target to newLookTarget
+        //     freeLook.m_Follow = newLookTarget;
+        //     freeLook.m_LookAt = newLookTarget;
+
+        //     // ===== Zoom out to have a dramatic effect for the death =====
+        //     // increase the height for the bottom rig/middle rig/top rig
+        //     freeLook.m_Orbits[0].m_Height = Mathf.Lerp(freeLook.m_Orbits[0].m_Height, 2, 2f);
+        //     freeLook.m_Orbits[1].m_Height = Mathf.Lerp(freeLook.m_Orbits[1].m_Height, 4, 2f);
+        //     freeLook.m_Orbits[2].m_Height = Mathf.Lerp(freeLook.m_Orbits[2].m_Height, 6, 2f);
+
+        //     // increase the radius for the bottom rig/middle rig/top rig
+        //     freeLook.m_Orbits[0].m_Radius = Mathf.Lerp(freeLook.m_Orbits[0].m_Radius, 5, 2f);
+        //     freeLook.m_Orbits[1].m_Radius = Mathf.Lerp(freeLook.m_Orbits[1].m_Radius, 6, 2f);
+        //     freeLook.m_Orbits[2].m_Radius = Mathf.Lerp(freeLook.m_Orbits[2].m_Radius, 7, 2f);
+        //     // =============================================================
+        // }
+    }
 }
