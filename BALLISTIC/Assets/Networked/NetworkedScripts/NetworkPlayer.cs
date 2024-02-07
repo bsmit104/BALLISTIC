@@ -21,6 +21,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public static NetworkPlayer Local { get { return _local; } }
 
     private PlayerRef _playerRef = PlayerRef.None;
+    /// <summary>
+    /// Returns the PlayerRef associated with this player object.
+    /// </summary>
     public PlayerRef GetRef { 
         get 
         {
@@ -98,22 +101,22 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // Animator Bools ================================
 
-    [Networked] public bool isWalking { get; set; }
+    [Networked, HideInInspector] public bool isWalking { get; set; }
     void IsWalkingOnChange() { animator.SetBool("isWalking", isWalking); }
 
-    [Networked] public bool isWalkingBack { get; set; }
+    [Networked, HideInInspector] public bool isWalkingBack { get; set; }
     void IsWalkingBackOnChange() { animator.SetBool("isWalkingBack", isWalkingBack); }
 
-    [Networked] public bool isStrafingRight { get; set; }
+    [Networked, HideInInspector] public bool isStrafingRight { get; set; }
     void IsStrafingRightOnChange() { animator.SetBool("isStrafingRight", isStrafingRight); }
 
-    [Networked] public bool isStrafingLeft { get; set; }
+    [Networked, HideInInspector] public bool isStrafingLeft { get; set; }
     void IsStrafingLeftOnChange() { animator.SetBool("isStrafingLeft", isStrafingLeft); }
 
-    [Networked] public bool isSprinting { get; set; }
+    [Networked, HideInInspector] public bool isSprinting { get; set; }
     void IsSprintingOnChange() { animator.SetBool("isSprinting", isSprinting); }
 
-    [Networked] public bool isIdle { get; set; }
+    [Networked, HideInInspector] public bool isIdle { get; set; }
     void IsIdleOnChange() { animator.SetBool("isIdle", isIdle); }
 
     // ===============================================
@@ -251,19 +254,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             GameObject dodgeball = Instantiate(dodgeballPrefab, throwPoint.position + (transform.forward * 0.5f), throwPoint.rotation);
             dodgeball.GetComponent<Dodgeball>().source = gameObject;
             dodgeball.GetComponent<Dodgeball>().runner = Runner;
-            // disable the dodgeballs collider for .25 seconds
-            //dodgeball.GetComponent<SphereCollider>().enabled = false;
 
             // Apply force to throw the dodgeball
             Rigidbody dodgeballRb = dodgeball.GetComponent<Rigidbody>();
-            // find the children of the player object called "mixamorig:Spine1"
-            //Transform spine1 = transform.Find("Animated/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1");
-            // apply the force in the direction of the mixamo:Spine1 bone
-
             dodgeballRb.AddForce((transform.forward + new Vector3(0, 0.05f, 0)) * throwForce, ForceMode.Impulse);
-
-            // Start the coroutine to enable the collider after a delay
-            //StartCoroutine(EnableColliderAfterDelay(dodgeball));
         }
     }
 
