@@ -80,7 +80,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
-            // ...
+            { nameof(isWalking), IsWalkingOnChange },
+            { nameof(isWalkingBack), IsWalkingBackOnChange },
+            { nameof(isStrafingRight), IsStrafingRightOnChange },
+            { nameof(isStrafingLeft), IsStrafingLeftOnChange },
+            { nameof(isSprinting), IsSprintingOnChange },
+            { nameof(isIdle), IsIdleOnChange }
         };
     }
 
@@ -88,15 +93,35 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // [Networked] Type myAttribute { get; set; }
     // void MyAttributeOnChange() { ... }
 
-    // ...
+    // Animator Bools ================================
+
+    [Networked] public bool isWalking { get; set; }
+    void IsWalkingOnChange() { animator.SetBool("isWalking", isWalking); }
+
+    [Networked] public bool isWalkingBack { get; set; }
+    void IsWalkingBackOnChange() { animator.SetBool("isWalkingBack", isWalkingBack); }
+
+    [Networked] public bool isStrafingRight { get; set; }
+    void IsStrafingRightOnChange() { animator.SetBool("isStrafingRight", isStrafingRight); }
+
+    [Networked] public bool isStrafingLeft { get; set; }
+    void IsStrafingLeftOnChange() { animator.SetBool("isStrafingLeft", isStrafingLeft); }
+
+    [Networked] public bool isSprinting { get; set; }
+    void IsSprintingOnChange() { animator.SetBool("isSprinting", isSprinting); }
+
+    [Networked] public bool isIdle { get; set; }
+    void IsIdleOnChange() { animator.SetBool("isIdle", isIdle); }
+
+    // ===============================================
 
     // Detect changes, and trigger event listeners.
     public override void Render()
     {
-        // foreach (var attrName in detector.DetectChanges(this))
-        // {
-        //     networkChangeListeners[attrName]();
-        // }
+        foreach (var attrName in detector.DetectChanges(this))
+        {
+            networkChangeListeners[attrName]();
+        }
     }
 
     // * ========================================================
@@ -110,7 +135,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         DontDestroyOnLoad(gameObject);
 
         // Init change detector to current game state and set up listeners
-        //detector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+        detector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         SetChangeListeners();
 
         // Get the Rigidbody component attached to the character
@@ -164,9 +189,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         bool isMovingForward = vertical > 0f;
         bool isMovingBackward = vertical < 0f;
-        bool isStrafingRight = horizontal > 0f;
-        bool isStrafingLeft = horizontal < 0f;
-        bool isSprinting = isMovingForward && data.sprintButtonPressed;
+        isStrafingRight = horizontal > 0f;
+        isStrafingLeft = horizontal < 0f;
+        isSprinting = isMovingForward && data.sprintButtonPressed;
 
         // Set the speed based on the input
         float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
@@ -176,36 +201,18 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         transform.position += movement * Runner.DeltaTime;
 
         // Trigger the walk animation when moving forward and not holding the sprint key
-        animator.SetBool("isWalking", isMovingForward && !isSprinting && !isMovingBackward);
+        isWalking = isMovingForward && !isSprinting && !isMovingBackward;
 
         // Trigger the walkBackwards animation when moving backward and not holding the sprint key
-        animator.SetBool("isWalkingBack", isMovingBackward && !isSprinting && !isMovingForward);
-
-        // Trigger the rightStrafe animation when moving right
-        animator.SetBool("isStrafingRight", isStrafingRight);
-
-        // Trigger the leftStrafe animation when moving left
-        animator.SetBool("isStrafingLeft", isStrafingLeft);
-
-        // Trigger the sprint animation when moving forward and holding the sprint key
-        animator.SetBool("isSprinting", isSprinting);
+        isWalkingBack = isMovingBackward && !isSprinting && !isMovingForward;
 
         // Trigger the idle animation when standing still and not pressing any movement keys
-        animator.SetBool("isIdle", vertical == 0 && horizontal == 0);
+        isIdle = vertical == 0 && horizontal == 0;
     }
 
     bool IsThrowing()
     {
         return Time.time - lastThrowTime < throwCooldown;
-    }
-
-    IEnumerator EnableColliderAfterDelay(GameObject dodgeball)
-    {
-        // Wait for 0.25 seconds
-        yield return new WaitForSeconds(0.25f);
-
-        // Enable the dodgeball's collider after the delay
-        dodgeball.GetComponent<SphereCollider>().enabled = true;
     }
 
     bool alreadyPressed = false;
