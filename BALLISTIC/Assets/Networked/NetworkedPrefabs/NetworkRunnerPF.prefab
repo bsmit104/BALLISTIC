@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5497236797057163156}
   - component: {fileID: 5674648568997470240}
   - component: {fileID: 3370978793957886318}
+  - component: {fileID: 2600095694235042499}
   m_Layer: 0
   m_Name: NetworkRunnerPF
   m_TagString: Untagged
@@ -59,3 +60,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab:
     RawGuidValue: 5440a04c155201f4aa5681c1462bfae8
+--- !u!114 &2600095694235042499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7399520618018888314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76e2bfa1733736c4bb79defbc445cfe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ballPrefab: {fileID: 1437923237954681535, guid: 3049e71cd6e7b664999175e509e02cd2, type: 3}
+  defaultPoolSize: 10
+  maxPoolSize: 15

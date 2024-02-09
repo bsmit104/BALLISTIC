@@ -885,7 +885,7 @@ GameObject:
   - component: {fileID: 9042827509122219825}
   - component: {fileID: 1378563110596702759}
   - component: {fileID: 6456197443227076788}
-  - component: {fileID: -5331813642032839509}
+  - component: {fileID: 4970067523653238997}
   m_Layer: 0
   m_Name: NetworkPlayerPF
   m_TagString: Player
@@ -1022,15 +1022,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cmra: {fileID: 9043385941990850541}
   cinemachineCamera: {fileID: 8687692431629903476}
-  walkSpeed: 5
-  sprintSpeed: 8
-  realSpeed: 0
-  rotationSpeed: 100
-  dir: {x: 0, y: 0, z: 0}
-  dodgeballPrefab: {fileID: 8643168369346660436, guid: 249c291a7735b4d41bbf93143ff3d5c5, type: 3}
-  throwPoint: {fileID: 6222615243381344448}
-  throwForce: 200
-  throwCooldown: 0.6
   xAxis:
     Value: 0
     m_SpeedMode: 0
@@ -1068,6 +1059,14 @@ MonoBehaviour:
       m_LegacyHeadingDefinition: 0
       m_LegacyVelocityFilterStrength: 0
   camFollowPos: {fileID: 9018892232387286518}
+  walkSpeed: 5
+  sprintSpeed: 8
+  realSpeed: 0
+  rotationSpeed: 100
+  dir: {x: 0, y: 0, z: 0}
+  throwPoint: {fileID: 6222615243381344448}
+  throwForce: 200
+  throwCooldown: 0.6
   _isWalking: 0
   _isWalkingBack: 0
   _isStrafingRight: 0
@@ -1092,8 +1091,8 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 1378563110596702759}
-  - {fileID: -5331813642032839509}
---- !u!114 &-5331813642032839509
+  - {fileID: 4970067523653238997}
+--- !u!114 &4970067523653238997
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1106,7 +1105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SyncScale: 0
-  SyncParent: 1
+  SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
 --- !u!1 &8465724428372015433

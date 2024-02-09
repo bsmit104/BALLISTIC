@@ -13,14 +13,13 @@ public delegate void Notify();
 /// </summary>
 public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 {
-    private static NetworkPlayer _local;
     /// <summary>
     /// Get the NetworkPlayer instance assigned to the client.
     /// (e.g. returns a different instance depending on the computer it is run on).
     /// </summary>
     public static NetworkPlayer Local { get { return _local; } }
+    private static NetworkPlayer _local;
 
-    private PlayerRef _playerRef = PlayerRef.None;
     /// <summary>
     /// Returns the PlayerRef associated with this player object.
     /// </summary>
@@ -43,12 +42,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             return _playerRef; 
         } 
     }
+    private PlayerRef _playerRef = PlayerRef.None;
 
+
+    // * Client-Sided Attributes ================================
+
+    [Header("Camera Controls")]
     [Tooltip("The player's camera. Will be set active if the player instance is the local client. Should be deactivated by default.")]
     [SerializeField] private GameObject cmra;
     [SerializeField] private GameObject cinemachineCamera;
-
-    // * Client-Sided Attributes ================================
+    public Cinemachine.AxisState xAxis, yAxis;
+    [SerializeField] Transform camFollowPos;
 
     [Header("Movement Settings")]
     public float walkSpeed = 2f;
@@ -61,19 +65,16 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     float vertical;
     CharacterController controller;
 
-    public GameObject dodgeballPrefab;      // Reference to your dodgeball prefab
+    [Space]
+    [Header("Ball Throwing")]
     public Transform throwPoint;            // Point from where the dodgeball is thrown
     public float throwForce = 10f;          // Force applied to the dodgeball when thrown
-    // private bool isThrowing = false;        // Flag to check if the player is currently throwing
     public float throwCooldown = 1f;        // Cooldown duration between throws
 
     private float lastThrowTime;            // Time when the last throw happened
 
     private Rigidbody rb;
     private Animator animator;
-
-    public Cinemachine.AxisState xAxis, yAxis;
-    [SerializeField] Transform camFollowPos;
 
     // * ========================================================
 
@@ -200,8 +201,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         yAxis.Update(Time.deltaTime);
 
         camFollowPos.localEulerAngles = new Vector3(yAxis.Value, camFollowPos.localEulerAngles.y, camFollowPos.localEulerAngles.z);
-        transform.eulerAngles = new Vector3(transform.eulerAngles.x, xAxis.Value, transform.eulerAngles.z);
-        RPC_UpdateLookDirection(xAxis.Value, GetRef);
+        UpdateLookDirection(xAxis.Value);
     }
 
     void HandleMovement(NetworkInputData data)
@@ -219,8 +219,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         // Move the character based on the input
-        Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed;
-        transform.position += movement * Runner.DeltaTime;
+        Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Runner.DeltaTime;
+        rb.MovePosition(transform.position + movement);
+        //transform.position += movement * Runner.DeltaTime;
 
         // Trigger the walk animation when moving forward and not holding the sprint key
         isWalking = isMovingForward && !isSprinting && !isMovingBackward;
@@ -237,27 +238,36 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         return Time.time - lastThrowTime < throwCooldown;
     }
 
+    // since input is applied on FixedUpdate, OnKey/ButtonDown events are unreliable.
+    // instead track whether OnPress has been registered, and reset when OnRelease.
     bool alreadyPressed = false;
 
     void HandleThrowBall(NetworkInputData data)
     {
+        // reset pressed state on button release
         if (!data.throwButtonPressed)
         {
             alreadyPressed = false;
         }
-        if (data.throwButtonPressed && !alreadyPressed && !IsThrowing())
+
+        // apply input, given that this is the first update that the current button press has been read on
+        if (data.throwButtonPressed && !alreadyPressed && !IsThrowing()) // IsThrowing() checks for cooldown
         {
             // Set the last throw time to the current time
             lastThrowTime = Time.time;
 
-            // instantiate the dodgeball at the throw point
-            GameObject dodgeball = Instantiate(dodgeballPrefab, throwPoint.position + (transform.forward * 0.5f), throwPoint.rotation);
-            dodgeball.GetComponent<Dodgeball>().source = gameObject;
-            dodgeball.GetComponent<Dodgeball>().runner = Runner;
+            // TODO Pickup: replace with pickup and throw mechanics
+            if (Runner.IsServer)
+            {
+                // instantiate the dodgeball at the throw point
+                NetworkDodgeball ball = NetworkBallManager.Instance.GetBall();
+                ball.owner = GetRef;
+                ball.transform.position = throwPoint.position + (transform.forward * 0.5f);
+                ball.transform.rotation = throwPoint.rotation;
 
-            // Apply force to throw the dodgeball
-            Rigidbody dodgeballRb = dodgeball.GetComponent<Rigidbody>();
-            dodgeballRb.AddForce((transform.forward + new Vector3(0, 0.05f, 0)) * throwForce, ForceMode.Impulse);
+                // Apply force to throw the dodgeball
+                ball.NetworkAddForce((transform.forward + new Vector3(0, 0.05f, 0)) * throwForce);
+            }
         }
     }
 
@@ -265,20 +275,27 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // * Remote Procedure Calls =================================
 
+
+    // Ragdoll ===============================
+
+    /// <summary>
+    /// Synchronously activate player ragdoll across all clients.
+    /// </summary>
     public void ActivatePlayerRagdoll()
     {
-        RPC_ActivatePlayerRagdoll(GetRef);
+        if (Runner.IsServer)
+        {
+            RPC_EnforcePlayerRagdoll(GetRef);
+        }
+        else
+        {
+            RagdollActivation(); // client-sided prediction
+            RPC_RequestPlayerRagdoll(GetRef);
+        }
     }
 
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_ActivatePlayerRagdoll(PlayerRef player)
+    private void RagdollActivation()
     {
-        if (player != GetRef)
-        {
-            return;
-        }
-
         animator.enabled = false;
 
         // get the player controller script from the parent object
@@ -314,10 +331,41 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // }
     }
 
+    // enforce ragdoll activation from host to clients
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_EnforcePlayerRagdoll(PlayerRef player)
+    {
+        if (player != GetRef)
+        {
+            return;
+        }
+
+        RagdollActivation();
+    }
+
+    // set request to host to activate the player's ragdoll
+    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_RequestPlayerRagdoll(PlayerRef player)
+    {
+        RPC_EnforcePlayerRagdoll(player);
+    }
+
+    // =====================================
+
+    // Look Direction ======================
+
+    private void UpdateLookDirection(float yRot)
+    {
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
+        RPC_UpdateLookDirection(yRot, GetRef);
+    }
+
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
     public void RPC_UpdateLookDirection(float yRot, PlayerRef player)
     {
         if (GetRef != player) return;
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
     }
+
+    // ======================================
 }

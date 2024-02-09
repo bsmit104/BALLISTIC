@@ -16,6 +16,33 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     /// </summary>
     public static NetworkPlayerManager Instance { get { return _instance; } }
 
+    private NetworkRunner runner;
+    private NetworkBallManager ballManager;
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Debug.LogError("NetworkPlayerManager singleton instantiated twice");
+            Destroy(this);
+        }
+        _instance = this;
+
+        runner = GetComponent<NetworkRunner>();
+        if (runner == null)
+        {
+            Debug.LogError("No NetworkRunner found");
+        }
+
+        ballManager = GetComponent<NetworkBallManager>();
+        if (ballManager == null)
+        {
+            Debug.LogError("No NetworkBallManager found");
+        }
+        ballManager.Init(runner);
+    }
+
+
     [Tooltip("Prefab that will be instantiated for each player, this has the character controller")]
     [SerializeField] private NetworkPrefabRef playerPrefab;
     private Dictionary<PlayerRef, NetworkPlayer> spawnedPlayers = new Dictionary<PlayerRef, NetworkPlayer>();
