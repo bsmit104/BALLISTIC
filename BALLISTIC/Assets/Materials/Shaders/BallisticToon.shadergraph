@@ -15,9 +15,6 @@
     ],
     "m_Keywords": [
         {
-            "m_Id": "692ea93be9f34bf8a6637078104c03b2"
-        },
-        {
             "m_Id": "b0b58054802d48baa08d3a7a3a60169c"
         },
         {
@@ -3547,9 +3544,6 @@
             "m_Id": "cf62cbe388294bffb9ef61fbcd9972f8"
         },
         {
-            "m_Id": "692ea93be9f34bf8a6637078104c03b2"
-        },
-        {
             "m_Id": "8c4400ff1e87420d9f72d7f7c7710299"
         },
         {
@@ -4961,47 +4955,6 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.ShaderKeyword",
-    "m_ObjectId": "692ea93be9f34bf8a6637078104c03b2",
-    "m_Guid": {
-        "m_GuidSerialized": "3800705d-57b9-423d-824a-408feed4cf12"
-    },
-    "m_Name": "Main Light",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Main Light",
-    "m_DefaultReferenceName": "_MAIN_LIGHT",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_KeywordType": 1,
-    "m_KeywordDefinition": 1,
-    "m_KeywordScope": 1,
-    "m_KeywordStages": 63,
-    "m_Entries": [
-        {
-            "id": 4,
-            "displayName": "SHADOWS",
-            "referenceName": "SHADOWS"
-        },
-        {
-            "id": 1,
-            "displayName": "SHADOWS_CASCADE",
-            "referenceName": "SHADOWS_CASCADE"
-        },
-        {
-            "id": 2,
-            "displayName": "SHADOWS_SCREEN",
-            "referenceName": "SHADOWS_SCREEN"
-        }
-    ],
-    "m_Value": 1,
-    "m_IsEditable": true
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "696f377d515b430a89bdcb2abccfe1b4",
@@ -6060,7 +6013,7 @@
     "m_RefNameGeneratedByDisplayName": "Additional Lights",
     "m_DefaultReferenceName": "_ADDITIONAL_LIGHTS",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
+    "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
@@ -7435,7 +7388,7 @@
     "m_RefNameGeneratedByDisplayName": "Additional Light Shadows",
     "m_DefaultReferenceName": "_ADDITIONAL_LIGHT_SHADOWS",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
+    "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
