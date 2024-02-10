@@ -8,7 +8,17 @@ using UnityEngine;
 /// </summary>
 public class Spawner : MonoBehaviour
 {
-    SpawnArea[] spawnAreas;
+    public static Spawner Instance { get { return _instance; } }
+    private static Spawner _instance = null;
+
+    [SerializeField] private SpawnArea spawnAreaPrefab;
+
+    List<SpawnArea> spawnAreas;
+
+    public void AddSpawnArea()
+    {
+        spawnAreas.Add(Instantiate(spawnAreaPrefab, transform));
+    }
 
     void Awake()
     {
@@ -24,6 +34,7 @@ public class Spawner : MonoBehaviour
     /// <returns>The spawn position in global space.</returns>
     public static Vector3 GetSpawnPoint()
     {
+        int selection = Random.Range(0, Instance.spawnAreas.Count);
         return Vector3.zero;
     }
 

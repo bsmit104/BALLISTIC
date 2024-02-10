@@ -22,7 +22,7 @@ public class SpawnAreaEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("handleRadius"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("lineWidth"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("lineSensitivity"));
-        GUILayout.Space(10f);
+        GUILayout.Space(20f);
 
         if (GUILayout.Button("Edit Spawn Area") && !editing)
         {
@@ -37,10 +37,13 @@ public class SpawnAreaEditor : Editor
 
         GUILayout.Label(@"TUTORIAL:
             Right click on edges to add new points.
-            Right click in empty space to create a new path.
             Click and drag points to move them around.
             Left click on points to delete them.
+            Click the 'Exit Spawn Area Editing' button to finish.
         ");
+
+        GUILayout.Space(20f);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("points"));
 
         serializedObject.ApplyModifiedProperties();
     }
@@ -233,12 +236,10 @@ public class SpawnAreaEditor : Editor
     {
         for (int i = 0; i < area.PointCount; i++) 
         {
-
-
             Vector3 next = area.GetPoint((i + 1) % area.PointCount);
             if (!editing)
             {
-                Handles.color = Color.grey;
+                Handles.color = Color.black;
             }
             else if (i == selection.lineIndex)
             {
@@ -252,7 +253,7 @@ public class SpawnAreaEditor : Editor
 
             if (!editing)
             {
-                Handles.color = Color.grey;
+                Handles.color = Color.black;
             }
             else if (i == selection.pointIndex)
             {
@@ -271,6 +272,8 @@ public class SpawnAreaEditor : Editor
             }
             Handles.DrawSolidDisc(area.GetPoint(i), Vector3.up, area.handleRadius);
         }
+        area.SetRenderActive(editing);
+        area.GenerateMesh();
     }
 
     // * =====================================================
