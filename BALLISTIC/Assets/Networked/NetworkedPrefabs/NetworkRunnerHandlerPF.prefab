@@ -46,4 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   networkRunnerPrefab: {fileID: 5674648568997470240, guid: 6ae7aef8407fb224a9cd99cf12995ecb, type: 3}
   lobbyCodeDigits: 6
-  lobbyScene: 0
+  lobbyScene: 1
