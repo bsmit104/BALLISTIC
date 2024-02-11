@@ -13,7 +13,8 @@ public class SpawnAreaEditor : Editor
 
     // * Inspector GUI ============================================
 
-    bool editing;
+    bool editing = false;
+    bool selected = false;
 
     public override void OnInspectorGUI()
     {
@@ -55,6 +56,15 @@ public class SpawnAreaEditor : Editor
     SelectionInfo selection;
     bool needsRepaint;
 
+    void OnDisable()
+    {
+        if ((Selection.activeGameObject == area?.gameObject) != selected)
+        {
+            selected = Selection.activeGameObject == area.gameObject;
+            area.SetRenderActive(selected);
+        }
+    }
+
     void OnSceneGUI()
     {
         // get editor input events
@@ -65,18 +75,27 @@ public class SpawnAreaEditor : Editor
             Draw();
         }
 
-        // something something idk it was in the tutorial
-        if (guiEvent.type == EventType.Layout)
+        if ((Selection.activeGameObject == area.gameObject) != selected)
         {
-            HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+            selected = Selection.activeGameObject == area.gameObject;
+            Draw();
         }
-        else if (editing)
+
+        // something something idk it was in the tutorial
+        if (editing)
         {
-            HandleInput(guiEvent);
-            if (needsRepaint)
+            if (guiEvent.type == EventType.Layout)
             {
-                HandleUtility.Repaint();
-                needsRepaint = false;
+                HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+            }
+            else
+            {
+                HandleInput(guiEvent);
+                if (needsRepaint)
+                {
+                    HandleUtility.Repaint();
+                    needsRepaint = false;
+                }
             }
         }
     }
@@ -272,7 +291,7 @@ public class SpawnAreaEditor : Editor
             }
             Handles.DrawSolidDisc(area.GetPoint(i), Vector3.up, area.handleRadius);
         }
-        area.SetRenderActive(editing);
+        area.SetRenderActive(selected);
         area.GenerateMesh();
     }
 
@@ -286,6 +305,7 @@ public class SpawnAreaEditor : Editor
             pointIndex = -1,
             lineIndex = -1
         };
+        area.GenerateMesh();
     }
 
     public struct SelectionInfo

@@ -28,6 +28,8 @@ public class SpawnArea : MonoBehaviour
 
     public int PointCount { get { return points.Count; } }
 
+    private bool pointsChanged = true;
+
     /// <summary>
     /// Returns a bounds encapsulating the shape defined by points.
     /// </summary>
@@ -62,6 +64,7 @@ public class SpawnArea : MonoBehaviour
     public void SetPoint(int index, Vector3 position)
     {
         points[index] = position - transform.position;
+        pointsChanged = true;
     }
 
     /// <summary>
@@ -73,6 +76,7 @@ public class SpawnArea : MonoBehaviour
     public void InsertPoint(int index, Vector3 position)
     {
         points.Insert(index, position - transform.position);
+        pointsChanged = true;
     }
 
     /// <summary>
@@ -81,6 +85,7 @@ public class SpawnArea : MonoBehaviour
     public void RemovePoint(int index)
     {
         points.RemoveAt(index);
+        pointsChanged = true;
     }
 
     /// <summary>
@@ -100,8 +105,17 @@ public class SpawnArea : MonoBehaviour
         }
     }
 
+    private bool isValid = true;
+
+    public bool IsValid { get { return ValidateShape(false); } } 
+
     private bool ValidateShape(bool debug)
     {
+        if (!pointsChanged)
+        {
+            return isValid;
+        }
+
         bool result = true;
         if (points.Count < 3)
         {
@@ -136,7 +150,8 @@ public class SpawnArea : MonoBehaviour
         {
             Debug.LogWarning("SpawnAreas with invalid shapes will not be used for spawning.");
         }
-
+        isValid = result;
+        pointsChanged = false;
         return result;
     }
 
@@ -145,6 +160,7 @@ public class SpawnArea : MonoBehaviour
     /// </summary>
     public void GenerateMesh()
     {
+        if (!pointsChanged) return;
         ValidateShape(true);
         Mesh mesh = MeshMaker.MakeMesh(points.ToArray());
         Filter.mesh = mesh;
@@ -171,17 +187,18 @@ public class SpawnArea : MonoBehaviour
         Vector3 pos = Vector3.zero;
         for (int i = 0; i < 50; i++) 
         {
-            Vector2 temp = new Vector3(
-                Random.Range(bounds.min.x, bounds.max.x),
-                Random.Range(bounds.min.z, bounds.max.z)
+            Vector2 temp = new Vector2(
+                transform.position.x + Random.Range(bounds.min.x, bounds.max.x),
+                transform.position.z + Random.Range(bounds.min.z, bounds.max.z)
             );
 
             Vector2 edge = temp + new Vector2(0, bounds.size.z);
 
             int intersectCount = 0;
-            for (int j = 0; j < points.Count; j++) {
-                Vector2 A1 = new Vector2(points[i].x, points[i].z);
-                Vector2 A2 = new Vector2(points[(i + 1) % points.Count].x, points[(i + 1) % points.Count].z);
+            for (int j = 0; j < points.Count; j++) 
+            {
+                Vector2 A1 = new Vector2(GetPoint(j).x, GetPoint(j).z);
+                Vector2 A2 = new Vector2(GetPoint((j + 1) % points.Count).x, GetPoint((j + 1) % points.Count).z);
                 if (LineChecker.Intersecting(A1, A2, temp, edge, out Vector2 point))
                 {
                     intersectCount++;
@@ -193,6 +210,11 @@ public class SpawnArea : MonoBehaviour
                 pos = new Vector3(temp.x, Height, temp.y);
                 break;
             }
+        }
+
+        if (Physics.Raycast(pos, Vector3.down, out RaycastHit data, Mathf.Infinity, LayerMask.GetMask("Default")))
+        {
+            pos.y = data.point.y;
         }
 
         return pos;

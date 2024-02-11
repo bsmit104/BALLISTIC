@@ -13,7 +13,18 @@ public class Spawner : MonoBehaviour
 
     [SerializeField] private SpawnArea spawnAreaPrefab;
 
-    List<SpawnArea> spawnAreas;
+    [Tooltip("When enabled, spawn areas will be displayed in the game.")]
+    [SerializeField] private bool displayAreaOnPlay = false;
+
+    [SerializeField] private List<SpawnArea> spawnAreas = new List<SpawnArea>();
+
+    public void SetRenderersActive(bool state)
+    {
+        for (int i = 0; i < spawnAreas.Count; i++)
+        {
+            spawnAreas[i]?.SetRenderActive(state);
+        }
+    }
 
     public void AddSpawnArea()
     {
@@ -22,10 +33,20 @@ public class Spawner : MonoBehaviour
 
     void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            Debug.LogError("Spawner singleton instantiated twice");
+            Destroy(this);
+        }
+        _instance = this;
+
+        if (GetComponent<MeshRenderer>()) GetComponent<MeshRenderer>().enabled = false;
+
         foreach (SpawnArea area in spawnAreas)
         {
-            area.gameObject.SetActive(false);
+            area.gameObject.SetActive(displayAreaOnPlay);
         }
+        SetRenderersActive(displayAreaOnPlay);
     }
 
     /// <summary>
@@ -35,7 +56,13 @@ public class Spawner : MonoBehaviour
     public static Vector3 GetSpawnPoint()
     {
         int selection = Random.Range(0, Instance.spawnAreas.Count);
-        return Vector3.zero;
+        int iters = 0;
+        while (!Instance.spawnAreas[selection].IsValid && iters < 20)
+        {
+            selection = Random.Range(0, Instance.spawnAreas.Count);
+            iters++;
+        }
+        return Instance.spawnAreas[selection].GetRandomPosition();
     }
 
     /// <summary>
