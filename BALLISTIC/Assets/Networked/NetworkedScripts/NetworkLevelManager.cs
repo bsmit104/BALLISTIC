@@ -5,6 +5,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
+/// Container for the
+/// </summary>
+public struct TransitionAssets
+{
+
+}
+
+/// <summary>
 /// Manages scene transitions between levels.
 /// Tracks how many players are alive to know when to end the game, and then move on to the next level.
 /// </summary>
@@ -108,11 +116,34 @@ public class NetworkLevelManager : MonoBehaviour
     // *Transitions ==============================================
 
     [Space]
-    [Header("Level Transitions")]
-    [Tooltip("Duration for transition out of a scene.")]
-    [SerializeField] float exitTransitionDuration;
+    [Header("Transitions")]
+    [Tooltip("The canvas used for displaying transitions.")]
+    [SerializeField] private GameObject transitionCanvas;
+    [Tooltip("The UI element used to create the transition.")]
+    [SerializeField] RectTransform transitionElement;
+
+    /// <summary>
+    /// Wrapper around GameObject.SetActive().
+    /// </summary>
+    public void SetCanvasActive(bool state)
+    {
+        transitionCanvas?.SetActive(state);
+    }
+
+    [Space]
     [Tooltip("Duration for transition into a scene.")]
     [SerializeField] float enterTransitionDuration;
+    [SerializeField] Vector2 enterTransitionEndPos;
+
+    [Space]
+    [Tooltip("Duration for transition out of a scene.")]
+    [SerializeField] float exitTransitionDuration;
+    [SerializeField] Vector2 exitTransitionStartPos;
+
+    [Space]
+    [Tooltip("Frequency in seconds for checking if the next level has loaded.")]
+    [Range(0.05f, 2f)]
+    [SerializeField] float loadCompletionCheck = 0.05f;
 
     // exit transition ============
 
@@ -122,7 +153,7 @@ public class NetworkLevelManager : MonoBehaviour
 
     public void StartExitTransition()
     {
-        if (exitTransition == null)
+        if (exitTransition != null)
         {
             StopCoroutine(exitTransition);
         }
@@ -133,16 +164,25 @@ public class NetworkLevelManager : MonoBehaviour
     // exit tween (probably some sort of fade to black) to hide scene unloading / game object moving
     IEnumerator ExitTransition()
     {
+        SetCanvasActive(true);
         float timer = exitTransitionDuration;
+        transitionElement.anchoredPosition = exitTransitionStartPos;
+
+        float speed = exitTransitionStartPos.magnitude / timer;
+        Vector2 dir = exitTransitionStartPos.normalized;
 
         while (timer > 0)
         {
             timer -= Time.deltaTime;
 
             // TODO: create exit transition animation
+            transitionElement.anchoredPosition -= speed * Time.deltaTime * dir;
 
             yield return null;
         }
+        transitionElement.anchoredPosition = Vector2.zero;
+
+        if (!LevelChangeRunning && !WinSequenceRunning) SetCanvasActive(false);
         exitRunning = false;
     }
 
@@ -156,7 +196,7 @@ public class NetworkLevelManager : MonoBehaviour
 
     public void StartEnterTransition()
     {
-        if (enterTransition == null)
+        if (enterTransition != null)
         {
             StopCoroutine(enterTransition);
         }
@@ -164,19 +204,29 @@ public class NetworkLevelManager : MonoBehaviour
         enterTransition = StartCoroutine(EnterTransition());
     }
 
-    // enter tween (probably a fade in from black) to cleaning transition from a loading state into the gameplay
+    // enter tween (probably a fade in from black) to cleanly transition from a loading state into the gameplay
     IEnumerator EnterTransition()
     {
+        SetCanvasActive(true);
         float timer = enterTransitionDuration;
+        transitionElement.anchoredPosition = Vector2.zero;
+
+        float speed = enterTransitionEndPos.magnitude / timer;
+        Vector2 dir = enterTransitionEndPos.normalized;
+
 
         while (timer > 0)
         {
             timer -= Time.deltaTime;
 
             // TODO: create enter transition animation
+            transitionElement.anchoredPosition += speed * Time.deltaTime * dir;
 
             yield return null;
         }
+        transitionElement.anchoredPosition = enterTransitionEndPos;
+
+        if (!LevelChangeRunning && !WinSequenceRunning) SetCanvasActive(false);
         enterRunning = false;
     }
 
@@ -201,13 +251,22 @@ public class NetworkLevelManager : MonoBehaviour
     // exit transition, load next level, enter transition
     IEnumerator LevelTransition(int buildIndex)
     {
+        SetCanvasActive(true);
+
         StartExitTransition();
         while (ExitRunning)
         {
             yield return null;
         }
 
-        Runner.LoadScene(SceneRef.FromIndex(buildIndex));
+        if (Runner.IsServer) 
+        {
+            Runner.LoadScene(SceneRef.FromIndex(buildIndex));
+        }
+        while (SceneManager.GetActiveScene().buildIndex != buildIndex)
+        {
+            yield return new WaitForSeconds(loadCompletionCheck);
+        }
         ResetLevel();
 
         StartEnterTransition();
@@ -215,19 +274,19 @@ public class NetworkLevelManager : MonoBehaviour
         {
             yield return null;
         }
+
+        SetCanvasActive(false);
         levelChangeRunning = false;
     }
 
     /// <summary>
     /// Synchronizes scene transitions between clients.
     /// Activates transition animations for unloading and loading the scene.
-    /// Will only execute on the host instance.
+    /// Scene change only happens on host instance, and is then synchronized.
     /// </summary>
     /// <param name="buildIndex">The build index for the level.</param>
     public void GoToLevel(int buildIndex)
     {
-        if (!Runner.IsServer) return;
-
         if (buildIndex != lobbySceneIndex && (buildIndex < firstLevelIndex || lastLevelIndex < buildIndex))
         {
             Debug.LogError("Invalid scene index used in NetworkLevelManager.GoToLevel(): " + buildIndex.ToString());
@@ -286,6 +345,9 @@ public class NetworkLevelManager : MonoBehaviour
 
     private IEnumerator WinnerSequence()
     {
+        SetCanvasActive(true);
+        winSequenceRunning = true;
+
         StartExitTransition();
         while (ExitRunning)
         {
@@ -300,7 +362,7 @@ public class NetworkLevelManager : MonoBehaviour
             yield return null;
         }
 
-        winSequenceRunning = false;
+        SetCanvasActive(false);
 
         float timer = winScreenDuration;
         while (timer > 0)
