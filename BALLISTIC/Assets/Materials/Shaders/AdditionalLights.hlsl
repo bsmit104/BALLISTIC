@@ -5,18 +5,23 @@
 // Will Additional Lights
 //------------------------------------------------------------------------------------------------------
 
-/*
-- Ben Cloward's Phong Specular
-*/
-float BenSpecular(half3 lightDir, half3 normal, half3 viewDir, half focus, half brightness) {
-	half reflection = reflect(lightDir, normal);
-	half product = saturate(dot(reflection, -1 * viewDir));
-	return pow(product, focus) * brightness;
+float WillSpecular(half3 lightDir, half3 normal, half3 viewDir, half focus, half brightness) {
+	float3 reflectVec = -1 * reflect(float3(lightDir), float3(normal));
+	half RdotV = half(saturate(dot(reflectVec, viewDir)));
+	return pow(RdotV, focus) * brightness;
 }
 
 float NedDiffuse(half3 lightDir, half3 normal) {
 	return saturate(dot(normal, lightDir));
 }
+
+// half3 WillSpecular(half3 lightColor, half3 lightDir, half3 normal, half3 viewDir, half4 specular, half smoothness)
+// {
+//     float3 halfVec = SafeNormalize(float3(lightDir) + float3(viewDir));
+//     half NdotH = half(saturate(dot(normal, halfVec)));
+//     return pow(NdotH, smoothness);
+// }
+
 
 /*
 - Handles additional lights (e.g. point, spotlights) with simplified Specular lighting
@@ -28,11 +33,10 @@ float NedDiffuse(half3 lightDir, half3 normal) {
 void AdditionalLightsWill_float(float SpecularFocus, float SpecularBrightness, float3 WorldPosition, float3 WorldNormal, float3 WorldView, half4 Shadowmask,
 							float MainDiffuse, float MainSpecular, float3 MainColor,
 							out float Diffuse, out float Specular, out float3 Color) {
-	float intensity = max(MainColor.r, max(MainColor.g, MainColor.b));
-	float diffuse = MainDiffuse * intensity;
+	float diffuse = MainDiffuse;
 	float specular = MainSpecular;
 	float3 color = MainColor;
-	float highestDiffuse = MainDiffuse;
+	float highestDiffuse = diffuse;
 #ifndef SHADERGRAPH_PREVIEW
 	uint pixelLightCount = GetAdditionalLightsCount();
 	uint meshRenderingLayers = GetMeshRenderingLayer();
@@ -50,7 +54,7 @@ void AdditionalLightsWill_float(float SpecularFocus, float SpecularBrightness, f
 			half atten = light.distanceAttenuation * light.shadowAttenuation * max(light.color.r, max(light.color.g, light.color.b));
 			float thisDiffuse = NedDiffuse(light.direction, WorldNormal) * atten;
 			diffuse += thisDiffuse;
-			specular += BenSpecular(light.direction, WorldNormal, WorldView, SpecularFocus, SpecularBrightness) * max(light.color.r, max(light.color.g, light.color.b)) * thisDiffuse;
+			specular += WillSpecular(light.direction, WorldNormal, WorldView, SpecularFocus, SpecularBrightness) * max(light.color.r, max(light.color.g, light.color.b)) * thisDiffuse;
 			
 			if (thisDiffuse > highestDiffuse) {
 				highestDiffuse = thisDiffuse;
@@ -77,7 +81,7 @@ void AdditionalLightsWill_float(float SpecularFocus, float SpecularBrightness, f
 			half atten = light.distanceAttenuation * light.shadowAttenuation * max(light.color.r, max(light.color.g, light.color.b));
 			float thisDiffuse = NedDiffuse(light.direction, WorldNormal) * atten;
 			diffuse += thisDiffuse;
-			specular += BenSpecular(light.direction, WorldNormal, WorldView, SpecularFocus, SpecularBrightness) * max(light.color.r, max(light.color.g, light.color.b)) * thisDiffuse;
+			specular += WillSpecular(light.direction, WorldNormal, WorldView, SpecularFocus, SpecularBrightness) * max(light.color.r, max(light.color.g, light.color.b)) * thisDiffuse;
 			
 			if (thisDiffuse > highestDiffuse) {
 				highestDiffuse = thisDiffuse;
