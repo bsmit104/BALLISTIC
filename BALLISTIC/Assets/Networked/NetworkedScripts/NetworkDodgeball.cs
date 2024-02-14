@@ -15,6 +15,11 @@ public class NetworkDodgeball : NetworkBehaviour
     private DodgeballCollider ballCol;
     private Rigidbody rig;
 
+    public Rigidbody GetRigidbody()
+    {
+        return rig;
+    }
+
     // * ===============================================================
 
     // * Networked Attributes ==========================================

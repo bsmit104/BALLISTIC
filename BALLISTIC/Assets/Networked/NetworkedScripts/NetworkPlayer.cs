@@ -73,6 +73,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private float lastThrowTime;            // Time when the last throw happened
 
+    // Ball Pickup
+    [Space]
+    public List<NetworkDodgeball> nearbyDodgeballs; // List of dodgeballs near player in "pickup" range
+    [SerializeField] public GameObject pickupCollider;
+
     private Rigidbody rb;
     private Animator animator;
 
@@ -163,6 +168,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+
+            // Instantiate list of nearby dodgeballs
+            nearbyDodgeballs = new List<NetworkDodgeball>();
+
+            // Set pickup collider
+            pickupCollider.SetActive(true);
 
             Debug.Log("Spawned Local Player");
         }
@@ -257,18 +268,39 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             lastThrowTime = Time.time;
 
             // TODO Pickup: replace with pickup and throw mechanics
-            if (Runner.IsServer)
+            if (Object.HasInputAuthority)
             {
-                // instantiate the dodgeball at the throw point
-                NetworkDodgeball ball = NetworkBallManager.Instance.GetBall();
-                ball.owner = GetRef;
-                ball.transform.position = throwPoint.position + (transform.forward * 0.5f);
-                ball.transform.rotation = throwPoint.rotation;
-
-                // Apply force to throw the dodgeball
-                ball.NetworkAddForce((transform.forward + new Vector3(0, 0.05f, 0)) * throwForce);
+                NetworkDodgeball ball = FindClosestDodgeball();
+                if (ball != null)
+                {
+                    ball.owner = GetRef;
+                    PickupBall(ball);
+                }
             }
         }
+    }
+
+    // Iterates through all dodgeballs in list of nearby balls and returns the closest one to the player AND isn't already "owned" by another player
+    NetworkDodgeball FindClosestDodgeball()
+    {
+        NetworkDodgeball closestDodgeball = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (NetworkDodgeball dodgeball in nearbyDodgeballs)
+        {
+            if (dodgeball.owner == PlayerRef.None)
+            {
+                float distance = Vector3.Distance(transform.position, dodgeball.transform.position);
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestDodgeball = dodgeball;
+                }
+            }
+        }
+
+        return closestDodgeball;
     }
 
     // * ========================================================
@@ -365,6 +397,49 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         if (GetRef != player) return;
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
+    }
+
+    // ======================================
+
+    // Ball Pickup ==========================
+    
+    private void ActualPickupBall(NetworkDodgeball ball)
+    {
+        Debug.Log("Ball picked up");
+        ball.transform.SetParent(throwPoint);
+        ball.GetRigidbody().isKinematic = true;
+        ball.GetRigidbody().detectCollisions = false;
+    }
+
+    public void PickupBall(NetworkDodgeball ball)
+    {
+        // RPCs require network ID
+        NetworkId networkID = ball.GetComponent<NetworkObject>().Id;
+
+        if (Runner.IsServer)
+        {
+            RPC_EnforcePickupBall(networkID); // if call was made on the host, tell everyone to do the thing
+        }
+        else
+        {
+            ActualPickupBall(ball); // local prediction so that the client doesn't have to wait
+            RPC_RequestPickupBall(networkID); // tell the host that everyone should do this thing
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_EnforcePickupBall(NetworkId networkID) // this function is executed on everyone's comupter
+    {
+        if (Runner.TryFindObject(networkID, out var obj))
+        {
+            ActualPickupBall(obj.GetComponent<NetworkDodgeball>());
+        }
+    }
+
+    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_RequestPickupBall(NetworkId networkID) // this function is executed on the host's computer
+    {
+        RPC_EnforcePickupBall(networkID);
     }
 
     // ======================================
