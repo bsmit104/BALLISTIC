@@ -20,6 +20,21 @@ public class NetworkDodgeball : NetworkBehaviour
         return rig;
     }
 
+    /// <summary>
+    /// Returns the NetworkId associated with the NetworkObject attached to the ball.
+    /// </summary>
+    public NetworkId NetworkID 
+    {
+        get {
+            if (!_id.IsValid)
+            {
+                _id = GetComponent<NetworkObject>().Id;
+            }
+            return _id;
+        }
+    }
+    private NetworkId _id;
+
     // * ===============================================================
 
     // * Networked Attributes ==========================================
@@ -86,6 +101,11 @@ public class NetworkDodgeball : NetworkBehaviour
     {
         owner = PlayerRef.None;
         return this;
+    }
+
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        Debug.Log("bruh");
     }
 
     // * ===============================================================

@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class SpawnBalls : MonoBehaviour
 {
-    private void Update()
+    void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            NetworkDodgeball ball = NetworkBallManager.Instance.GetBall();
-            ball.transform.position = new Vector3(0,10,0);
-            Debug.Log(NetworkBallManager.Instance.Runner.IsServer);
+            var ball = NetworkBallManager.Instance.GetBall();
+            ball.transform.position = Vector3.up;
         }
     }
 }

@@ -1018,8 +1018,7 @@ MonoBehaviour:
   throwPoint: {fileID: 6222615243381344448}
   throwForce: 200
   throwCooldown: 0.6
-  nearbyDodgeballs: []
-  pickupCollider: {fileID: 8289706478821464995}
+  pickupCollider: {fileID: 1510537903674517740}
   _isWalking: 0
   _isWalkingBack: 0
   _isStrafingRight: 0

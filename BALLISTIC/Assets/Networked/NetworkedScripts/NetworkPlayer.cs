@@ -73,10 +73,33 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private float lastThrowTime;            // Time when the last throw happened
 
-    // Ball Pickup
     [Space]
-    public List<NetworkDodgeball> nearbyDodgeballs; // List of dodgeballs near player in "pickup" range
-    [SerializeField] public GameObject pickupCollider;
+    [Header("Ball Pickup")]
+    [SerializeField] public DodgeballPickup pickupCollider;
+    
+    // nearby balls list =====================
+
+    // List of dodgeballs near player in "pickup" range
+    private List<NetworkDodgeball> nearbyDodgeballs; 
+
+    public bool NearbyBallsContains(NetworkDodgeball ball)
+    {
+        return nearbyDodgeballs?.Contains(ball) ?? false;
+    }
+
+    public void AddNearbyBall(NetworkDodgeball ball)
+    {
+        nearbyDodgeballs?.Add(ball);
+    }
+
+    public void RemoveNearbyBall(NetworkDodgeball ball)
+    {
+        nearbyDodgeballs?.Remove(ball);
+    }
+
+    // ========================================
+
+    private NetworkDodgeball heldBall;
 
     private Rigidbody rb;
     private Animator animator;
@@ -173,7 +196,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             nearbyDodgeballs = new List<NetworkDodgeball>();
 
             // Set pickup collider
-            pickupCollider.SetActive(true);
+            pickupCollider.gameObject.SetActive(true);
+            pickupCollider.player = this;
 
             Debug.Log("Spawned Local Player");
         }
@@ -211,7 +235,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         xAxis.Update(Time.deltaTime);
         yAxis.Update(Time.deltaTime);
 
-        camFollowPos.localEulerAngles = new Vector3(yAxis.Value, camFollowPos.localEulerAngles.y, camFollowPos.localEulerAngles.z);
+        //camFollowPos.localEulerAngles = new Vector3(yAxis.Value, camFollowPos.localEulerAngles.y, camFollowPos.localEulerAngles.z);
         UpdateLookDirection(xAxis.Value);
     }
 
@@ -273,7 +297,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                 NetworkDodgeball ball = FindClosestDodgeball();
                 if (ball != null)
                 {
-                    ball.owner = GetRef;
                     PickupBall(ball);
                 }
             }
@@ -389,13 +412,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private void UpdateLookDirection(float yRot)
     {
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
-        RPC_UpdateLookDirection(yRot, GetRef);
+        RPC_UpdateLookDirection(yRot);
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_UpdateLookDirection(float yRot, PlayerRef player)
+    public void RPC_UpdateLookDirection(float yRot)
     {
-        if (GetRef != player) return;
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
     }
 
@@ -403,10 +425,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // Ball Pickup ==========================
     
-    private void ActualPickupBall(NetworkDodgeball ball)
+    private void ApplyPickupBall(NetworkDodgeball ball)
     {
-        Debug.Log("Ball picked up");
+        ball.owner = GetRef;
+        heldBall = ball;
         ball.transform.SetParent(throwPoint);
+        ball.transform.localPosition = Vector3.zero;
         ball.GetRigidbody().isKinematic = true;
         ball.GetRigidbody().detectCollisions = false;
     }
@@ -414,7 +438,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public void PickupBall(NetworkDodgeball ball)
     {
         // RPCs require network ID
-        NetworkId networkID = ball.GetComponent<NetworkObject>().Id;
+        NetworkId networkID = ball.NetworkID;
 
         if (Runner.IsServer)
         {
@@ -422,17 +446,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
         else
         {
-            ActualPickupBall(ball); // local prediction so that the client doesn't have to wait
+            ApplyPickupBall(ball); // local prediction so that the client doesn't have to wait
             RPC_RequestPickupBall(networkID); // tell the host that everyone should do this thing
         }
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_EnforcePickupBall(NetworkId networkID) // this function is executed on everyone's comupter
+    public void RPC_EnforcePickupBall(NetworkId networkID) // this function is executed on everyone's computer
     {
         if (Runner.TryFindObject(networkID, out var obj))
         {
-            ActualPickupBall(obj.GetComponent<NetworkDodgeball>());
+            ApplyPickupBall(obj.GetComponent<NetworkDodgeball>());
         }
     }
 
