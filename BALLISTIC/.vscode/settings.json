@@ -52,5 +52,6 @@
         "temp/":true,
         "Temp/":true
     },
-    "workbench.colorTheme": "Beach Day"
+    "workbench.colorTheme": "Beach Day",
+    "dotnet.preferCSharpExtension": true
 }
