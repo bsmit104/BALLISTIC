@@ -11,6 +11,8 @@ public delegate void Notify();
 /// <summary>
 /// Networked player controller, must be attached to the root game object of the player prefab.
 /// </summary>
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 {
     /// <summary>
@@ -102,6 +104,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private NetworkDodgeball heldBall;
 
     private Rigidbody rb;
+    private CapsuleCollider col;
     private Animator animator;
 
     // * ========================================================
@@ -115,6 +118,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
+            { nameof(position), PositionOnChange },
             { nameof(isWalking), IsWalkingOnChange },
             { nameof(isWalkingBack), IsWalkingBackOnChange },
             { nameof(isStrafingRight), IsStrafingRightOnChange },
@@ -127,6 +131,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // ? Example:
     // [Networked] Type myAttribute { get; set; }
     // void MyAttributeOnChange() { ... }
+
+    // Position ======================================
+
+    [Networked, HideInInspector] public Vector3 position { get; set; }
+    void PositionOnChange() { transform.position = position; }
+
+    private Coroutine trackPosition;
+    IEnumerator TrackPosition()
+    {
+        while (true)
+        {
+            position = transform.position;
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
+    // ===============================================
 
     // Animator Bools ================================
 
@@ -176,11 +197,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         // Get the Rigidbody component attached to the character
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<CapsuleCollider>();
 
         controller = GetComponent<CharacterController>();
 
         // Get the animator component from the attached animator object
         animator = GetComponentInChildren<Animator>();
+
+        if (Runner.IsServer)
+        {
+            trackPosition = StartCoroutine(TrackPosition());
+        }
 
         // Check if this player instance is the local client
         if (Object.HasInputAuthority)
@@ -256,7 +283,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // Move the character based on the input
         Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Runner.DeltaTime;
         rb.MovePosition(transform.position + movement);
-        //transform.position += movement * Runner.DeltaTime;
 
         // Trigger the walk animation when moving forward and not holding the sprint key
         isWalking = isMovingForward && !isSprinting && !isMovingBackward;
