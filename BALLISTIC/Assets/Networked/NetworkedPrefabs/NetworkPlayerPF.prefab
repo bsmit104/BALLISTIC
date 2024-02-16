@@ -1015,7 +1015,7 @@ MonoBehaviour:
   rotationSpeed: 100
   dir: {x: 0, y: 0, z: 0}
   throwPoint: {fileID: 6222615243381344448}
-  throwForce: 200
+  throwForce: 300
   throwCooldown: 0.6
   pickupCollider: {fileID: 1510537903674517740}
   _position: {x: 0, y: 0, z: 0}
@@ -1072,7 +1072,7 @@ Transform:
   m_GameObject: {fileID: 8289706478821464995}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.463743, z: 0}
-  m_LocalScale: {x: 1, y: 0.5, z: 1}
+  m_LocalScale: {x: 1.25, y: 0.5, z: 1.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4529613707926001636}

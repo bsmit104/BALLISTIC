@@ -72,7 +72,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public Transform throwPoint;            // Point from where the dodgeball is thrown
     public float throwForce = 10f;          // Force applied to the dodgeball when thrown
     public float throwCooldown = 1f;        // Cooldown duration between throws
-
+    private bool isHoldingBall = false;     // Tracks whether player is already holding ball
     private float lastThrowTime;            // Time when the last throw happened
 
     [Space]
@@ -320,10 +320,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // TODO Pickup: replace with pickup and throw mechanics
             if (Object.HasInputAuthority)
             {
-                NetworkDodgeball ball = FindClosestDodgeball();
-                if (ball != null)
+                // If not already holding ball, pickup closest ball
+                if (!isHoldingBall)
                 {
-                    PickupBall(ball);
+                    NetworkDodgeball ball = FindClosestDodgeball();
+                    if (ball != null)
+                    {
+                        Debug.Log("pickup ball");
+                        PickupBall(ball);
+                        isHoldingBall = true;
+                    }
+                }
+                // If holding ball already, throw it
+                else
+                {
+                    ThrowBall(heldBall);
+                    Debug.Log("throw ball");
+                    isHoldingBall = false;
                 }
             }
         }
@@ -490,6 +503,51 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public void RPC_RequestPickupBall(NetworkId networkID) // this function is executed on the host's computer
     {
         RPC_EnforcePickupBall(networkID);
+    }
+
+    // ======================================
+
+    // Ball Throw ==========================
+
+    private void ApplyThrowBall(NetworkDodgeball ball)
+    {
+        ball.owner = GetRef;
+        ball.transform.localPosition = new Vector3(0,0,1); // ball a bit in front of player so doesn't immediately collide with hand
+        ball.GetRigidbody().isKinematic = false;
+        ball.GetRigidbody().detectCollisions = true;
+        ball.NetworkAddForce(transform.forward * throwForce);
+        ball.transform.SetParent(null);
+    }
+
+    public void ThrowBall(NetworkDodgeball ball)
+    {
+        // RPCs require network ID
+        NetworkId networkID = ball.NetworkID;
+
+        if (Runner.IsServer)
+        {
+            RPC_EnforceThrowBall(networkID); // if call was made on the host, tell everyone to do the thing
+        }
+        else
+        {
+            ApplyThrowBall(ball); // local prediction so that the client doesn't have to wait
+            RPC_RequestPickupBall(networkID); // tell the host that everyone should do this thing
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_EnforceThrowBall(NetworkId networkID) // this function is executed on everyone's computer
+    {
+        if (Runner.TryFindObject(networkID, out var obj))
+        {
+            ApplyThrowBall(obj.GetComponent<NetworkDodgeball>());
+        }
+    }
+
+    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_RequestThrowBall(NetworkId networkID) // this function is executed on the host's computer
+    {
+        RPC_EnforceThrowBall(networkID);
     }
 
     // ======================================
