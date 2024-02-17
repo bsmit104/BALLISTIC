@@ -325,6 +325,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     void HandleThrowBall(NetworkInputData data)
     {
+        if (heldBall)
+        {
+            heldBall.transform.localPosition = Vector3.zero;
+        }
+
         // reset pressed state on button release
         if (!data.throwButtonPressed)
         {
@@ -488,10 +493,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         ball.owner = GetRef;
         heldBall = ball;
-        ball.transform.SetParent(throwPoint);
-        ball.transform.localPosition = Vector3.zero;
         ball.GetRigidbody().isKinematic = true;
         ball.GetRigidbody().detectCollisions = false;
+        ball.transform.SetParent(throwPoint);
+        ball.transform.position = throwPoint.position;
     }
 
     public void PickupBall(NetworkDodgeball ball)
@@ -533,7 +538,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         heldBall = null;
         ball.transform.SetParent(null);
-        ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
+        ball.transform.position = throwPoint.position + (transform.forward * 2f); // ball a bit in front of player so doesn't immediately collide with hand
         ball.GetRigidbody().isKinematic = false;
         ball.GetRigidbody().detectCollisions = true;
         ball.NetworkAddForce(((targetPos - transform.position).normalized + new Vector3(0, arc, 0)) * throwForce);
@@ -564,7 +569,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     }
 
-    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
     public void RPC_RequestThrowBall(NetworkId networkID, Vector3 targetPos) // this function is executed on the host's computer
     {
         RPC_EnforceThrowBall(networkID, targetPos);
