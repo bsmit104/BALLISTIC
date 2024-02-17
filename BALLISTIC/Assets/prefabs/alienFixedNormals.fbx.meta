@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b63e16229c1e8da4a99e7e6fa8a7af59
+guid: 2da5e7df93812ee489f0dd61a2c51956
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -8,7 +8,27 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Material.001
-    second: {fileID: 2100000, guid: 840b7f06953a7534aba7e7daf1f1f25d, type: 2}
+    second: {fileID: 2100000, guid: 0088013b4bbfdb3469cba2e195913032, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.003
+    second: {fileID: 2100000, guid: 184f0ba35d3184d49b49480da24cd7bf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.004
+    second: {fileID: 2100000, guid: cd477650ae39f6a47abb6dbfdda9527f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.005
+    second: {fileID: 2100000, guid: f8f7bf6f8e15b7d4b92b39271de9384b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.006
+    second: {fileID: 2100000, guid: f76636ffa562b75448896906676a3793, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -75,7 +95,7 @@ ModelImporter:
     useFileScale: 1
     strictVertexDataChecks: 0
   tangentSpace:
-    normalSmoothAngle: 42
+    normalSmoothAngle: 81
     normalImportMode: 1
     tangentImportMode: 3
     normalCalculationMode: 4
