@@ -57,6 +57,12 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         return _instance.spawnedPlayers[playerRef];
     }
 
+    public NetworkPlayer GetDummy()
+    {
+        var obj = runner.Spawn(playerPrefab, Vector3.zero);
+        return obj.GetComponent<NetworkPlayer>();
+    }
+
     // * Network Events =========================================
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) 
@@ -81,7 +87,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     // TODO: create a better player spawn position method
     private Vector3 GetSpawnPosition(int playerNum)
     {
-        return new Vector3(playerNum * 3, 1, 0);
+        return new Vector3(0, 1, 0);
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) 

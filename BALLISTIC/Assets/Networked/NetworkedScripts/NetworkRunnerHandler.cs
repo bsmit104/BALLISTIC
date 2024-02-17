@@ -39,7 +39,7 @@ public class NetworkRunnerHandler : MonoBehaviour
     public void OnHost()
     {
         //string lobbyName = UnityEngine.Random.Range(10 * (lobbyCodeDigits - 1), 10 * lobbyCodeDigits).ToString();
-        string lobbyName = "Test";
+        string lobbyName = "Test1";
         StartGame(GameMode.Host, lobbyName);
     }
 
@@ -49,7 +49,7 @@ public class NetworkRunnerHandler : MonoBehaviour
     public void OnClient()
     {
         // TODO: Add lobby name/code input value
-        string lobbyName = "Test";
+        string lobbyName = "Test1";
         StartGame(GameMode.Client, lobbyName);
     }
 

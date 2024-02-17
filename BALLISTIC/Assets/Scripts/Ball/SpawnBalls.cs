@@ -11,5 +11,10 @@ public class SpawnBalls : MonoBehaviour
             var ball = NetworkBallManager.Instance.GetBall();
             ball.transform.position = Vector3.up;
         }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            NetworkPlayerManager.Instance.GetDummy();
+        }
     }
 }
