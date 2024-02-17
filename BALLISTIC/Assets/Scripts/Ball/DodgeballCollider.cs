@@ -26,7 +26,7 @@ public class DodgeballCollider : MonoBehaviour
                 player.ActivatePlayerRagdoll();
             }
         }
-        else if (collider.gameObject.CompareTag("isGround"))
+        else if (collider.gameObject.CompareTag("Floor"))
         {
             networkBall.owner = PlayerRef.None;
         }

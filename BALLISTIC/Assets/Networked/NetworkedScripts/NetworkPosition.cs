@@ -12,29 +12,20 @@ public class NetworkPosition : NetworkBehaviour
 
     [Networked, HideInInspector] public Vector3 position { get; set; }
     [Networked, HideInInspector] public Vector3 rotation { get; set; }
+    [Networked, HideInInspector] public Vector3 velocity { get; set; }
 
-    private Coroutine trackPosition;
-    IEnumerator TrackPosition()
-    {
-        while (true)
-        {
-            position = transform.position;
-            rotation = transform.eulerAngles;
-            yield return new WaitForFixedUpdate();
-        }
-    }
+    private Rigidbody rig;
 
     public override void Spawned()
     {
         detector = GetChangeDetector(ChangeDetector.Source.SimulationState);
-        if (Runner.IsServer)
-        {
-            trackPosition = StartCoroutine(TrackPosition());
-        }
+        rig = GetComponent<Rigidbody>();
     }
 
     public override void Render()
     {
+        if (Runner.IsServer) return;
+
         foreach (var attrName in detector.DetectChanges(this))
         {
             switch (attrName)
@@ -45,7 +36,19 @@ public class NetworkPosition : NetworkBehaviour
                 case nameof(rotation):
                     transform.eulerAngles = rotation;
                     break;
+                case nameof(velocity):
+                    if (rig && !rig.isKinematic) rig.velocity = velocity;
+                    break;
             }
         }
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if (!Runner.IsServer) return;
+
+        position = transform.position;
+        rotation = transform.eulerAngles;
+        velocity = rig?.velocity ?? Vector3.zero;
     }
 }

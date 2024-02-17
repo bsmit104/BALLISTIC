@@ -64,8 +64,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     [Tooltip("The max distance aim target detection will be tested for.")]
     [SerializeField] private float aimDist;
-    [Tooltip("The upward angle of the throw.")]
-    [SerializeField] private float arc;
+    [Tooltip("The upward angle of the throw multiplier. Scales with distance to throw target.")]
+    [SerializeField] private float arcMultiplier;
     public Vector3 LookTarget 
     {
         get 
@@ -86,6 +86,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public float sprintSpeed = 5f;
     public float realSpeed = 0f;
     public float rotationSpeed = 10f;
+    public float jumpImpulse;
+    public float decelSpeed;
+    public GroundedCollider grounded;
+
+    private float curJumpVel;
 
     [HideInInspector] public Vector3 dir;
     float horizontal;
@@ -187,6 +192,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public override void Render()
     {
         HandleLook();
+        Debug.DrawLine(cmra.transform.position, LookTarget);
         foreach (var attrName in detector.DetectChanges(this))
         {
             networkChangeListeners[attrName]();
@@ -300,8 +306,24 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // Set the speed based on the input
         float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
+        // Start jump
+        if (data.jumpButtonPressed && grounded.isGrounded)
+        {
+            grounded.isGrounded = false;
+            curJumpVel = jumpImpulse;
+        }
+        else if (curJumpVel > 0)
+        {
+            if (grounded.isGrounded)
+            {
+                curJumpVel = 0;
+            }
+            curJumpVel -= decelSpeed * Runner.DeltaTime;
+        }
+
         // Move the character based on the input
         Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Runner.DeltaTime;
+        movement += new Vector3(0, curJumpVel * Runner.DeltaTime, 0);
         rb.MovePosition(transform.position + movement);
 
         // Trigger the walk animation when moving forward and not holding the sprint key
@@ -354,12 +376,15 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                         PickupBall(ball);
                         isHoldingBall = true;
                     }
+                    else
+                    {
+                        Debug.Log("no nearby ball");
+                    }
                 }
                 // If holding ball already, throw it
                 else
                 {
                     ThrowBall(heldBall, LookTarget);
-                    Debug.Log("throw ball");
                     isHoldingBall = false;
                 }
             }
@@ -423,30 +448,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Discrete;
         GetComponent<CapsuleCollider>().enabled = false;
-
-        // if (Object.HasInputAuthority)
-        // {
-        //     // get cinemachine camera and change the look at target to the player's head
-        //     Cinemachine.CinemachineFreeLook freeLook = GetComponentInChildren<Cinemachine.CinemachineFreeLook>();
-
-        //     // find the child in children that is called "LookTargetOnDeath"
-        //     Transform newLookTarget = transform.Find("Animated/mixamorig:Hips/LookTargetOnDeath");
-        //     // set the cinemachine look at target to newLookTarget
-        //     freeLook.m_Follow = newLookTarget;
-        //     freeLook.m_LookAt = newLookTarget;
-
-        //     // ===== Zoom out to have a dramatic effect for the death =====
-        //     // increase the height for the bottom rig/middle rig/top rig
-        //     freeLook.m_Orbits[0].m_Height = Mathf.Lerp(freeLook.m_Orbits[0].m_Height, 2, 2f);
-        //     freeLook.m_Orbits[1].m_Height = Mathf.Lerp(freeLook.m_Orbits[1].m_Height, 4, 2f);
-        //     freeLook.m_Orbits[2].m_Height = Mathf.Lerp(freeLook.m_Orbits[2].m_Height, 6, 2f);
-
-        //     // increase the radius for the bottom rig/middle rig/top rig
-        //     freeLook.m_Orbits[0].m_Radius = Mathf.Lerp(freeLook.m_Orbits[0].m_Radius, 5, 2f);
-        //     freeLook.m_Orbits[1].m_Radius = Mathf.Lerp(freeLook.m_Orbits[1].m_Radius, 6, 2f);
-        //     freeLook.m_Orbits[2].m_Radius = Mathf.Lerp(freeLook.m_Orbits[2].m_Radius, 7, 2f);
-        //     // =============================================================
-        // }
     }
 
     // enforce ragdoll activation from host to clients
@@ -536,12 +537,15 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void ApplyThrowBall(NetworkDodgeball ball, Vector3 targetPos)
     {
+        if (heldBall == null) return;
         heldBall = null;
         ball.transform.SetParent(null);
-        ball.transform.position = throwPoint.position + (transform.forward * 2f); // ball a bit in front of player so doesn't immediately collide with hand
+        ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
         ball.GetRigidbody().isKinematic = false;
         ball.GetRigidbody().detectCollisions = true;
-        ball.NetworkAddForce(((targetPos - transform.position).normalized + new Vector3(0, arc, 0)) * throwForce);
+        Vector3 diff = targetPos - ball.transform.position;
+        Vector3 arc = new Vector3(0, arcMultiplier * diff.magnitude, 0);
+        ball.GetRigidbody().AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
     }
 
     public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)

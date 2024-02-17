@@ -177,6 +177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
+  _velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &1437923237954681535
 MonoBehaviour:
   m_ObjectHideFlags: 0

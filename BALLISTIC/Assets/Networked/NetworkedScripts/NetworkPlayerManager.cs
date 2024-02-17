@@ -103,6 +103,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         data.sprintButtonPressed = Input.GetKey(KeyCode.LeftShift);
         data.throwButtonPressed = Input.GetMouseButton(0);
         data.testButtonPressed = Input.GetKey(KeyCode.R);
+        data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
 
         input.Set(data);
     }

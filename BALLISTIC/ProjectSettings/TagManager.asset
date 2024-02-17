@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Dodgeball
   - isGround
+  - Floor
   layers:
   - Default
   - TransparentFX

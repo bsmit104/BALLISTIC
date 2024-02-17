@@ -15,6 +15,7 @@ public struct NetworkInputData : INetworkInput
     public float vertical;
     public bool sprintButtonPressed;
     public bool throwButtonPressed;
+    public bool jumpButtonPressed;
 
     public bool testButtonPressed;
 }
