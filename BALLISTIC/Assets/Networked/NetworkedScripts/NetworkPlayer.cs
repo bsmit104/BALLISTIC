@@ -52,9 +52,34 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Header("Camera Controls")]
     [Tooltip("The player's camera. Will be set active if the player instance is the local client. Should be deactivated by default.")]
     [SerializeField] private GameObject cmra;
-    [SerializeField] private GameObject cinemachineCamera;
+    [Tooltip("The max distance the camera will be from the player.")]
+    [SerializeField] private float maxCmraDist;
+    [Tooltip("The min distance the camera will be from the player.")]
+    [SerializeField] private float minCmraDist;
+    [Tooltip("How far the camera will sit off of the surface it is colliding with.")]
+    [SerializeField] private float cmraWallOffset;
     public Cinemachine.AxisState xAxis, yAxis;
-    [SerializeField] Transform camFollowPos;
+    private Transform cmraParent;
+    private Transform cmraReferencePos;
+
+    [Tooltip("The max distance aim target detection will be tested for.")]
+    [SerializeField] private float aimDist;
+    [Tooltip("The upward angle of the throw.")]
+    [SerializeField] private float arc;
+    public Vector3 LookTarget 
+    {
+        get 
+        {
+            if (Physics.Raycast(cmra.transform.position, cmra.transform.forward, out RaycastHit hit, aimDist, LayerMask.GetMask("Surfaces"))) 
+            {
+                return hit.point;
+            }
+            else
+            {
+                return cmra.transform.position + (cmra.transform.forward * aimDist);
+            }
+        }
+    }
 
     [Header("Movement Settings")]
     public float walkSpeed = 2f;
@@ -104,7 +129,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private NetworkDodgeball heldBall;
 
     private Rigidbody rb;
-    private CapsuleCollider col;
     private Animator animator;
 
     // * ========================================================
@@ -118,7 +142,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
-            { nameof(position), PositionOnChange },
             { nameof(isWalking), IsWalkingOnChange },
             { nameof(isWalkingBack), IsWalkingBackOnChange },
             { nameof(isStrafingRight), IsStrafingRightOnChange },
@@ -134,18 +157,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // Position ======================================
 
-    [Networked, HideInInspector] public Vector3 position { get; set; }
-    void PositionOnChange() { transform.position = position; }
-
-    private Coroutine trackPosition;
-    IEnumerator TrackPosition()
-    {
-        while (true)
-        {
-            position = transform.position;
-            yield return new WaitForFixedUpdate();
-        }
-    }
+    [HideInInspector] public NetworkPosition netPos;
 
     // ===============================================
 
@@ -197,24 +209,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         // Get the Rigidbody component attached to the character
         rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
 
         controller = GetComponent<CharacterController>();
 
         // Get the animator component from the attached animator object
         animator = GetComponentInChildren<Animator>();
 
-        if (Runner.IsServer)
-        {
-            trackPosition = StartCoroutine(TrackPosition());
-        }
+        // get the networked position
+        netPos = GetComponentInChildren<NetworkPosition>();
 
         // Check if this player instance is the local client
         if (Object.HasInputAuthority)
         {
             _local = this;
             cmra.SetActive(true);
-            cinemachineCamera.SetActive(true);
+            cmraParent = cmra.transform.parent;
+            cmraReferencePos = cmraParent.GetChild(1);
+            cmraReferencePos.localPosition = cmra.transform.localPosition;
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -262,8 +273,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         xAxis.Update(Time.deltaTime);
         yAxis.Update(Time.deltaTime);
 
-        //camFollowPos.localEulerAngles = new Vector3(yAxis.Value, camFollowPos.localEulerAngles.y, camFollowPos.localEulerAngles.z);
-        UpdateLookDirection(xAxis.Value);
+        UpdateLookDirection(xAxis.Value, yAxis.Value);
+
+        Vector3 dir = (cmraReferencePos.position - cmraParent.position).normalized;
+        if (Physics.Raycast(cmraParent.position, dir, out RaycastHit hit, maxCmraDist + cmraWallOffset, LayerMask.GetMask("Surfaces"))) 
+        {
+            cmra.transform.position = cmraParent.position + (dir * Mathf.Max(minCmraDist, (hit.point - cmraParent.position).magnitude - cmraWallOffset));
+        }
+        else
+        {
+            cmra.transform.position = cmraParent.position + (dir * maxCmraDist);
+        }
     }
 
     void HandleMovement(NetworkInputData data)
@@ -317,7 +337,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // Set the last throw time to the current time
             lastThrowTime = Time.time;
 
-            // TODO Pickup: replace with pickup and throw mechanics
             if (Object.HasInputAuthority)
             {
                 // If not already holding ball, pickup closest ball
@@ -334,7 +353,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                 // If holding ball already, throw it
                 else
                 {
-                    ThrowBall(heldBall);
+                    ThrowBall(heldBall, LookTarget);
                     Debug.Log("throw ball");
                     isHoldingBall = false;
                 }
@@ -448,9 +467,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // Look Direction ======================
 
-    private void UpdateLookDirection(float yRot)
+    private void UpdateLookDirection(float yRot, float pitch)
     {
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
+        cmraParent.localRotation = Quaternion.Euler(new Vector3(pitch, 0, 0));
         RPC_UpdateLookDirection(yRot);
     }
 
@@ -499,7 +519,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     }
 
-    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
     public void RPC_RequestPickupBall(NetworkId networkID) // this function is executed on the host's computer
     {
         RPC_EnforcePickupBall(networkID);
@@ -509,45 +529,45 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // Ball Throw ==========================
 
-    private void ApplyThrowBall(NetworkDodgeball ball)
+    private void ApplyThrowBall(NetworkDodgeball ball, Vector3 targetPos)
     {
-        ball.owner = GetRef;
-        ball.transform.localPosition = new Vector3(0,0,1); // ball a bit in front of player so doesn't immediately collide with hand
+        heldBall = null;
+        ball.transform.SetParent(null);
+        ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
         ball.GetRigidbody().isKinematic = false;
         ball.GetRigidbody().detectCollisions = true;
-        ball.NetworkAddForce(transform.forward * throwForce);
-        ball.transform.SetParent(null);
+        ball.NetworkAddForce(((targetPos - transform.position).normalized + new Vector3(0, arc, 0)) * throwForce);
     }
 
-    public void ThrowBall(NetworkDodgeball ball)
+    public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)
     {
         // RPCs require network ID
         NetworkId networkID = ball.NetworkID;
 
         if (Runner.IsServer)
         {
-            RPC_EnforceThrowBall(networkID); // if call was made on the host, tell everyone to do the thing
+            RPC_EnforceThrowBall(networkID, targetPos); // if call was made on the host, tell everyone to do the thing
         }
         else
         {
-            ApplyThrowBall(ball); // local prediction so that the client doesn't have to wait
-            RPC_RequestPickupBall(networkID); // tell the host that everyone should do this thing
+            ApplyThrowBall(ball, targetPos); // local prediction so that the client doesn't have to wait
+            RPC_RequestThrowBall(networkID, targetPos); // tell the host that everyone should do this thing
         }
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_EnforceThrowBall(NetworkId networkID) // this function is executed on everyone's computer
+    public void RPC_EnforceThrowBall(NetworkId networkID, Vector3 targetPos) // this function is executed on everyone's computer
     {
         if (Runner.TryFindObject(networkID, out var obj))
         {
-            ApplyThrowBall(obj.GetComponent<NetworkDodgeball>());
+            ApplyThrowBall(obj.GetComponent<NetworkDodgeball>(), targetPos);
         }
     }
 
     [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_RequestThrowBall(NetworkId networkID) // this function is executed on the host's computer
+    public void RPC_RequestThrowBall(NetworkId networkID, Vector3 targetPos) // this function is executed on the host's computer
     {
-        RPC_EnforceThrowBall(networkID);
+        RPC_EnforceThrowBall(networkID, targetPos);
     }
 
     // ======================================

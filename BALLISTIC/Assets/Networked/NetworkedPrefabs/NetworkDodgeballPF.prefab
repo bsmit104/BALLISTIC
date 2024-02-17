@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3926895427765993253}
   - component: {fileID: 2077264233080878460}
   - component: {fileID: 7165026073672892444}
-  - component: {fileID: 5520319901365421591}
+  - component: {fileID: 748515817148721767}
   - component: {fileID: 1437923237954681535}
   m_Layer: 0
   m_Name: NetworkDodgeballPF
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkBall: {fileID: 0}
---- !u!114 &5520319901365421591
+--- !u!114 &748515817148721767
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -172,13 +172,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 8643168369346660436}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SyncScale: 0
-  SyncParent: 0
-  _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
+  _position: {x: 0, y: 0, z: 0}
+  _rotation: {x: 0, y: 0, z: 0}
 --- !u!114 &1437923237954681535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,4 +195,4 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2077264233080878460}
-  - {fileID: 5520319901365421591}
+  - {fileID: 748515817148721767}

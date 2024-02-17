@@ -103,11 +103,6 @@ public class NetworkDodgeball : NetworkBehaviour
         return this;
     }
 
-    public override void Despawned(NetworkRunner runner, bool hasState)
-    {
-        Debug.Log("bruh");
-    }
-
     // * ===============================================================
 
     // * Remote Procedure Calls ========================================
