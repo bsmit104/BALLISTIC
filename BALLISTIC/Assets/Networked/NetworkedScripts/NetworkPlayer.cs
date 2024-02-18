@@ -70,7 +70,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         get 
         {
-            if (Physics.Raycast(cmra.transform.position, cmra.transform.forward, out RaycastHit hit, aimDist, LayerMask.GetMask("Surfaces"))) 
+            if (Physics.Raycast(cmra.transform.position, cmra.transform.forward, out RaycastHit hit, aimDist, LayerMask.GetMask("Surfaces", "Players"))) 
             {
                 return hit.point;
             }
@@ -95,7 +95,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [HideInInspector] public Vector3 dir;
     float horizontal;
     float vertical;
-    CharacterController controller;
 
     [Space]
     [Header("Ball Throwing")]
@@ -135,6 +134,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private Rigidbody rb;
     private Animator animator;
+
+    private bool _isDummy = false;
+    public bool isDummy {get { return _isDummy;}
+    set {
+        if (value)
+        {
+            // Instantiate list of nearby dodgeballs
+            nearbyDodgeballs = new List<NetworkDodgeball>();
+
+            // Set pickup collider
+            pickupCollider.gameObject.SetActive(true);
+            pickupCollider.player = this;
+
+            Debug.Log("Spawned Dummy Player");
+        }
+        _isDummy = value;
+    }}
 
     // * ========================================================
 
@@ -216,8 +232,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // Get the Rigidbody component attached to the character
         rb = GetComponent<Rigidbody>();
 
-        controller = GetComponent<CharacterController>();
-
         // Get the animator component from the attached animator object
         animator = GetComponentInChildren<Animator>();
 
@@ -228,6 +242,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (Object.HasInputAuthority)
         {
             _local = this;
+            gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
+
             cmra.SetActive(true);
             cmraParent = cmra.transform.parent;
             cmraReferencePos = cmraParent.GetChild(1);

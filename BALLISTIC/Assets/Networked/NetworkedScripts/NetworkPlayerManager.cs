@@ -60,6 +60,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     public NetworkPlayer GetDummy()
     {
         var obj = runner.Spawn(playerPrefab, Vector3.zero);
+        obj.GetComponent<NetworkPlayer>().isDummy = true;
         return obj.GetComponent<NetworkPlayer>();
     }
 
