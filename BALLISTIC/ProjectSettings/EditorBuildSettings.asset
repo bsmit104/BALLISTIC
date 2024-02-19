@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/NetworkJoin.unity
+    guid: 24637c291e4e9ef4dae2d98d4fba4e64
+  - enabled: 1
+    path: Assets/Scenes/PlayerIsRagdoll.unity
+    guid: 781b93f8c946a4e4981499bbc25e7dbc
   m_configObjects: {}

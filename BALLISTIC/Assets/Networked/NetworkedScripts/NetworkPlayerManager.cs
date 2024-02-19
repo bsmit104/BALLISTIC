@@ -16,6 +16,33 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     /// </summary>
     public static NetworkPlayerManager Instance { get { return _instance; } }
 
+    private NetworkRunner runner;
+    private NetworkBallManager ballManager;
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Debug.LogError("NetworkPlayerManager singleton instantiated twice");
+            Destroy(this);
+        }
+        _instance = this;
+
+        runner = GetComponent<NetworkRunner>();
+        if (runner == null)
+        {
+            Debug.LogError("No NetworkRunner found");
+        }
+
+        ballManager = GetComponent<NetworkBallManager>();
+        if (ballManager == null)
+        {
+            Debug.LogError("No NetworkBallManager found");
+        }
+        ballManager.Init(runner);
+    }
+
+
     [Tooltip("Prefab that will be instantiated for each player, this has the character controller")]
     [SerializeField] private NetworkPrefabRef playerPrefab;
     private Dictionary<PlayerRef, NetworkPlayer> spawnedPlayers = new Dictionary<PlayerRef, NetworkPlayer>();
@@ -28,6 +55,13 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     public static NetworkPlayer GetPlayer(PlayerRef playerRef)
     {
         return _instance.spawnedPlayers[playerRef];
+    }
+
+    public NetworkPlayer GetDummy()
+    {
+        var obj = runner.Spawn(playerPrefab, Vector3.zero);
+        obj.GetComponent<NetworkPlayer>().isDummy = true;
+        return obj.GetComponent<NetworkPlayer>();
     }
 
     // * Network Events =========================================
@@ -54,7 +88,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     // TODO: create a better player spawn position method
     private Vector3 GetSpawnPosition(int playerNum)
     {
-        return new Vector3(playerNum * 3, 1, 0);
+        return new Vector3(0, 1, 0);
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) 
@@ -71,7 +105,12 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     { 
         var data = new NetworkInputData();
 
-        // Read input ...
+        data.horizontal = Input.GetAxis("Horizontal");
+        data.vertical = Input.GetAxis("Vertical");
+        data.sprintButtonPressed = Input.GetKey(KeyCode.LeftShift);
+        data.throwButtonPressed = Input.GetMouseButton(0);
+        data.testButtonPressed = Input.GetKey(KeyCode.R);
+        data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
 
         input.Set(data);
     }

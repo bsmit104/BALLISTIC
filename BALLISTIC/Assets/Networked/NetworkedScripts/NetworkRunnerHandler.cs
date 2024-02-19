@@ -20,6 +20,9 @@ public class NetworkRunnerHandler : MonoBehaviour
     [Tooltip("The number of digits that a lobby name will have")]
     [SerializeField] private int lobbyCodeDigits;
 
+    [Tooltip("The build index of the scene to transition to on host/join. Find in build settings.")]
+    [SerializeField] private int lobbyScene;
+
     private NetworkRunner networkRunner; // the current runner instance
 
     private string _lobbyName = "";
@@ -36,7 +39,7 @@ public class NetworkRunnerHandler : MonoBehaviour
     public void OnHost()
     {
         //string lobbyName = UnityEngine.Random.Range(10 * (lobbyCodeDigits - 1), 10 * lobbyCodeDigits).ToString();
-        string lobbyName = "Test";
+        string lobbyName = "Test1";
         StartGame(GameMode.Host, lobbyName);
     }
 
@@ -46,7 +49,7 @@ public class NetworkRunnerHandler : MonoBehaviour
     public void OnClient()
     {
         // TODO: Add lobby name/code input value
-        string lobbyName = "Test";
+        string lobbyName = "Test1";
         StartGame(GameMode.Client, lobbyName);
     }
 
@@ -60,7 +63,7 @@ public class NetworkRunnerHandler : MonoBehaviour
         var clientTask = InitializeNetworkRunner(
             networkRunner,
             mode,
-            SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
+            SceneRef.FromIndex(lobbyScene),
             lobbyName
         );
 
