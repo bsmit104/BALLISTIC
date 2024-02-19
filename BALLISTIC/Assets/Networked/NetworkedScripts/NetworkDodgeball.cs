@@ -35,6 +35,19 @@ public class NetworkDodgeball : NetworkBehaviour
     }
     private NetworkId _id;
 
+    public NetworkPosition NetPos
+    {
+        get
+        {
+            if (_netPos == null)
+            {
+                _netPos = GetComponent<NetworkPosition>();
+            }
+            return _netPos;
+        }
+    }
+    private NetworkPosition _netPos;
+
     // * ===============================================================
 
     // * Networked Attributes ==========================================

@@ -514,6 +514,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.GetRigidbody().detectCollisions = false;
         ball.transform.SetParent(throwPoint);
         ball.transform.position = throwPoint.position;
+        // if (!Runner.IsServer)
+        // {
+        //     ball.NetPos.enabled = false;
+        // }
     }
 
     public void PickupBall(NetworkDodgeball ball)
@@ -562,6 +566,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         Vector3 diff = targetPos - ball.transform.position;
         Vector3 arc = new Vector3(0, arcMultiplier * diff.magnitude, 0);
         ball.GetRigidbody().AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
+        //ball.NetPos.enabled = true;
     }
 
     public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)
