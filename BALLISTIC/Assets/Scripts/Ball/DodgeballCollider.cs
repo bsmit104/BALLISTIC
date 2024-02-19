@@ -13,7 +13,7 @@ public class DodgeballCollider : MonoBehaviour
     private void OnCollisionEnter(Collision collider)
     {
         // Check if the collided GameObject has the "Player" tag
-        if (collider.gameObject.CompareTag("Player") && networkBall.owner != PlayerRef.None)
+        if (collider.gameObject.CompareTag("Player") && networkBall.owner != PlayerRef.None && !networkBall.isHeld)
         {
             // Activate the ragdoll for the player
             NetworkPlayer player = collider.gameObject.GetComponent<NetworkPlayer>();

@@ -211,7 +211,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         Debug.DrawLine(cmra.transform.position, LookTarget);
         foreach (var attrName in detector.DetectChanges(this))
         {
-            networkChangeListeners[attrName]();
+            if (networkChangeListeners.ContainsKey(attrName))
+            {
+                networkChangeListeners[attrName]();
+            }
         }
     }
 
@@ -519,14 +522,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         ball.owner = GetRef;
         heldBall = ball;
+        ball.isHeld = true;
         ball.GetRigidbody().isKinematic = true;
         ball.GetRigidbody().detectCollisions = false;
         ball.transform.SetParent(throwPoint);
         ball.transform.position = throwPoint.position;
-        // if (!Runner.IsServer)
-        // {
-        //     ball.NetPos.enabled = false;
-        // }
     }
 
     public void PickupBall(NetworkDodgeball ball)
@@ -568,6 +568,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         if (heldBall == null) return;
         heldBall = null;
+        ball.isHeld = false;
         ball.transform.SetParent(null);
         ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
         ball.GetRigidbody().isKinematic = false;
@@ -575,7 +576,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         Vector3 diff = targetPos - ball.transform.position;
         Vector3 arc = new Vector3(0, arcMultiplier * diff.magnitude, 0);
         ball.GetRigidbody().AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
-        //ball.NetPos.enabled = true;
     }
 
     public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)

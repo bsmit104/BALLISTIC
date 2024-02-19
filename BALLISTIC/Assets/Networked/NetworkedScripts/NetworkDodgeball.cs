@@ -83,12 +83,17 @@ public class NetworkDodgeball : NetworkBehaviour
         //TODO: idk something is gonna have to go here, but whatever
     }
 
+    [Networked, HideInInspector] public bool isHeld { get; set; }
+
     // Detect changes, and trigger event listeners.
     public override void Render()
     {
         foreach (var attrName in detector.DetectChanges(this))
         {
-            networkChangeListeners[attrName]();
+            if (networkChangeListeners.ContainsKey(attrName))
+            {
+                networkChangeListeners[attrName]();
+            } 
         }
     }
 
