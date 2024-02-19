@@ -47,7 +47,7 @@ public class NetworkPosition : NetworkBehaviour
                     transform.eulerAngles = rotation;
                     break;
                 case nameof(velocity):
-                    if (rig ?? !rig.isKinematic) rig.velocity = velocity;
+                    if (rig && !rig.isKinematic) rig.velocity = velocity;
                     break;
                 case nameof(networkEnabled):
                     hasParent = !networkEnabled;

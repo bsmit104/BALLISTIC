@@ -444,12 +444,19 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         if (Runner.IsServer)
         {
-            RPC_EnforcePlayerRagdoll(GetRef);
+            RPC_EnforcePlayerRagdoll();
         }
         else
         {
             RagdollActivation(); // client-sided prediction
-            RPC_RequestPlayerRagdoll(GetRef);
+            if (Object.HasInputAuthority)
+            {
+                RPC_NotifyPlayerRagdoll();
+            }
+            else
+            {
+                RPC_RequestPlayerRagdoll();
+            }
         }
     }
 
@@ -468,21 +475,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // enforce ragdoll activation from host to clients
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_EnforcePlayerRagdoll(PlayerRef player)
+    public void RPC_EnforcePlayerRagdoll()
     {
-        if (player != GetRef)
-        {
-            return;
-        }
-
         RagdollActivation();
     }
 
-    // set request to host to activate the player's ragdoll
-    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_RequestPlayerRagdoll(PlayerRef player)
+    // send request to host to activate the player's ragdoll
+    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority)]
+    public void RPC_RequestPlayerRagdoll()
     {
-        RPC_EnforcePlayerRagdoll(player);
+        RPC_EnforcePlayerRagdoll();
+    }
+
+    // send notification to host to activate the local player's ragdoll
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_NotifyPlayerRagdoll()
+    {
+        RPC_EnforcePlayerRagdoll();
     }
 
     // =====================================
