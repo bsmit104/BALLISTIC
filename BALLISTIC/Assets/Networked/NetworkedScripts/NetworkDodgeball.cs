@@ -13,12 +13,15 @@ public class NetworkDodgeball : NetworkBehaviour
     // * Client-Sided Attributes =======================================
 
     private DodgeballCollider ballCol;
-    private Rigidbody rig;
 
+    private Rigidbody rig;
     public Rigidbody GetRigidbody()
     {
         return rig;
     }
+
+    private SphereCollider col;
+    public SphereCollider Col { get { return col; } }
 
     /// <summary>
     /// Returns the NetworkId associated with the NetworkObject attached to the ball.
@@ -59,7 +62,6 @@ public class NetworkDodgeball : NetworkBehaviour
     {
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
-            { nameof(networkEnabled), NetworkEnabledOnChange },
             { nameof(owner), SourceOnChange }
         };
     }
@@ -67,12 +69,6 @@ public class NetworkDodgeball : NetworkBehaviour
     // ? Example:
     // [Networked] Type myAttribute { get; set; }
     // void MyAttributeOnChange() { ... }
-
-    /// <summary>
-    /// Use instead of gameObject.SetActive(). Ensures that this game object is enabled/disabled on all clients.
-    /// </summary>
-    [Networked, HideInInspector] public bool networkEnabled { get; set; }
-    void NetworkEnabledOnChange() { gameObject.SetActive(networkEnabled); }
 
     /// <summary>
     /// Sets who threw the ball, or is currently holding it.
@@ -104,12 +100,12 @@ public class NetworkDodgeball : NetworkBehaviour
     public override void Spawned()
     {
         DontDestroyOnLoad(gameObject);
-        Debug.Log("dont kill me pls");
         SetChangeListeners();
         detector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         ballCol = GetComponent<DodgeballCollider>();
         ballCol.networkBall = this;
         rig = GetComponent<Rigidbody>();
+        col = GetComponent<SphereCollider>();
     }
 
     /// <summary>
@@ -120,12 +116,40 @@ public class NetworkDodgeball : NetworkBehaviour
     public NetworkDodgeball Reset()
     {
         owner = PlayerRef.None;
+        transform.position = Vector3.zero;
+        rig.velocity = Vector3.zero;
         return this;
     }
 
     // * ===============================================================
 
     // * Remote Procedure Calls ========================================
+
+    public void NetworkSetActive(bool state)
+    {
+        if (Runner.IsServer)
+        {
+            RPC_EnforceSetActive(state);
+        }
+        else
+        {
+            gameObject.SetActive(state);
+            RPC_RequestSetActive(state);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_EnforceSetActive(bool state)
+    {
+        gameObject.SetActive(state);
+    }
+
+    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_RequestSetActive(bool state)
+    {
+        RPC_EnforceSetActive(state);
+    }
+
 
     /// <summary>
     /// Wrapper around Rigidbody.AddForce(). Applies to client simulation for prediction, and sends the 

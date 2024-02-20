@@ -57,10 +57,8 @@ public class NetworkLevelManager : MonoBehaviour
         playerManager = players;
         // ballManager = balls;
 
-        numLevels = lastLevelIndex - firstLevelIndex;
+        numLevels = lastLevelIndex - firstLevelIndex + 1;
         remainingLevels = new List<int>(numLevels);
-
-        SceneManager.sceneLoaded += OnLoaded;
     }
 
     /// <summary>
@@ -236,13 +234,6 @@ public class NetworkLevelManager : MonoBehaviour
 
     // full transition ============
 
-    private bool isLoaded = false;
-
-    private void OnLoaded(Scene scene, LoadSceneMode mode)
-    {
-        isLoaded = true;
-    }
-
     private Coroutine fullTransition;
     private bool levelChangeRunning = false;
     public bool LevelChangeRunning { get { return levelChangeRunning; } }
@@ -272,11 +263,10 @@ public class NetworkLevelManager : MonoBehaviour
         {
             Runner.LoadScene(SceneRef.FromIndex(buildIndex));
         }
-        while (!isLoaded)
+        while (!LoadingDetector.IsLoaded)
         {
             yield return new WaitForSeconds(loadCompletionCheck);
         }
-        isLoaded = false;
         ResetLevel();
 
         StartEnterTransition();
@@ -326,7 +316,7 @@ public class NetworkLevelManager : MonoBehaviour
         for (int i = 0; i < ballsPerLevel; i++)
         {
             var ball = NetworkBallManager.Instance.GetBall();
-            ball.transform.position = Spawner.GetSpawnPoint();
+            ball.transform.position = Spawner.GetSpawnPoint(ball.Col.bounds);
         }
         // Reset all players
         NetworkPlayerManager.Instance.ResetPlayers();

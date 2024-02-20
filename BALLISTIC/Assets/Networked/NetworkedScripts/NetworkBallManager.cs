@@ -21,8 +21,10 @@ public class NetworkBallManager : MonoBehaviour
     [Tooltip("Max size of pool queue before dodgeballs will be recycled")]
     [SerializeField] private int maxPoolSize;
 
-    private ObjectPool<NetworkDodgeball> pool;
-    private List<NetworkDodgeball> activeBalls = new List<NetworkDodgeball>();
+    private int totalBalls;
+
+    [SerializeField] private List<NetworkDodgeball> pool = new List<NetworkDodgeball>();
+    [SerializeField] private List<NetworkDodgeball> active = new List<NetworkDodgeball>();
 
     private NetworkRunner runner;
     public NetworkRunner Runner { get { return runner; } }
@@ -41,39 +43,68 @@ public class NetworkBallManager : MonoBehaviour
         _instance = this;
 
         runner = networkRunner;
-        pool = new ObjectPool<NetworkDodgeball>(
-            () => {
-                Debug.Log("made");
-                NetworkDodgeball ball = runner.IsServer ? runner.Spawn(ballPrefab).GetComponent<NetworkDodgeball>() : null;
-                return ball;
-            },
-            ball => {
-                if (ball == null) Debug.Log("bruh");
-                ball.networkEnabled = true;
-            },
-            ball => {
-                if (ball == null) {
-                    Debug.Log("cmon cuh");
-                }
-                ball.networkEnabled = false;
-            },
-            ball => {
-                Debug.Log("why");
-                if (runner.IsServer) runner.Despawn(ball.GetComponent<NetworkObject>());
-            },
-            true, defaultPoolSize, maxPoolSize
-        );
-        // List<NetworkDodgeball> balls = new List<NetworkDodgeball>();
-        // for (int i = 0; i < defaultPoolSize; i++) 
-        // {
-        //     Debug.Log("huh????");
-        //     balls.Add(pool.Get());
-        // }
-        // for (int i = 0; i < defaultPoolSize; i++) 
-        // {
-        //     Debug.Log("huh!!!");
-        //     pool.Release(balls[i]);
-        // }
+
+        StartCoroutine(InitialSpawn());
+    }
+
+    IEnumerator InitialSpawn()
+    {
+        float timer = 10f;
+
+        while (timer > 0 && !Runner.IsServer)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (Runner.IsServer)
+        {
+            for (int i = 0; i < defaultPoolSize; i++) 
+            {
+                SpawnNew();
+            }
+
+            ReleaseAllBalls();
+        }
+
+    }
+
+    private NetworkDodgeball SpawnNew()
+    {
+        NetworkDodgeball ball = null;
+        if (totalBalls >= maxPoolSize && active.Count > 0)
+        {
+            ball = active[0];
+        }
+        else if (runner.IsServer)
+        {
+            ball = runner.Spawn(ballPrefab).GetComponent<NetworkDodgeball>();
+        }
+        if (ball)
+        {
+            active.Add(ball);
+            totalBalls++;
+        }
+        return ball;
+    }
+
+    private NetworkDodgeball GetFromPool()
+    {
+        if (pool.Count == 0) return null;
+        var ball = pool[0];
+        pool.RemoveAt(0);
+        ball.NetworkSetActive(true);
+        active.Add(ball);
+        return ball;
+    }
+
+    private void MakeInactive(NetworkDodgeball ball)
+    {
+        if (!active.Contains(ball)) return;
+        active.Remove(ball);
+        ball.NetworkSetActive(false);
+        pool.Add(ball);
+        Debug.Log("released ball");
     }
 
     /// <summary>
@@ -83,8 +114,11 @@ public class NetworkBallManager : MonoBehaviour
     /// <returns>Dodgeball, transform values are not reset.</returns>
     public NetworkDodgeball GetBall()
     {
-        var ball = pool.Get();
-        activeBalls.Add(ball);
+        var ball = GetFromPool();
+        if (ball == null)
+        {
+            ball = SpawnNew();
+        }
         return ball.Reset();
     }
 
@@ -94,16 +128,16 @@ public class NetworkBallManager : MonoBehaviour
     /// <param name="ball">The ball to be released.</param>
     public void ReleaseBall(NetworkDodgeball ball)
     {
-        pool.Release(ball);
-        activeBalls.Remove(ball);
+        MakeInactive(ball);
     }
 
     /// <summary>
     /// Releases all Dodgeballs back to the pool.
     public void ReleaseAllBalls() {
-        for (int i = 0; i < activeBalls.Count; i++)
+        int count = active.Count;
+        for (int i = 0; i < count; i++)
         {
-            ReleaseBall(activeBalls[0]);
+            ReleaseBall(active[0]);
         }
     }
 }

@@ -20,7 +20,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     private NetworkBallManager ballManager;
     private NetworkLevelManager levelManager;
 
-    void Awake()
+    void Start()
     {
         if (_instance != null && _instance != this)
         {

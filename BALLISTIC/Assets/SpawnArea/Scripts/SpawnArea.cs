@@ -212,7 +212,7 @@ public class SpawnArea : MonoBehaviour
             }
         }
 
-        if (Physics.Raycast(pos, Vector3.down, out RaycastHit data, Mathf.Infinity, LayerMask.GetMask("Default")))
+        if (Physics.Raycast(pos, Vector3.down, out RaycastHit data, Mathf.Infinity, LayerMask.GetMask("Surfaces")))
         {
             pos.y = data.point.y;
         }
