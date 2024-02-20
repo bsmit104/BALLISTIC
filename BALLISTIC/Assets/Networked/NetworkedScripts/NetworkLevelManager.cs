@@ -127,7 +127,7 @@ public class NetworkLevelManager : MonoBehaviour
     /// <summary>
     /// Wrapper around GameObject.SetActive().
     /// </summary>
-    public void SetCanvasActive(bool state)
+    public void SetTransitionCanvasActive(bool state)
     {
         transitionCanvas?.SetActive(state);
     }
@@ -166,7 +166,7 @@ public class NetworkLevelManager : MonoBehaviour
     // exit tween (probably some sort of fade to black) to hide scene unloading / game object moving
     IEnumerator ExitTransition()
     {
-        SetCanvasActive(true);
+        SetTransitionCanvasActive(true);
         float timer = exitTransitionDuration;
         transitionElement.anchoredPosition = exitTransitionStartPos;
 
@@ -184,7 +184,7 @@ public class NetworkLevelManager : MonoBehaviour
         }
         transitionElement.anchoredPosition = Vector2.zero;
 
-        if (!LevelChangeRunning && !WinSequenceRunning) SetCanvasActive(false);
+        if (!LevelChangeRunning && !WinSequenceRunning) SetTransitionCanvasActive(false);
         exitRunning = false;
     }
 
@@ -209,7 +209,7 @@ public class NetworkLevelManager : MonoBehaviour
     // enter tween (probably a fade in from black) to cleanly transition from a loading state into the gameplay
     IEnumerator EnterTransition()
     {
-        SetCanvasActive(true);
+        SetTransitionCanvasActive(true);
         float timer = enterTransitionDuration;
         transitionElement.anchoredPosition = Vector2.zero;
 
@@ -228,7 +228,7 @@ public class NetworkLevelManager : MonoBehaviour
         }
         transitionElement.anchoredPosition = enterTransitionEndPos;
 
-        if (!LevelChangeRunning && !WinSequenceRunning) SetCanvasActive(false);
+        if (!LevelChangeRunning && !WinSequenceRunning) SetTransitionCanvasActive(false);
         enterRunning = false;
     }
 
@@ -260,7 +260,7 @@ public class NetworkLevelManager : MonoBehaviour
     // exit transition, load next level, enter transition
     IEnumerator LevelTransition(int buildIndex)
     {
-        SetCanvasActive(true);
+        SetTransitionCanvasActive(true);
 
         StartExitTransition();
         while (ExitRunning)
@@ -285,7 +285,7 @@ public class NetworkLevelManager : MonoBehaviour
             yield return null;
         }
 
-        SetCanvasActive(false);
+        SetTransitionCanvasActive(false);
         levelChangeRunning = false;
     }
 
@@ -370,7 +370,7 @@ public class NetworkLevelManager : MonoBehaviour
 
     private IEnumerator WinnerSequence()
     {
-        SetCanvasActive(true);
+        SetTransitionCanvasActive(true);
         winSequenceRunning = true;
 
         StartExitTransition();
@@ -379,15 +379,18 @@ public class NetworkLevelManager : MonoBehaviour
             yield return null;
         }
 
-        // TODO: Set up winner screen
-
+        // TODO: (GORDON) Set up winner screen
+        // SET WIN SCREEN ACTIVE HERE
+        // playerNum = winner.playerId
+        // "Player{X} Wins!
+        
         StartEnterTransition();
         while (EnterRunning)
         {
             yield return null;
         }
 
-        SetCanvasActive(false);
+        SetTransitionCanvasActive(false);
 
         float timer = winScreenDuration;
         while (timer > 0)
@@ -400,6 +403,7 @@ public class NetworkLevelManager : MonoBehaviour
         }
 
         winSequenceRunning = false;
+        // SET WIN SCREEN INACTIVE HERE
 
         // go to the next level
         GoToLevel(GetRandomLevel());
