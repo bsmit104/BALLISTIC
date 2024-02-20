@@ -164,6 +164,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
             { nameof(isWalking), IsWalkingOnChange },
+            { nameof(isAlive), IsAliveOnChange },
             { nameof(isWalkingBack), IsWalkingBackOnChange },
             { nameof(isStrafingRight), IsStrafingRightOnChange },
             { nameof(isStrafingLeft), IsStrafingLeftOnChange },
@@ -179,6 +180,30 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // Position ======================================
 
     [HideInInspector] public NetworkPosition netPos;
+
+    // ===============================================
+
+    // Dead State ====================================
+
+    [Networked, HideInInspector] public bool isAlive { get; set; } = true;
+    void IsAliveOnChange()
+    {
+        if (isAlive)
+        {
+            animator.enabled = true;
+            rb.isKinematic = false;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            GetComponent<CapsuleCollider>().enabled = true;
+        }
+        else
+        {
+            animator.enabled = false;
+            rb.isKinematic = true;
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            GetComponent<CapsuleCollider>().enabled = false;
+            if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
+        }
+    }
 
     // ===============================================
 
@@ -241,6 +266,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // get the networked position
         netPos = GetComponentInChildren<NetworkPosition>();
 
+        isAlive = true;
+
         // Check if this player instance is the local client
         if (Object.HasInputAuthority)
         {
@@ -286,6 +313,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         NetworkInputData data;
         if (!GetInput(out data)) return;
+
+        if (!isAlive) return;
 
         HandleMovement(data);
         HandleThrowBall(data);
@@ -437,6 +466,27 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // * Remote Procedure Calls =================================
 
+    // Reset =================================
+
+    public void Reset()
+    {
+        if (Runner.IsServer)
+        {
+            isAlive = true;
+        }
+        else
+        {
+            RPC_RequestReset();
+        }
+    }
+
+    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority)]
+    public void RPC_RequestReset()
+    {
+        isAlive = true;
+    }
+
+    // =======================================
 
     // Ragdoll ===============================
 
@@ -465,14 +515,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void RagdollActivation()
     {
+        isAlive = false;
         animator.enabled = false;
-
-        // get the player controller script from the parent object
-        enabled = false;
-
-        // get and disable the player's rigidbody and collider
-        GetComponent<Rigidbody>().isKinematic = true;
-        GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Discrete;
+        rb.isKinematic = true;
+        rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         GetComponent<CapsuleCollider>().enabled = false;
     }
 

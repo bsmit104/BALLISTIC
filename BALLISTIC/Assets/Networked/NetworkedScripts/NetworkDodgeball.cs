@@ -103,6 +103,8 @@ public class NetworkDodgeball : NetworkBehaviour
 
     public override void Spawned()
     {
+        DontDestroyOnLoad(gameObject);
+        Debug.Log("dont kill me pls");
         SetChangeListeners();
         detector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         ballCol = GetComponent<DodgeballCollider>();

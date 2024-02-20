@@ -22,6 +22,7 @@ public class NetworkBallManager : MonoBehaviour
     [SerializeField] private int maxPoolSize;
 
     private ObjectPool<NetworkDodgeball> pool;
+    private List<NetworkDodgeball> activeBalls = new List<NetworkDodgeball>();
 
     private NetworkRunner runner;
     public NetworkRunner Runner { get { return runner; } }
@@ -42,20 +43,37 @@ public class NetworkBallManager : MonoBehaviour
         runner = networkRunner;
         pool = new ObjectPool<NetworkDodgeball>(
             () => {
+                Debug.Log("made");
                 NetworkDodgeball ball = runner.IsServer ? runner.Spawn(ballPrefab).GetComponent<NetworkDodgeball>() : null;
                 return ball;
             },
             ball => {
+                if (ball == null) Debug.Log("bruh");
                 ball.networkEnabled = true;
             },
             ball => {
+                if (ball == null) {
+                    Debug.Log("cmon cuh");
+                }
                 ball.networkEnabled = false;
             },
             ball => {
+                Debug.Log("why");
                 if (runner.IsServer) runner.Despawn(ball.GetComponent<NetworkObject>());
             },
             true, defaultPoolSize, maxPoolSize
         );
+        // List<NetworkDodgeball> balls = new List<NetworkDodgeball>();
+        // for (int i = 0; i < defaultPoolSize; i++) 
+        // {
+        //     Debug.Log("huh????");
+        //     balls.Add(pool.Get());
+        // }
+        // for (int i = 0; i < defaultPoolSize; i++) 
+        // {
+        //     Debug.Log("huh!!!");
+        //     pool.Release(balls[i]);
+        // }
     }
 
     /// <summary>
@@ -65,7 +83,9 @@ public class NetworkBallManager : MonoBehaviour
     /// <returns>Dodgeball, transform values are not reset.</returns>
     public NetworkDodgeball GetBall()
     {
-        return pool.Get().Reset();
+        var ball = pool.Get();
+        activeBalls.Add(ball);
+        return ball.Reset();
     }
 
     /// <summary>
@@ -75,5 +95,15 @@ public class NetworkBallManager : MonoBehaviour
     public void ReleaseBall(NetworkDodgeball ball)
     {
         pool.Release(ball);
+        activeBalls.Remove(ball);
+    }
+
+    /// <summary>
+    /// Releases all Dodgeballs back to the pool.
+    public void ReleaseAllBalls() {
+        for (int i = 0; i < activeBalls.Count; i++)
+        {
+            ReleaseBall(activeBalls[0]);
+        }
     }
 }

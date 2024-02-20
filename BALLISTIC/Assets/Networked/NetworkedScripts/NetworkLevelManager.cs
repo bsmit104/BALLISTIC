@@ -59,6 +59,8 @@ public class NetworkLevelManager : MonoBehaviour
 
         numLevels = lastLevelIndex - firstLevelIndex;
         remainingLevels = new List<int>(numLevels);
+
+        SceneManager.sceneLoaded += OnLoaded;
     }
 
     /// <summary>
@@ -234,6 +236,13 @@ public class NetworkLevelManager : MonoBehaviour
 
     // full transition ============
 
+    private bool isLoaded = false;
+
+    private void OnLoaded(Scene scene, LoadSceneMode mode)
+    {
+        isLoaded = true;
+    }
+
     private Coroutine fullTransition;
     private bool levelChangeRunning = false;
     public bool LevelChangeRunning { get { return levelChangeRunning; } }
@@ -263,10 +272,11 @@ public class NetworkLevelManager : MonoBehaviour
         {
             Runner.LoadScene(SceneRef.FromIndex(buildIndex));
         }
-        while (SceneManager.GetActiveScene().buildIndex != buildIndex)
+        while (!isLoaded)
         {
             yield return new WaitForSeconds(loadCompletionCheck);
         }
+        isLoaded = false;
         ResetLevel();
 
         StartEnterTransition();
@@ -302,6 +312,8 @@ public class NetworkLevelManager : MonoBehaviour
 
     // * Level Prep ==============================================
 
+    [SerializeField] int ballsPerLevel = 5; // TEMP: Hardcoded
+
     /// <summary>
     /// Resets the current level to be prepared for play.
     /// Places players and balls into scene.
@@ -309,6 +321,19 @@ public class NetworkLevelManager : MonoBehaviour
     public void ResetLevel()
     {
         // TODO: implement placements using Spawner.GetSpawnPosition()
+        NetworkBallManager.Instance.ReleaseAllBalls();
+        // Reset all balls in pool
+        for (int i = 0; i < ballsPerLevel; i++)
+        {
+            var ball = NetworkBallManager.Instance.GetBall();
+            ball.transform.position = Spawner.GetSpawnPoint();
+        }
+        // Reset all players
+        NetworkPlayerManager.Instance.ResetPlayers();
+        foreach (var player in NetworkPlayerManager.Instance.Players)
+        {
+            player.Value.transform.position = Spawner.GetSpawnPoint();
+        }
     }
 
     // * =========================================================

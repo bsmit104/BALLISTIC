@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PlayerIsRagdoll.unity
     guid: 781b93f8c946a4e4981499bbc25e7dbc
+  - enabled: 1
+    path: Assets/Scenes/TestLevel2.unity
+    guid: 7cd4ea70ad99c4243b342370e0bda58d
   m_configObjects: {}

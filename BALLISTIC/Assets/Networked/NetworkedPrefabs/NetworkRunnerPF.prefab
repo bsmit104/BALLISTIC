@@ -296,9 +296,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lobbySceneIndex: 0
-  firstLevelIndex: 0
-  lastLevelIndex: 0
-  refreshChance: 0
+  firstLevelIndex: 1
+  lastLevelIndex: 2
+  refreshChance: 0.099
   transitionCanvas: {fileID: 5583001774924978472}
   transitionElement: {fileID: 2504615501217586822}
   enterTransitionDuration: 0.4
@@ -306,7 +306,8 @@ MonoBehaviour:
   exitTransitionDuration: 0.4
   exitTransitionStartPos: {x: 2200, y: 1450}
   loadCompletionCheck: 0.05
-  winScreenDuration: 0
+  ballsPerLevel: 5
+  winScreenDuration: 5
 --- !u!1 &8064804141459657442
 GameObject:
   m_ObjectHideFlags: 0
