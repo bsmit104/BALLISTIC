@@ -104,7 +104,6 @@ public class NetworkBallManager : MonoBehaviour
         active.Remove(ball);
         ball.NetworkSetActive(false);
         pool.Add(ball);
-        Debug.Log("released ball");
     }
 
     /// <summary>

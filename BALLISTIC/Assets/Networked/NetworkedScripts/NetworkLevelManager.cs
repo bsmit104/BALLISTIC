@@ -4,12 +4,13 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Container for the
-/// </summary>
-public struct TransitionAssets
+public class DeclareWinnerMessage : SimulationBehaviour
 {
-
+    [Rpc]
+    public static void RPC_DeclareWinner(NetworkRunner runner, PlayerRef player)
+    {
+        NetworkLevelManager.Instance.DeclareWinner(player);
+    }
 }
 
 /// <summary>
@@ -24,14 +25,11 @@ public class NetworkLevelManager : MonoBehaviour
     public static NetworkLevelManager Instance { get { return _instance; } }
     private static NetworkLevelManager _instance = null;
 
+    public static NetworkRunner Runner { get { return _runner; } }
+    private static NetworkRunner _runner = null;
+
     private NetworkPlayerManager playerManager;
     // private NetworkBallManager ballManager;
-
-    /// <summary>
-    /// Get the local network runner instance.
-    /// </summary>
-    public NetworkRunner Runner { get { return _runner; } }
-    private NetworkRunner _runner = null;
 
     [Header("Scene Indices")]
     [Tooltip("The build index of the lobby scene")]
@@ -267,7 +265,7 @@ public class NetworkLevelManager : MonoBehaviour
         {
             yield return new WaitForSeconds(loadCompletionCheck);
         }
-        ResetLevel();
+        if (Runner.IsServer) ResetLevel();
 
         StartEnterTransition();
         while (EnterRunning)
@@ -348,6 +346,8 @@ public class NetworkLevelManager : MonoBehaviour
     /// <param name="player">The winning player</param>
     public void DeclareWinner(PlayerRef player)
     {
+        if (winSequenceRunning) return;
+
         winner = player;
 
         if (winnerSequence != null)
@@ -356,6 +356,11 @@ public class NetworkLevelManager : MonoBehaviour
         }
         winSequenceRunning = true;
         StartCoroutine(WinnerSequence());
+
+        if (Runner.IsServer)
+        {
+            DeclareWinnerMessage.RPC_DeclareWinner(Runner, player);
+        }
     }
 
     private IEnumerator WinnerSequence()

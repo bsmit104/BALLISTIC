@@ -283,6 +283,8 @@ MonoBehaviour:
   ballPrefab: {fileID: 1437923237954681535, guid: 3049e71cd6e7b664999175e509e02cd2, type: 3}
   defaultPoolSize: 10
   maxPoolSize: 15
+  pool: []
+  active: []
 --- !u!114 &-3594434660325473979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,7 +300,7 @@ MonoBehaviour:
   lobbySceneIndex: 0
   firstLevelIndex: 1
   lastLevelIndex: 2
-  refreshChance: 0.099
+  refreshChance: 0.05
   transitionCanvas: {fileID: 5583001774924978472}
   transitionElement: {fileID: 2504615501217586822}
   enterTransitionDuration: 0.4

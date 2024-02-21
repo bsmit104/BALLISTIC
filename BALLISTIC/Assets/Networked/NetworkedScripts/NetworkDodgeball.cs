@@ -106,6 +106,7 @@ public class NetworkDodgeball : NetworkBehaviour
         ballCol.networkBall = this;
         rig = GetComponent<Rigidbody>();
         col = GetComponent<SphereCollider>();
+        gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -142,6 +143,7 @@ public class NetworkDodgeball : NetworkBehaviour
     public void RPC_EnforceSetActive(bool state)
     {
         gameObject.SetActive(state);
+        Debug.Log("received disable signal");
     }
 
     [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
