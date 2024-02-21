@@ -55,6 +55,12 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private NetworkPrefabRef playerPrefab;
     private Dictionary<PlayerRef, NetworkPlayer> spawnedPlayers = new Dictionary<PlayerRef, NetworkPlayer>();
     public Dictionary<PlayerRef, NetworkPlayer> Players { get { return spawnedPlayers; } }
+    public int PlayerCount { get { return spawnedPlayers.Count; } }
+
+    public static void AddPlayer(PlayerRef pRef, NetworkPlayer player)
+    {
+        Instance.spawnedPlayers.Add(pRef, player);
+    }
 
     /// <summary>
     /// Get the NetworkPlayer linked to the given playerRef

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -244,6 +245,13 @@ public class NetworkLevelManager : MonoBehaviour
     private bool levelChangeRunning = false;
     public bool LevelChangeRunning { get { return levelChangeRunning; } }
 
+    private int clientsLoaded = 0;
+    public void ClientLoaded()
+    {
+        clientsLoaded++;
+    }
+    public bool AllClientsLoaded { get { return clientsLoaded >= Runner.ActivePlayers.Count(); } }
+
     private void StartLevelTransition(int buildIndex)
     {
         if (fullTransition != null)
@@ -274,6 +282,11 @@ public class NetworkLevelManager : MonoBehaviour
             yield return new WaitForSeconds(loadCompletionCheck);
         }
         if (Runner.IsServer) ResetLevel();
+        while (!AllClientsLoaded)
+        {
+            yield return new WaitForSeconds(loadCompletionCheck);
+        }
+        clientsLoaded = 0;
 
         StartEnterTransition();
         while (EnterRunning)
