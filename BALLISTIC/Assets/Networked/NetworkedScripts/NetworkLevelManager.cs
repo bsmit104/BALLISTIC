@@ -137,6 +137,8 @@ public class NetworkLevelManager : MonoBehaviour
     [Tooltip("Duration for transition out of a scene.")]
     [SerializeField] float exitTransitionDuration;
     [SerializeField] Vector2 exitTransitionStartPos;
+    [Tooltip("Hold on the last frame of the transition to prevent it from being too disorienting.")]
+    [SerializeField] float waitBetweenTransitions;
 
     [Space]
     [Tooltip("Frequency in seconds for checking if the next level has loaded.")]
@@ -179,6 +181,12 @@ public class NetworkLevelManager : MonoBehaviour
             yield return null;
         }
         transitionElement.anchoredPosition = Vector2.zero;
+        timer = waitBetweenTransitions;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
 
         if (!LevelChangeRunning && !WinSequenceRunning) SetTransitionCanvasActive(false);
         exitRunning = false;

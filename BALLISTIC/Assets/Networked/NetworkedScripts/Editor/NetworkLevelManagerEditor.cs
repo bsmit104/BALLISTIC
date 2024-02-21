@@ -39,6 +39,7 @@ public class NetworkLevelManagerEditor : Editor
 
         EditorGUILayout.PropertyField(serializedObject.FindProperty("exitTransitionDuration"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("exitTransitionStartPos"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("waitBetweenTransitions"));
         if (GUILayout.Button("Test Exit Transition") && !manager.ExitRunning)
         {
             manager.StartExitTransition();

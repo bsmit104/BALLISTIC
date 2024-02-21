@@ -305,6 +305,7 @@ MonoBehaviour:
   transitionElement: {fileID: 2504615501217586822}
   enterTransitionDuration: 0.4
   enterTransitionEndPos: {x: -2200, y: -1450}
+  waitBetweenTransitions: 1
   exitTransitionDuration: 0.4
   exitTransitionStartPos: {x: 2200, y: 1450}
   loadCompletionCheck: 0.05
