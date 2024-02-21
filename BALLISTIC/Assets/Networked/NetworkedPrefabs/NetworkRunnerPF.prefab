@@ -305,12 +305,13 @@ MonoBehaviour:
   transitionElement: {fileID: 2504615501217586822}
   enterTransitionDuration: 0.4
   enterTransitionEndPos: {x: -2200, y: -1450}
-  waitBetweenTransitions: 1
   exitTransitionDuration: 0.4
   exitTransitionStartPos: {x: 2200, y: 1450}
+  waitBetweenTransitions: 1
   loadCompletionCheck: 0.05
   ballsPerLevel: 5
   winScreenDuration: 5
+  winScreen: {fileID: 0}
 --- !u!1 &8064804141459657442
 GameObject:
   m_ObjectHideFlags: 0

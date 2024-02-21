@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Fusion;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -353,6 +354,9 @@ public class NetworkLevelManager : MonoBehaviour
     [Header("Win Screen")]
     [Tooltip("How long the winner will be displayed before going to the next level.")]
     [SerializeField] float winScreenDuration;
+    [Tooltip("What screen is displayed when the round is over.")]
+    [SerializeField] private GameObject winScreen;
+    //public TextMeshProUGUI winText;
 
     private PlayerRef winner;
 
@@ -398,8 +402,13 @@ public class NetworkLevelManager : MonoBehaviour
         // TODO: (GORDON) Set up winner screen
         // SET WIN SCREEN ACTIVE HERE
         // playerNum = winner.playerId
-        // "Player{X} Wins!
+
+        //string tempText = "69";
         
+        //winText = GetComponent<TextMeshProUGUI>();
+        //winText.text = "Player #" + tempText + " Wins!";
+        //winScreen.SetActive(true);
+
         StartEnterTransition();
         while (EnterRunning)
         {
@@ -419,7 +428,9 @@ public class NetworkLevelManager : MonoBehaviour
         }
 
         winSequenceRunning = false;
+
         // SET WIN SCREEN INACTIVE HERE
+        //winScreen.SetActive(false);
 
         // go to the next level
         GoToLevel(GetRandomLevel());
