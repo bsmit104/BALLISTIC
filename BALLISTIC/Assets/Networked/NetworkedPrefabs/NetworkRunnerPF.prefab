@@ -626,6 +626,7 @@ MonoBehaviour:
   waitBetweenTransitions: 1
   loadCompletionCheck: 0.05
   ballsPerLevel: 5
+  waitBeforeWinScreen: 3
   winScreenDuration: 5
   winScreen: {fileID: 5692641985167843846}
   winText: {fileID: 5527874522076470968}

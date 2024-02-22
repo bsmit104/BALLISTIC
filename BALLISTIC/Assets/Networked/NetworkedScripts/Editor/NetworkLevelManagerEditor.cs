@@ -48,6 +48,7 @@ public class NetworkLevelManagerEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("loadCompletionCheck"));
 
         // win state
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("waitBeforeWinScreen"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("winScreenDuration"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("winScreen"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("winText"));

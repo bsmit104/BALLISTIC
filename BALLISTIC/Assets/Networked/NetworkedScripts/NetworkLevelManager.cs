@@ -352,6 +352,8 @@ public class NetworkLevelManager : MonoBehaviour
 
     [Space]
     [Header("Win Screen")]
+    [Tooltip("Pause after last player dies before going to the win screen.")]
+    [SerializeField] float waitBeforeWinScreen;
     [Tooltip("How long the winner will be displayed before going to the next level.")]
     [SerializeField] float winScreenDuration;
     [Tooltip("What screen is displayed when the round is over.")]
@@ -390,6 +392,13 @@ public class NetworkLevelManager : MonoBehaviour
 
     private IEnumerator WinnerSequence()
     {
+        float timer = waitBeforeWinScreen;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
         SetTransitionCanvasActive(true);
         winSequenceRunning = true;
 
@@ -413,7 +422,7 @@ public class NetworkLevelManager : MonoBehaviour
 
         SetTransitionCanvasActive(false);
 
-        float timer = winScreenDuration;
+        timer = winScreenDuration;
         while (timer > 0)
         {
             timer -= Time.deltaTime;
@@ -426,10 +435,21 @@ public class NetworkLevelManager : MonoBehaviour
         winSequenceRunning = false;
 
         // SET WIN SCREEN INACTIVE HERE
-        winScreen.SetActive(false);
+        StartCoroutine(DisableWinScreen());
 
         // go to the next level
         GoToLevel(GetRandomLevel());
+    }
+
+    IEnumerator DisableWinScreen()
+    {
+        float timer = exitTransitionDuration;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+        winScreen.SetActive(false);
     }
 
     // * =========================================================
