@@ -76,7 +76,10 @@ public class NetworkDodgeball : NetworkBehaviour
     [Networked, HideInInspector] public PlayerRef owner { get; set; }
     void SourceOnChange() 
     { 
-        //TODO: idk something is gonna have to go here, but whatever
+        if (owner == PlayerRef.None)
+        {
+            transform.SetParent(null);
+        }
     }
 
     [Networked, HideInInspector] public bool isHeld { get; set; }
@@ -117,6 +120,7 @@ public class NetworkDodgeball : NetworkBehaviour
     public NetworkDodgeball Reset()
     {
         owner = PlayerRef.None;
+        
         transform.position = Vector3.zero;
         rig.velocity = Vector3.zero;
         return this;
@@ -149,6 +153,31 @@ public class NetworkDodgeball : NetworkBehaviour
     public void RPC_RequestSetActive(bool state)
     {
         RPC_EnforceSetActive(state);
+    }
+
+    public void NetworkRemoveParent()
+    {
+        if (Runner.IsServer)
+        {
+            RPC_EnforceRemoveParent();
+        }
+        else
+        {
+            transform.SetParent(null);
+            RPC_RequestRemoveParent();
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_EnforceRemoveParent()
+    {
+        transform.SetParent(null);
+    }
+
+    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_RequestRemoveParent()
+    {
+        RPC_EnforceRemoveParent();
     }
 
 

@@ -127,6 +127,7 @@ public class NetworkBallManager : MonoBehaviour
     /// <param name="ball">The ball to be released.</param>
     public void ReleaseBall(NetworkDodgeball ball)
     {
+        ball.Reset();
         MakeInactive(ball);
     }
 
