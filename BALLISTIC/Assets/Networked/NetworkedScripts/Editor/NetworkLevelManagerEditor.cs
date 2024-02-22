@@ -49,6 +49,8 @@ public class NetworkLevelManagerEditor : Editor
 
         // win state
         EditorGUILayout.PropertyField(serializedObject.FindProperty("winScreenDuration"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("winScreen"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("winText"));
 
         serializedObject.ApplyModifiedProperties();
     }

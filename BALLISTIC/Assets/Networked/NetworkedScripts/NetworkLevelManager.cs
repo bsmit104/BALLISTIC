@@ -356,7 +356,7 @@ public class NetworkLevelManager : MonoBehaviour
     [SerializeField] float winScreenDuration;
     [Tooltip("What screen is displayed when the round is over.")]
     [SerializeField] private GameObject winScreen;
-    //public TextMeshProUGUI winText;
+    [SerializeField] private TextMeshProUGUI winText;
 
     private PlayerRef winner;
 
@@ -401,13 +401,9 @@ public class NetworkLevelManager : MonoBehaviour
 
         // TODO: (GORDON) Set up winner screen
         // SET WIN SCREEN ACTIVE HERE
-        // playerNum = winner.playerId
-
-        //string tempText = "69";
         
-        //winText = GetComponent<TextMeshProUGUI>();
-        //winText.text = "Player #" + tempText + " Wins!";
-        //winScreen.SetActive(true);
+        winText.text = "Player #" + winner.PlayerId + " Wins!";
+        winScreen.SetActive(true);
 
         StartEnterTransition();
         while (EnterRunning)
@@ -430,7 +426,7 @@ public class NetworkLevelManager : MonoBehaviour
         winSequenceRunning = false;
 
         // SET WIN SCREEN INACTIVE HERE
-        //winScreen.SetActive(false);
+        winScreen.SetActive(false);
 
         // go to the next level
         GoToLevel(GetRandomLevel());
