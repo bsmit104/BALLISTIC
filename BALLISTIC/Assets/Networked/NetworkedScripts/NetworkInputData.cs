@@ -11,4 +11,11 @@ using UnityEngine;
 public struct NetworkInputData : INetworkInput
 {
     // TODO: fill with needed data for input transport
+    public float horizontal;
+    public float vertical;
+    public bool sprintButtonPressed;
+    public bool throwButtonPressed;
+    public bool jumpButtonPressed;
+
+    public bool testButtonPressed;
 }

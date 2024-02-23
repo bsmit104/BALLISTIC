@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0a238ba935e2a634c86de765013b53a5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - transitionCanvas: {instanceID: 0}
+  - transitionElement: {instanceID: 0}
+  - winScreen: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

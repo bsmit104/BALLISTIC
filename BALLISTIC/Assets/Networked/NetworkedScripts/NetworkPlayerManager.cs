@@ -16,9 +16,51 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     /// </summary>
     public static NetworkPlayerManager Instance { get { return _instance; } }
 
+    private NetworkRunner runner;
+    private NetworkBallManager ballManager;
+    private NetworkLevelManager levelManager;
+
+    void Start()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Debug.LogError("NetworkPlayerManager singleton instantiated twice");
+            Destroy(this);
+        }
+        _instance = this;
+
+        runner = GetComponent<NetworkRunner>();
+        if (runner == null)
+        {
+            Debug.LogError("No NetworkRunner found");
+        }
+
+        ballManager = GetComponent<NetworkBallManager>();
+        if (ballManager == null)
+        {
+            Debug.LogError("No NetworkBallManager found");
+        }
+        ballManager.Init(runner);
+
+        levelManager = GetComponent<NetworkLevelManager>();
+        if (levelManager == null)
+        {
+            Debug.LogError("No NetworkLevelManager found");
+        }
+        levelManager.Init(runner, this);
+    }
+
+
     [Tooltip("Prefab that will be instantiated for each player, this has the character controller")]
     [SerializeField] private NetworkPrefabRef playerPrefab;
     private Dictionary<PlayerRef, NetworkPlayer> spawnedPlayers = new Dictionary<PlayerRef, NetworkPlayer>();
+    public Dictionary<PlayerRef, NetworkPlayer> Players { get { return spawnedPlayers; } }
+    public int PlayerCount { get { return spawnedPlayers.Count; } }
+
+    public static void AddPlayer(PlayerRef pRef, NetworkPlayer player)
+    {
+        Instance.spawnedPlayers.Add(pRef, player);
+    }
 
     /// <summary>
     /// Get the NetworkPlayer linked to the given playerRef
@@ -28,6 +70,49 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     public static NetworkPlayer GetPlayer(PlayerRef playerRef)
     {
         return _instance.spawnedPlayers[playerRef];
+    }
+
+    public NetworkPlayer GetDummy()
+    {
+        var obj = runner.Spawn(playerPrefab, Vector3.zero);
+        obj.GetComponent<NetworkPlayer>().isDummy = true;
+        return obj.GetComponent<NetworkPlayer>();
+    }
+
+    private List<PlayerRef> alivePlayers = new List<PlayerRef>();
+
+    /// <summary>
+    /// Notify the player manager of a player dying. Will call LevelManager.DeclareWinner() 
+    /// when only one player is left.
+    /// </summary>
+    /// <param name="player">The PlayerRef to the player that died.</param>
+    public void PlayerDied(PlayerRef player)
+    {
+        if (alivePlayers.Contains(player))
+        {
+            alivePlayers.Remove(player);
+
+            if (alivePlayers.Count == 1 && spawnedPlayers.Count > 1)
+            {
+                levelManager.DeclareWinner(alivePlayers[0]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reset all players to their alive state, and add them back to the living players list.
+    /// </summary>
+    public void ResetPlayers()
+    {
+        if (runner.IsServer)
+        {
+            alivePlayers.Clear();
+            foreach (var pair in spawnedPlayers)
+            {
+                pair.Value.Reset();
+                alivePlayers.Add(pair.Value.GetRef);
+            }
+        }
     }
 
     // * Network Events =========================================
@@ -41,6 +126,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
             NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
             // Keep track of the player avatars for easy access
             spawnedPlayers.Add(player, networkPlayerObject.gameObject.GetComponent<NetworkPlayer>());
+            alivePlayers.Add(player);
             runner.SetPlayerObject(player, networkPlayerObject);
 
             Debug.Log($"Added player no. {player.RawEncoded}");
@@ -51,10 +137,10 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    // TODO: create a better player spawn position method
+    // TODO: create a better player spawn position method, used for lobby scene
     private Vector3 GetSpawnPosition(int playerNum)
     {
-        return new Vector3(playerNum * 3, 1, 0);
+        return Spawner.GetSpawnPoint();
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) 
@@ -71,7 +157,12 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     { 
         var data = new NetworkInputData();
 
-        // Read input ...
+        data.horizontal = Input.GetAxis("Horizontal");
+        data.vertical = Input.GetAxis("Vertical");
+        data.sprintButtonPressed = Input.GetKey(KeyCode.LeftShift);
+        data.throwButtonPressed = Input.GetMouseButton(0);
+        data.testButtonPressed = Input.GetKey(KeyCode.R);
+        data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
 
         input.Set(data);
     }

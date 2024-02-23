@@ -6,6 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/NetworkJoin.unity
+    guid: 24637c291e4e9ef4dae2d98d4fba4e64
+  - enabled: 1
+    path: Assets/Scenes/PlayerIsRagdoll.unity
+    guid: 781b93f8c946a4e4981499bbc25e7dbc
+  - enabled: 1
+    path: Assets/Scenes/TestLevel2.unity
+    guid: 7cd4ea70ad99c4243b342370e0bda58d
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 40deb79a201a01747b0fda71227b3723
   - enabled: 1
