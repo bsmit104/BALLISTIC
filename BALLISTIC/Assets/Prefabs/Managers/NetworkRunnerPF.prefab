@@ -615,7 +615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lobbySceneIndex: 0
   firstLevelIndex: 1
-  lastLevelIndex: 2
+  lastLevelIndex: 3
   refreshChance: 0.05
   transitionCanvas: {fileID: 5583001774924978472}
   transitionElement: {fileID: 2504615501217586822}

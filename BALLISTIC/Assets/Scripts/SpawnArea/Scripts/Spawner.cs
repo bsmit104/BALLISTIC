@@ -55,7 +55,7 @@ public class Spawner : MonoBehaviour
     /// <returns>The spawn position in global space.</returns>
     public static Vector3 GetSpawnPoint()
     {
-        if (Instance == null && Instance.spawnAreas.Count > 0) return Vector3.zero;
+        if (Instance == null || Instance.spawnAreas.Count == 0) return Vector3.zero;
 
         int selection = Random.Range(0, Instance.spawnAreas.Count);
         int iters = 0;
