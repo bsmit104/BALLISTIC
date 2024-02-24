@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -29,6 +30,7 @@ public class Spawner : MonoBehaviour
     public void AddSpawnArea()
     {
         spawnAreas.Add(Instantiate(spawnAreaPrefab, transform));
+        EditorUtility.SetDirty(this);
     }
 
     void Awake()
