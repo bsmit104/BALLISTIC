@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Singleton which should exist on every level. Used to get valid spawn positions.
@@ -49,6 +50,11 @@ public class Spawner : MonoBehaviour
             area.gameObject.SetActive(displayAreaOnPlay);
         }
         SetRenderersActive(displayAreaOnPlay);
+    }
+
+    void OnDestroy()
+    {
+        _instance = null;
     }
 
     /// <summary>

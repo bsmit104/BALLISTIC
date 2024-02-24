@@ -353,13 +353,15 @@ public class NetworkLevelManager : MonoBehaviour
 
     [SerializeField] int ballsPerLevel = 5; // TEMP: Hardcoded
 
+    public bool IsResetting { get { return isResetting; } }
+    private bool isResetting = false;
+
     /// <summary>
     /// Resets the current level to be prepared for play.
     /// Places players and balls into scene.
     /// </summary>
     public void ResetLevel()
     {
-        // TODO: implement placements using Spawner.GetSpawnPosition()
         NetworkBallManager.Instance.ReleaseAllBalls();
         // Reset all balls in pool
         for (int i = 0; i < ballsPerLevel; i++)
@@ -372,6 +374,14 @@ public class NetworkLevelManager : MonoBehaviour
         foreach (var player in NetworkPlayerManager.Instance.Players)
         {
             player.Value.transform.position = Spawner.GetSpawnPoint();
+        }
+    }
+
+    IEnumerator WaitForSpawner()
+    {
+        while (Spawner.Instance == null)
+        {
+            yield return null;
         }
     }
 
@@ -436,8 +446,7 @@ public class NetworkLevelManager : MonoBehaviour
         {
             yield return null;
         }
-
-        // TODO: (GORDON) Set up winner screen
+        
         // SET WIN SCREEN ACTIVE HERE
         
         winText.text = "Player #" + winner.PlayerId + " Wins!";

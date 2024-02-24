@@ -50,6 +50,7 @@ public class NetworkLevelManagerEditor : Editor
         }
 
         EditorGUILayout.PropertyField(serializedObject.FindProperty("loadCompletionCheck"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("ballsPerLevel"));
 
         // win state
         EditorGUILayout.PropertyField(serializedObject.FindProperty("waitBeforeWinScreen"));
