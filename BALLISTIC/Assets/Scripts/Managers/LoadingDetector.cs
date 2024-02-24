@@ -3,15 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
-public class LevelLoadedMessage : SimulationBehaviour
-{
-    [Rpc]
-    public static void RPC_ClientHasLoaded(NetworkRunner runner)
-    {
-        NetworkLevelManager.Instance.ClientLoaded();
-    }
-}
-
 public class LoadingDetector : MonoBehaviour
 {
     public static bool IsLoaded;
@@ -25,5 +16,14 @@ public class LoadingDetector : MonoBehaviour
     void OnDestroy()
     {
         IsLoaded = false;
+    }
+}
+
+public class LevelLoadedMessage : SimulationBehaviour
+{
+    [Rpc]
+    public static void RPC_ClientHasLoaded(NetworkRunner runner)
+    {
+        NetworkLevelManager.Instance?.ClientLoaded();
     }
 }

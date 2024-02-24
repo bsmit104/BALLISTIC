@@ -25,8 +25,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     /// <summary>
     /// Returns the PlayerRef associated with this player object.
     /// </summary>
-    public PlayerRef GetRef { 
-        get 
+    public PlayerRef GetRef
+    {
+        get
         {
             if (_playerRef == PlayerRef.None)
             {
@@ -41,8 +42,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                     }
                 }
             }
-            return _playerRef; 
-        } 
+            return _playerRef;
+        }
     }
     private PlayerRef _playerRef = PlayerRef.None;
 
@@ -66,11 +67,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [SerializeField] private float aimDist;
     [Tooltip("The upward angle of the throw multiplier. Scales with distance to throw target.")]
     [SerializeField] private float arcMultiplier;
-    public Vector3 LookTarget 
+    public Vector3 LookTarget
     {
-        get 
+        get
         {
-            if (Physics.Raycast(cmra.transform.position, cmra.transform.forward, out RaycastHit hit, aimDist, LayerMask.GetMask("Surfaces", "Players"))) 
+            if (Physics.Raycast(cmra.transform.position, cmra.transform.forward, out RaycastHit hit, aimDist, LayerMask.GetMask("Surfaces", "Players")))
             {
                 return hit.point;
             }
@@ -107,11 +108,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Space]
     [Header("Ball Pickup")]
     [SerializeField] public DodgeballPickup pickupCollider;
-    
+
     // nearby balls list =====================
 
     // List of dodgeballs near player in "pickup" range
-    private List<NetworkDodgeball> nearbyDodgeballs; 
+    private List<NetworkDodgeball> nearbyDodgeballs;
 
     public bool NearbyBallsContains(NetworkDodgeball ball)
     {
@@ -136,21 +137,25 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private Animator animator;
 
     private bool _isDummy = false;
-    public bool isDummy {get { return _isDummy;}
-    set {
-        if (value)
+    public bool isDummy
+    {
+        get { return _isDummy; }
+        set
         {
-            // Instantiate list of nearby dodgeballs
-            nearbyDodgeballs = new List<NetworkDodgeball>();
+            if (value)
+            {
+                // Instantiate list of nearby dodgeballs
+                nearbyDodgeballs = new List<NetworkDodgeball>();
 
-            // Set pickup collider
-            pickupCollider.gameObject.SetActive(true);
-            pickupCollider.player = this;
+                // Set pickup collider
+                pickupCollider.gameObject.SetActive(true);
+                pickupCollider.player = this;
 
-            Debug.Log("Spawned Dummy Player");
+                Debug.Log("Spawned Dummy Player");
+            }
+            _isDummy = value;
         }
-        _isDummy = value;
-    }}
+    }
 
     // * ========================================================
 
@@ -169,7 +174,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             { nameof(isStrafingRight), IsStrafingRightOnChange },
             { nameof(isStrafingLeft), IsStrafingLeftOnChange },
             { nameof(isSprinting), IsSprintingOnChange },
-            { nameof(isIdle), IsIdleOnChange }
+            { nameof(isIdle), IsIdleOnChange },
+            { nameof(isJumping), IsJumpingOnChange }
         };
     }
 
@@ -226,6 +232,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     [Networked, HideInInspector] public bool isIdle { get; set; }
     void IsIdleOnChange() { animator.SetBool("isIdle", isIdle); }
+
+    [Networked, HideInInspector] public bool isJumping { get; set; }
+    void IsJumpingOnChange() { animator.SetBool("isJump", isJumping); }
 
     // ===============================================
 
@@ -323,14 +332,14 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     void HandleLook()
     {
         if (!Object.HasInputAuthority) return;
-        
+
         xAxis.Update(Time.deltaTime);
         yAxis.Update(Time.deltaTime);
 
         UpdateLookDirection(xAxis.Value, yAxis.Value);
 
         Vector3 dir = (cmraReferencePos.position - cmraParent.position).normalized;
-        if (Physics.Raycast(cmraParent.position, dir, out RaycastHit hit, maxCmraDist + cmraWallOffset, LayerMask.GetMask("Surfaces"))) 
+        if (Physics.Raycast(cmraParent.position, dir, out RaycastHit hit, maxCmraDist + cmraWallOffset, LayerMask.GetMask("Surfaces")))
         {
             cmra.transform.position = cmraParent.position + (dir * Mathf.Max(minCmraDist, (hit.point - cmraParent.position).magnitude - cmraWallOffset));
         }
@@ -359,6 +368,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         {
             grounded.isGrounded = false;
             curJumpVel = jumpImpulse;
+            isJumping = true;
         }
         else if (curJumpVel > 0)
         {
@@ -367,6 +377,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                 curJumpVel = 0;
             }
             curJumpVel -= decelSpeed * Runner.DeltaTime;
+            isJumping = false;
         }
 
         // Move the character based on the input
@@ -495,6 +506,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     /// </summary>
     public void ActivatePlayerRagdoll()
     {
+        if (NetworkLevelManager.Instance.IsAtLobby) return;
+
         if (Runner.IsServer)
         {
             RPC_EnforcePlayerRagdoll();
@@ -563,7 +576,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // ======================================
 
     // Ball Pickup ==========================
-    
+
     private void ApplyPickupBall(NetworkDodgeball ball)
     {
         ball.owner = GetRef;

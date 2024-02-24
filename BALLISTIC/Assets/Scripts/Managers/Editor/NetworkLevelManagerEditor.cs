@@ -14,6 +14,10 @@ public class NetworkLevelManagerEditor : Editor
 
         serializedObject.Update();
 
+        // lobby canvas
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("lobbyCanvas"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("lobbyCodeText"));
+
         // scene indices
         EditorGUILayout.PropertyField(serializedObject.FindProperty("lobbySceneIndex"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("firstLevelIndex"));
@@ -28,7 +32,7 @@ public class NetworkLevelManagerEditor : Editor
 
         GUILayout.Label(@"
         TUTORIAL:
-            Press Play to use the test transition buttons.");
+            Open the prefab and press Play to use the test transition buttons.");
 
         EditorGUILayout.PropertyField(serializedObject.FindProperty("enterTransitionDuration"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("enterTransitionEndPos"));
