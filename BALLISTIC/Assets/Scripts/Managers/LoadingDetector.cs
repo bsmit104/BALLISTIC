@@ -24,6 +24,6 @@ public class LevelLoadedMessage : SimulationBehaviour
     [Rpc]
     public static void RPC_ClientHasLoaded(NetworkRunner runner)
     {
-        NetworkLevelManager.Instance.ClientLoaded();
+        NetworkLevelManager.Instance?.ClientLoaded();
     }
 }

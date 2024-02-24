@@ -56,26 +56,38 @@ public class NetworkLevelManager : MonoBehaviour
 
         numLevels = lastLevelIndex - firstLevelIndex + 1;
         remainingLevels = new List<int>(numLevels);
-
-        lobbyCodeText.text = runner.SessionInfo.Name;
-
+        
         waitForGameStart = StartCoroutine(WaitForGameStart());
     }
 
     IEnumerator WaitForGameStart()
     {
-        Debug.Log("Press P To Start Game");
-        while (true)
+        float timer = 10f;
+
+        while (timer > 0 && !Runner.IsServer)
         {
-            if (Runner.IsServer && Input.GetKeyDown(KeyCode.P))
-            {
-                break;
-            }
+            timer -= Time.deltaTime;
             yield return null;
         }
-        lobbyCanvas.SetActive(false);
 
-        StartLevelTransition(GetRandomLevel());
+        if (Runner.IsServer)
+        {
+            Debug.Log("Press P To Start Game");
+            lobbyCodeText.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
+            lobbyCanvas.SetActive(true);
+            while (true)
+            {
+                if (Runner.IsServer && Input.GetKeyDown(KeyCode.P))
+                {
+                    break;
+                }
+                yield return null;
+            }
+            lobbyCanvas.SetActive(false);
+
+            StartLevelTransition(GetRandomLevel());
+        }
+
     }
 
     /// <summary>

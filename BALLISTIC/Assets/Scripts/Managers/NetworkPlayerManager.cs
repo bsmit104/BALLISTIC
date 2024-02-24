@@ -177,7 +177,10 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         Application.Quit();
     }
 
-    public void OnConnectedToServer(NetworkRunner runner) { }
+    public void OnConnectedToServer(NetworkRunner runner) 
+    {
+        
+    }
     
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) 
     {
