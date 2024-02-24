@@ -495,6 +495,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     /// </summary>
     public void ActivatePlayerRagdoll()
     {
+        if (NetworkLevelManager.Instance.IsAtLobby) return;
+
         if (Runner.IsServer)
         {
             RPC_EnforcePlayerRagdoll();

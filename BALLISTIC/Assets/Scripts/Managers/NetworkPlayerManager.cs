@@ -184,7 +184,13 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         Application.Quit();
     }
 
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
+    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) 
+    { 
+        // if (!levelManager.IsAtLobby)
+        // {
+        //     request.
+        // }
+    }
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) 
     { 

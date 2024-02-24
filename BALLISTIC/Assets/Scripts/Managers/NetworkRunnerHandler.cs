@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using TMPro;
 
 /// <summary>
 /// Spawns the NetworkRunner to start the online lobby.
@@ -23,6 +24,8 @@ public class NetworkRunnerHandler : MonoBehaviour
     [Tooltip("The build index of the scene to transition to on host/join. Find in build settings.")]
     [SerializeField] private int lobbyScene;
 
+    [SerializeField] private TMP_InputField lobbyNameInputField;
+
     private NetworkRunner networkRunner; // the current runner instance
 
     private string _lobbyName = "";
@@ -38,8 +41,9 @@ public class NetworkRunnerHandler : MonoBehaviour
     /// </summary>
     public void OnHost()
     {
-        //string lobbyName = UnityEngine.Random.Range(10 * (lobbyCodeDigits - 1), 10 * lobbyCodeDigits).ToString();
-        string lobbyName = "Test90";
+        string lobbyName = UnityEngine.Random.Range((int)Mathf.Pow(10, (lobbyCodeDigits - 1)), (int)Mathf.Pow(10, lobbyCodeDigits)).ToString();
+        Debug.Log("OnHost Clicked, creating lobby: " + lobbyName);
+        // string lobbyName = "Test20";
         StartGame(GameMode.Host, lobbyName);
     }
 
@@ -49,7 +53,8 @@ public class NetworkRunnerHandler : MonoBehaviour
     public void OnClient()
     {
         // TODO: Add lobby name/code input value
-        string lobbyName = "Test90";
+        string lobbyName = lobbyNameInputField.text;
+        // string lobbyName = "Test";
         StartGame(GameMode.Client, lobbyName);
     }
 

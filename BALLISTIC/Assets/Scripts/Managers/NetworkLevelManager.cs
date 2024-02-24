@@ -6,15 +6,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class DeclareWinnerMessage : SimulationBehaviour
-{
-    [Rpc]
-    public static void RPC_DeclareWinner(NetworkRunner runner, PlayerRef player)
-    {
-        NetworkLevelManager.Instance.DeclareWinner(player);
-    }
-}
-
 /// <summary>
 /// Manages scene transitions between levels.
 /// Tracks how many players are alive to know when to end the game, and then move on to the next level.
@@ -33,6 +24,10 @@ public class NetworkLevelManager : MonoBehaviour
     private NetworkPlayerManager playerManager;
     // private NetworkBallManager ballManager;
 
+    [Header("Lobby Code")]
+    [SerializeField] private GameObject lobbyCanvas;
+    [SerializeField] private TextMeshProUGUI lobbyCodeText;
+
     [Header("Scene Indices")]
     [Tooltip("The build index of the lobby scene")]
     [SerializeField] private int lobbySceneIndex;
@@ -40,6 +35,8 @@ public class NetworkLevelManager : MonoBehaviour
     [SerializeField] private int firstLevelIndex;
     [Tooltip("The next level will be picked based on a range of scene build indices. Each level should be placed in a row.")]
     [SerializeField] private int lastLevelIndex;
+
+    private Coroutine waitForGameStart;
 
     /// <summary>
     /// Initializes the level manager, should only be called once when the NetworkRunnerPrefab is created.
@@ -59,6 +56,26 @@ public class NetworkLevelManager : MonoBehaviour
 
         numLevels = lastLevelIndex - firstLevelIndex + 1;
         remainingLevels = new List<int>(numLevels);
+
+        lobbyCodeText.text = runner.SessionInfo.Name;
+
+        waitForGameStart = StartCoroutine(WaitForGameStart());
+    }
+
+    IEnumerator WaitForGameStart()
+    {
+        Debug.Log("Press P To Start Game");
+        while (true)
+        {
+            if (Runner.IsServer && Input.GetKeyDown(KeyCode.P))
+            {
+                break;
+            }
+            yield return null;
+        }
+        lobbyCanvas.SetActive(false);
+
+        StartLevelTransition(GetRandomLevel());
     }
 
     /// <summary>
@@ -453,4 +470,13 @@ public class NetworkLevelManager : MonoBehaviour
     }
 
     // * =========================================================
+}
+
+public class DeclareWinnerMessage : SimulationBehaviour
+{
+    [Rpc]
+    public static void RPC_DeclareWinner(NetworkRunner runner, PlayerRef player)
+    {
+        NetworkLevelManager.Instance.DeclareWinner(player);
+    }
 }
