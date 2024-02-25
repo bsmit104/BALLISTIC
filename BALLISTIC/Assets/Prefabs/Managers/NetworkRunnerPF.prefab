@@ -753,7 +753,7 @@ MonoBehaviour:
   lobbyCodeText: {fileID: 634153841947470690}
   lobbySceneIndex: 4
   firstLevelIndex: 5
-  lastLevelIndex: 7
+  lastLevelIndex: 8
   refreshChance: 0.05
   transitionCanvas: {fileID: 5583001774924978472}
   transitionElement: {fileID: 2504615501217586822}
