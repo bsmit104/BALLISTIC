@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/NetworkJoin.unity
     guid: 24637c291e4e9ef4dae2d98d4fba4e64
   - enabled: 1
+    path: Assets/Scenes/Playground_Map.unity
+    guid: 0afe3688d2b03f64f90a39e517a6a0d5
+  - enabled: 1
     path: Assets/Scenes/PlayerIsRagdoll.unity
     guid: 781b93f8c946a4e4981499bbc25e7dbc
   - enabled: 1
