@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -66,7 +65,6 @@ public class SpawnArea : MonoBehaviour
     {
         points[index] = position - transform.position;
         pointsChanged = true;
-        EditorUtility.SetDirty(this);
     }
 
     /// <summary>
@@ -79,7 +77,6 @@ public class SpawnArea : MonoBehaviour
     {
         points.Insert(index, position - transform.position);
         pointsChanged = true;
-        EditorUtility.SetDirty(this);
     }
 
     /// <summary>
@@ -89,7 +86,6 @@ public class SpawnArea : MonoBehaviour
     {
         points.RemoveAt(index);
         pointsChanged = true;
-        EditorUtility.SetDirty(this);
     }
 
     /// <summary>
@@ -187,6 +183,10 @@ public class SpawnArea : MonoBehaviour
             return Vector3.zero;
         }
         Bounds bounds = GetBounds;
+
+        Debug.Log("range: (" + (transform.position.x + bounds.min.x) + "," + 
+            (transform.position.z + bounds.min.z) + ") to (" + (transform.position.x + bounds.max.x) + "," + 
+            (transform.position.z + bounds.max.z) + ")");
 
         Vector3 pos = Vector3.zero;
         for (int i = 0; i < 50; i++) 

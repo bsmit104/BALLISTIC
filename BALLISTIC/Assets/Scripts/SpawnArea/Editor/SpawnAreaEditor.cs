@@ -293,6 +293,7 @@ public class SpawnAreaEditor : Editor
         }
         area.SetRenderActive(selected);
         area.GenerateMesh();
+        EditorUtility.SetDirty(area);
     }
 
     // * =====================================================

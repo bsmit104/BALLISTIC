@@ -290,6 +290,10 @@ public class NetworkLevelManager : MonoBehaviour
         }
         levelChangeRunning = true;
         fullTransition = StartCoroutine(LevelTransition(buildIndex));
+        if (Runner.IsServer)
+        {
+            LevelManagerRPC.RPC_GoToLevel(Runner, buildIndex);
+        }
     }
 
     // exit transition, load next level, enter transition
@@ -305,6 +309,7 @@ public class NetworkLevelManager : MonoBehaviour
 
         if (Runner.IsServer) 
         {
+            Spawner.Instance.Destroy();
             Runner.LoadScene(SceneRef.FromIndex(buildIndex));
         }
         while (!LoadingDetector.IsLoaded)
@@ -312,7 +317,7 @@ public class NetworkLevelManager : MonoBehaviour
             yield return new WaitForSeconds(loadCompletionCheck);
         }
         if (Runner.IsServer) ResetLevel();
-        while (!AllClientsLoaded)
+        while (!AllClientsLoaded || IsResetting)
         {
             yield return new WaitForSeconds(loadCompletionCheck);
         }
@@ -342,6 +347,8 @@ public class NetworkLevelManager : MonoBehaviour
             return;
         }
 
+        if (LevelChangeRunning) return;
+
         StartLevelTransition(buildIndex);
     }
 
@@ -362,6 +369,16 @@ public class NetworkLevelManager : MonoBehaviour
     /// </summary>
     public void ResetLevel()
     {
+        isResetting = true;
+        StartCoroutine(WaitForSpawner());
+    }
+
+    IEnumerator WaitForSpawner()
+    {
+        while (Spawner.Instance == null)
+        {
+            yield return null;
+        }
         NetworkBallManager.Instance.ReleaseAllBalls();
         // Reset all balls in pool
         for (int i = 0; i < ballsPerLevel; i++)
@@ -375,14 +392,8 @@ public class NetworkLevelManager : MonoBehaviour
         {
             player.Value.transform.position = Spawner.GetSpawnPoint();
         }
-    }
 
-    IEnumerator WaitForSpawner()
-    {
-        while (Spawner.Instance == null)
-        {
-            yield return null;
-        }
+        isResetting = false;
     }
 
     // * =========================================================
@@ -425,7 +436,7 @@ public class NetworkLevelManager : MonoBehaviour
 
         if (Runner.IsServer)
         {
-            DeclareWinnerMessage.RPC_DeclareWinner(Runner, player);
+            LevelManagerRPC.RPC_DeclareWinner(Runner, player);
         }
     }
 
@@ -493,11 +504,18 @@ public class NetworkLevelManager : MonoBehaviour
     // * =========================================================
 }
 
-public class DeclareWinnerMessage : SimulationBehaviour
+public class LevelManagerRPC : SimulationBehaviour
 {
     [Rpc]
     public static void RPC_DeclareWinner(NetworkRunner runner, PlayerRef player)
     {
         NetworkLevelManager.Instance.DeclareWinner(player);
+    }
+
+    [Rpc]
+    public static void RPC_GoToLevel(NetworkRunner runner, int buildIndex)
+    {
+        if (NetworkLevelManager.Instance.LevelChangeRunning) return;
+        NetworkLevelManager.Instance.GoToLevel(buildIndex);
     }
 }
