@@ -49,6 +49,18 @@ public class Spawner : MonoBehaviour
         SetRenderersActive(displayAreaOnPlay);
     }
 
+    void OnDestroy()
+    {
+        _instance = null;
+    }
+
+    public void Destroy()
+    {
+        if (Instance == null) return;
+        _instance = null;
+        Destroy(gameObject);
+    }
+
     /// <summary>
     /// Gets a random, valid spawn position for the current level.
     /// </summary>
@@ -64,6 +76,7 @@ public class Spawner : MonoBehaviour
             selection = Random.Range(0, Instance.spawnAreas.Count);
             iters++;
         }
+        Debug.Log("get spawn point from area: " + selection);
         return Instance.spawnAreas[selection].GetRandomPosition();
     }
 

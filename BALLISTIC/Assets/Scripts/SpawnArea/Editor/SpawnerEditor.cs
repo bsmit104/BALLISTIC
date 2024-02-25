@@ -27,6 +27,7 @@ public class SpawnerEditor : Editor
         if (GUILayout.Button("Add Spawn Area"))
         {
             spawner.AddSpawnArea();
+            EditorUtility.SetDirty(spawner);
         }
 
         GUILayout.Space(20f);
