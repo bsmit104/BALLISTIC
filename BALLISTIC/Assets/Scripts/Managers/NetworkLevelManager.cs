@@ -409,6 +409,8 @@ public class NetworkLevelManager : MonoBehaviour
     [Tooltip("What screen is displayed when the round is over.")]
     [SerializeField] private GameObject winScreen;
     [SerializeField] private TextMeshProUGUI winText;
+    [SerializeField] private GameObject localWinText;
+    [SerializeField] private GameObject remoteWinText;
 
     private PlayerRef winner;
 
@@ -460,8 +462,7 @@ public class NetworkLevelManager : MonoBehaviour
         
         // SET WIN SCREEN ACTIVE HERE
         
-        winText.text = "Player #" + winner.PlayerId + " Wins!";
-        winScreen.SetActive(true);
+        StartCoroutine(AnimateWinScreen());
 
         StartEnterTransition();
         while (EnterRunning)
@@ -483,15 +484,30 @@ public class NetworkLevelManager : MonoBehaviour
 
         winSequenceRunning = false;
 
-        // SET WIN SCREEN INACTIVE HERE
-        StartCoroutine(DisableWinScreen());
-
         // go to the next level
         GoToLevel(GetRandomLevel());
     }
 
-    IEnumerator DisableWinScreen()
+    IEnumerator AnimateWinScreen()
     {
+        if (NetworkPlayer.Local?.GetRef == winner)
+        {
+            localWinText.SetActive(true);
+            remoteWinText.SetActive(false);
+        }
+        else
+        {
+            localWinText.SetActive(false);
+            remoteWinText.SetActive(true);
+            winText.text = "PLAYER " + winner.PlayerId + " IS THE";
+        }
+        winScreen.SetActive(true);
+
+        while (WinSequenceRunning)
+        {
+            yield return null;
+        }
+
         float timer = exitTransitionDuration;
         while (timer > 0)
         {
@@ -502,6 +518,68 @@ public class NetworkLevelManager : MonoBehaviour
     }
 
     // * =========================================================
+
+    // * Testing =================================================
+
+    private Coroutine testWinSequence;
+
+    public void TestWinScreen()
+    {
+        if (testWinSequence != null)
+        {
+            StopCoroutine(testWinSequence);
+        }
+        winner = PlayerRef.FromEncoded(4);
+        testWinSequence = StartCoroutine(TestWinSequence());
+    }
+
+    IEnumerator TestWinSequence()
+    {
+        SetTransitionCanvasActive(true);
+        winSequenceRunning = true;
+
+        StartExitTransition();
+        while (ExitRunning)
+        {
+            yield return null;
+        }
+
+        // SET WIN SCREEN ACTIVE HERE
+        StartCoroutine(AnimateWinScreen());
+
+        StartEnterTransition();
+        while (EnterRunning)
+        {
+            yield return null;
+        }
+
+        SetTransitionCanvasActive(false);
+
+        float timer = winScreenDuration;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
+        winSequenceRunning = false;
+
+        SetTransitionCanvasActive(true);
+
+        StartExitTransition();
+        while (ExitRunning)
+        {
+            yield return null;
+        }
+
+        StartEnterTransition();
+        while (EnterRunning)
+        {
+            yield return null;
+        }
+
+        SetTransitionCanvasActive(false);
+    }
 }
 
 public class LevelManagerRPC : SimulationBehaviour
