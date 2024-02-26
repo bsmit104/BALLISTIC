@@ -76,7 +76,6 @@ public class Spawner : MonoBehaviour
             selection = Random.Range(0, Instance.spawnAreas.Count);
             iters++;
         }
-        Debug.Log("get spawn point from area: " + selection);
         return Instance.spawnAreas[selection].GetRandomPosition();
     }
 

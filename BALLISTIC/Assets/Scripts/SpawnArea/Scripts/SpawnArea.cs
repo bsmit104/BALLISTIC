@@ -184,10 +184,6 @@ public class SpawnArea : MonoBehaviour
         }
         Bounds bounds = GetBounds;
 
-        Debug.Log("range: (" + (transform.position.x + bounds.min.x) + "," + 
-            (transform.position.z + bounds.min.z) + ") to (" + (transform.position.x + bounds.max.x) + "," + 
-            (transform.position.z + bounds.max.z) + ")");
-
         Vector3 pos = Vector3.zero;
         for (int i = 0; i < 50; i++) 
         {

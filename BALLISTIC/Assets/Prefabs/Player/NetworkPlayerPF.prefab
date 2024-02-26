@@ -457,7 +457,7 @@ MonoBehaviour:
   sprintSpeed: 8
   realSpeed: 0
   rotationSpeed: 250
-  jumpImpulse: 10
+  jumpImpulse: 7
   decelSpeed: 5
   grounded: {fileID: 7889530779914408282}
   dir: {x: 0, y: 0, z: 0}

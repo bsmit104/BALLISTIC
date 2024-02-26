@@ -69,7 +69,18 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     /// <returns>NetworkPlayer instance</returns>
     public static NetworkPlayer GetPlayer(PlayerRef playerRef)
     {
-        return _instance.spawnedPlayers[playerRef];
+        if (!Instance.spawnedPlayers.ContainsKey(playerRef))
+        {
+            if (Instance.runner.TryGetPlayerObject(playerRef, out var obj))
+            {
+                AddPlayer(playerRef, obj.GetComponent<NetworkPlayer>());
+            }
+            else
+            {
+                return null;
+            }
+        }
+        return Instance.spawnedPlayers[playerRef];
     }
 
     public NetworkPlayer GetDummy()
@@ -129,15 +140,14 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
             alivePlayers.Add(player);
             runner.SetPlayerObject(player, networkPlayerObject);
 
-            Debug.Log($"Added player no. {player.RawEncoded}");
+            Debug.Log($"Added player no. {player.PlayerId}");
         }
         else
         {
-            Debug.Log($"Player {player.RawEncoded} Joined The Game");
+            Debug.Log($"Player {player.PlayerId} Joined The Game");
         }
     }
 
-    // TODO: create a better player spawn position method, used for lobby scene
     private Vector3 GetSpawnPosition(int playerNum)
     {
         return Spawner.GetSpawnPoint();
@@ -147,8 +157,9 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     { 
         if (spawnedPlayers.TryGetValue(player, out NetworkPlayer networkPlayer))
         {
-            runner.Despawn(networkPlayer.gameObject.GetComponent<NetworkObject>());
+            runner.Despawn(networkPlayer.GetComponent<NetworkObject>());
             spawnedPlayers.Remove(player);
+            alivePlayers.Remove(player);
         }
     }
 

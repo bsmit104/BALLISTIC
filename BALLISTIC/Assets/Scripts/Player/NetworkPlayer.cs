@@ -243,6 +243,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         HandleLook();
         Debug.DrawLine(cmra.transform.position, LookTarget);
+
         foreach (var attrName in detector.DetectChanges(this))
         {
             if (networkChangeListeners.ContainsKey(attrName))
@@ -367,22 +368,16 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (data.jumpButtonPressed && grounded.isGrounded)
         {
             grounded.isGrounded = false;
-            curJumpVel = jumpImpulse;
+            rb.velocity = new Vector3(0, jumpImpulse, 0);
             isJumping = true;
         }
-        else if (curJumpVel > 0)
+        else
         {
-            if (grounded.isGrounded)
-            {
-                curJumpVel = 0;
-            }
-            curJumpVel -= decelSpeed * Runner.DeltaTime;
             isJumping = false;
         }
 
         // Move the character based on the input
         Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Runner.DeltaTime;
-        movement += new Vector3(0, curJumpVel * Runner.DeltaTime, 0);
         rb.MovePosition(transform.position + movement);
 
         // Trigger the walk animation when moving forward and not holding the sprint key
@@ -431,13 +426,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                     NetworkDodgeball ball = FindClosestDodgeball();
                     if (ball != null)
                     {
-                        Debug.Log("pickup ball");
                         PickupBall(ball);
                         isHoldingBall = true;
-                    }
-                    else
-                    {
-                        Debug.Log("no nearby ball");
                     }
                 }
                 // If holding ball already, throw it
@@ -458,7 +448,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         foreach (NetworkDodgeball dodgeball in nearbyDodgeballs)
         {
-            if (dodgeball.owner == PlayerRef.None)
+            if (dodgeball.Owner == PlayerRef.None)
             {
                 float distance = Vector3.Distance(transform.position, dodgeball.transform.position);
 
@@ -579,12 +569,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void ApplyPickupBall(NetworkDodgeball ball)
     {
-        ball.owner = GetRef;
         heldBall = ball;
         ball.isHeld = true;
-        ball.GetRigidbody().isKinematic = true;
-        ball.GetRigidbody().detectCollisions = false;
-        ball.transform.SetParent(throwPoint);
+        ball.Rig.isKinematic = true;
+        ball.Rig.detectCollisions = false;
+        ball.NetworkSetOwner(GetRef);
         ball.transform.position = throwPoint.position;
     }
 
@@ -630,11 +619,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.isHeld = false;
         ball.transform.SetParent(null);
         ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
-        ball.GetRigidbody().isKinematic = false;
-        ball.GetRigidbody().detectCollisions = true;
+        ball.Rig.isKinematic = false;
+        ball.Rig.detectCollisions = true;
         Vector3 diff = targetPos - ball.transform.position;
         Vector3 arc = new Vector3(0, arcMultiplier * diff.magnitude, 0);
-        ball.GetRigidbody().AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
+        ball.Rig.AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
     }
 
     public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)

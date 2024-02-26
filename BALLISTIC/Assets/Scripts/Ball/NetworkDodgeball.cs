@@ -14,14 +14,17 @@ public class NetworkDodgeball : NetworkBehaviour
 
     private DodgeballCollider ballCol;
 
+    /// <summary>
+    /// The ball's rigidbody.
+    /// </summary>
+    public Rigidbody Rig { get { return rig; } }
     private Rigidbody rig;
-    public Rigidbody GetRigidbody()
-    {
-        return rig;
-    }
 
-    private SphereCollider col;
+    /// <summary>
+    /// The ball's collider.
+    /// </summary>
     public SphereCollider Col { get { return col; } }
+    private SphereCollider col;
 
     /// <summary>
     /// Returns the NetworkId associated with the NetworkObject attached to the ball.
@@ -62,7 +65,6 @@ public class NetworkDodgeball : NetworkBehaviour
     {
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
-            { nameof(owner), SourceOnChange }
         };
     }
 
@@ -71,29 +73,29 @@ public class NetworkDodgeball : NetworkBehaviour
     // void MyAttributeOnChange() { ... }
 
     /// <summary>
-    /// Sets who threw the ball, or is currently holding it.
+    /// The player who threw the ball, or is currently holding it.
+    /// Use IsHeld to see if the ball is currently held by a player.
     /// </summary>
-    [Networked, HideInInspector] public PlayerRef owner { get; set; }
-    void SourceOnChange() 
-    { 
-        if (owner == PlayerRef.None)
-        {
-            transform.SetParent(null);
-        }
-    }
+    public PlayerRef Owner { get { return owner; } }
+    private PlayerRef owner = PlayerRef.None;
 
+    /// <summary>
+    /// If the ball is currently held by a player. Use Owner to see who is 
+    /// currently holding it.
+    /// </summary>
+    public bool IsHeld { get {return isHeld; } }
     [Networked, HideInInspector] public bool isHeld { get; set; }
 
     // Detect changes, and trigger event listeners.
     public override void Render()
     {
-        foreach (var attrName in detector.DetectChanges(this))
-        {
-            if (networkChangeListeners.ContainsKey(attrName))
-            {
-                networkChangeListeners[attrName]();
-            } 
-        }
+        // foreach (var attrName in detector.DetectChanges(this))
+        // {
+        //     if (networkChangeListeners.ContainsKey(attrName))
+        //     {
+        //         networkChangeListeners[attrName]();
+        //     } 
+        // }
     }
 
     // * ===============================================================
@@ -115,12 +117,10 @@ public class NetworkDodgeball : NetworkBehaviour
     /// <summary>
     /// Reset any attributes for this NetworkDodgeball. 
     /// Used by the NetworkBallManager to reset dodgeballs returned by GetBall().
-    /// 
     /// </summary>
     public NetworkDodgeball Reset()
     {
-        owner = PlayerRef.None;
-        
+        NetworkSetOwner(PlayerRef.None);
         transform.position = Vector3.zero;
         rig.velocity = Vector3.zero;
         return this;
@@ -130,6 +130,13 @@ public class NetworkDodgeball : NetworkBehaviour
 
     // * Remote Procedure Calls ========================================
 
+    // set active ==============================
+
+    /// <summary>
+    /// Use instead of gameObject.SetActive(). Ensures game object is in the same state 
+    /// across all clients.
+    /// </summary>
+    /// <param name="state">The active state the game object will be set to.</param>
     public void NetworkSetActive(bool state)
     {
         if (Runner.IsServer)
@@ -155,31 +162,56 @@ public class NetworkDodgeball : NetworkBehaviour
         RPC_EnforceSetActive(state);
     }
 
-    public void NetworkRemoveParent()
+    // ========================================
+
+    // set owner ==============================
+
+    private void SetOwner(PlayerRef player)
     {
-        if (Runner.IsServer)
+        owner = player;
+        if (player == PlayerRef.None)
         {
-            RPC_EnforceRemoveParent();
+            transform.SetParent(null);
         }
         else
         {
-            transform.SetParent(null);
-            RPC_RequestRemoveParent();
+            transform.SetParent(NetworkPlayerManager.GetPlayer(owner).throwPoint);
+        }
+    }
+
+    /// <summary>
+    /// Sets the owner of the ball across all clients.
+    /// Use PlayerRef.None to signal the ball has been dropped.
+    /// </summary>
+    /// <param name="player">The player who owns the ball.</param>
+    public void NetworkSetOwner(PlayerRef player)
+    {
+        if (Runner.IsServer)
+        {
+            RPC_EnforceSetOwner(player);
+        }
+        else
+        {
+            SetOwner(player);
+            RPC_RequestSetOwner(player);
         }
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_EnforceRemoveParent()
+    public void RPC_EnforceSetOwner(PlayerRef player)
     {
-        transform.SetParent(null);
+        SetOwner(player);
     }
 
     [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_RequestRemoveParent()
+    public void RPC_RequestSetOwner(PlayerRef player)
     {
-        RPC_EnforceRemoveParent();
+        RPC_EnforceSetOwner(player);
     }
 
+    // =========================================
+
+    // add force ===============================
 
     /// <summary>
     /// Wrapper around Rigidbody.AddForce(). Applies to client simulation for prediction, and sends the 

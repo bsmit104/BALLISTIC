@@ -14,7 +14,7 @@ public class DodgeballPickup : MonoBehaviour
         if (other.CompareTag("Dodgeball"))
         {
             NetworkDodgeball ball = other.GetComponent<NetworkDodgeball>();
-            if (!player.NearbyBallsContains(ball) && ball.owner == PlayerRef.None)
+            if (!player.NearbyBallsContains(ball) && ball.Owner == PlayerRef.None)
             {
                 player.AddNearbyBall(ball);
             }
