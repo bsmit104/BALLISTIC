@@ -83,7 +83,23 @@ public class NetworkDodgeball : NetworkBehaviour
     /// If the ball is currently held by a player. Use Owner to see who is 
     /// currently holding it.
     /// </summary>
-    public bool IsHeld { get {return isHeld; } }
+    public bool IsHeld 
+    { 
+        get { return isHeld; } 
+        set {
+            isHeld = value;
+            if (isHeld)
+            {
+                Rig.isKinematic = true;
+                Rig.detectCollisions = false;
+            }
+            else
+            {
+                Rig.isKinematic = false;
+                Rig.detectCollisions = true;
+            }
+        }
+    }
     [Networked, HideInInspector] public bool isHeld { get; set; }
 
     // Detect changes, and trigger event listeners.
@@ -166,7 +182,7 @@ public class NetworkDodgeball : NetworkBehaviour
 
     // set owner ==============================
 
-    private void SetOwner(PlayerRef player)
+    public void SetOwner(PlayerRef player)
     {
         owner = player;
         if (player == PlayerRef.None)

@@ -118,7 +118,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8643168369346660436}
   serializedVersion: 4
-  m_Mass: 5
+  m_Mass: 30
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7925254e2324cfd4488b1953df4f140f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _networkEnabled: 0
+  _isHeld: 0
 --- !u!114 &7165026073672892444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -178,6 +178,8 @@ MonoBehaviour:
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
+  _angVelocity: {x: 0, y: 0, z: 0}
+  _networkEnabled: 0
 --- !u!114 &1437923237954681535
 MonoBehaviour:
   m_ObjectHideFlags: 0
