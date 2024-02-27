@@ -133,6 +133,7 @@ public class NetworkBallManager : MonoBehaviour
 
     /// <summary>
     /// Releases all Dodgeballs back to the pool.
+    /// </summary
     public void ReleaseAllBalls() {
         int count = active.Count;
         for (int i = 0; i < count; i++)

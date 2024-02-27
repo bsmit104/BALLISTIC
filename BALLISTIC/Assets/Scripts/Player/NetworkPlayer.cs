@@ -88,10 +88,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public float realSpeed = 0f;
     public float rotationSpeed = 10f;
     public float jumpImpulse;
-    public float decelSpeed;
     public GroundedCollider grounded;
-
-    private float curJumpVel;
 
     [HideInInspector] public Vector3 dir;
     float horizontal;
@@ -102,7 +99,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public Transform throwPoint;            // Point from where the dodgeball is thrown
     public float throwForce = 10f;          // Force applied to the dodgeball when thrown
     public float throwCooldown = 1f;        // Cooldown duration between throws
-    private bool isHoldingBall = false;     // Tracks whether player is already holding ball
     private float lastThrowTime;            // Time when the last throw happened
 
     [Space]
@@ -132,6 +128,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // ========================================
 
     private NetworkDodgeball heldBall;
+    public bool IsHoldingBall { get { return heldBall != null; } }
 
     private Rigidbody rb;
     private Animator animator;
@@ -243,6 +240,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         HandleLook();
         Debug.DrawLine(cmra.transform.position, LookTarget);
+
         foreach (var attrName in detector.DetectChanges(this))
         {
             if (networkChangeListeners.ContainsKey(attrName))
@@ -367,22 +365,16 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (data.jumpButtonPressed && grounded.isGrounded)
         {
             grounded.isGrounded = false;
-            curJumpVel = jumpImpulse;
+            rb.velocity = new Vector3(0, jumpImpulse, 0);
             isJumping = true;
         }
-        else if (curJumpVel > 0)
+        else
         {
-            if (grounded.isGrounded)
-            {
-                curJumpVel = 0;
-            }
-            curJumpVel -= decelSpeed * Runner.DeltaTime;
             isJumping = false;
         }
 
         // Move the character based on the input
         Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Runner.DeltaTime;
-        movement += new Vector3(0, curJumpVel * Runner.DeltaTime, 0);
         rb.MovePosition(transform.position + movement);
 
         // Trigger the walk animation when moving forward and not holding the sprint key
@@ -406,10 +398,14 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     void HandleThrowBall(NetworkInputData data)
     {
-        if (heldBall)
+        if (!Object.HasInputAuthority) return;
+
+        // ensure heldBall is actually held
+        if (heldBall && heldBall.transform.parent != throwPoint)
         {
-            heldBall.transform.localPosition = Vector3.zero;
+            PickupBall(heldBall);
         }
+
 
         // reset pressed state on button release
         if (!data.throwButtonPressed)
@@ -423,29 +419,19 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // Set the last throw time to the current time
             lastThrowTime = Time.time;
 
-            if (Object.HasInputAuthority)
+            // If not already holding ball, pickup closest ball
+            if (!IsHoldingBall)
             {
-                // If not already holding ball, pickup closest ball
-                if (!isHoldingBall)
+                NetworkDodgeball ball = FindClosestDodgeball();
+                if (ball != null)
                 {
-                    NetworkDodgeball ball = FindClosestDodgeball();
-                    if (ball != null)
-                    {
-                        Debug.Log("pickup ball");
-                        PickupBall(ball);
-                        isHoldingBall = true;
-                    }
-                    else
-                    {
-                        Debug.Log("no nearby ball");
-                    }
+                    PickupBall(ball);
                 }
-                // If holding ball already, throw it
-                else
-                {
-                    ThrowBall(heldBall, LookTarget);
-                    isHoldingBall = false;
-                }
+            }
+            // If holding ball already, throw it
+            else
+            {
+                ThrowBall(heldBall, LookTarget);
             }
         }
     }
@@ -458,7 +444,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         foreach (NetworkDodgeball dodgeball in nearbyDodgeballs)
         {
-            if (dodgeball.owner == PlayerRef.None)
+            if (dodgeball.Owner == PlayerRef.None)
             {
                 float distance = Vector3.Distance(transform.position, dodgeball.transform.position);
 
@@ -579,13 +565,15 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void ApplyPickupBall(NetworkDodgeball ball)
     {
-        ball.owner = GetRef;
+        if (IsHoldingBall && ball.NetworkID != heldBall.NetworkID)
+        {
+            ApplyDropBall();
+        }
         heldBall = ball;
-        ball.isHeld = true;
-        ball.GetRigidbody().isKinematic = true;
-        ball.GetRigidbody().detectCollisions = false;
-        ball.transform.SetParent(throwPoint);
+        ball.IsHeld = true;
+        ball.SetOwner(GetRef);
         ball.transform.position = throwPoint.position;
+        ball.transform.localPosition = Vector3.zero;
     }
 
     public void PickupBall(NetworkDodgeball ball)
@@ -599,12 +587,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
         else
         {
-            ApplyPickupBall(ball); // local prediction so that the client doesn't have to wait
+            //ApplyPickupBall(ball); // local prediction so that the client doesn't have to wait
             RPC_RequestPickupBall(networkID); // tell the host that everyone should do this thing
         }
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer, TickAligned = false)]
     public void RPC_EnforcePickupBall(NetworkId networkID) // this function is executed on everyone's computer
     {
         if (Runner.TryFindObject(networkID, out var obj))
@@ -613,7 +601,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer, TickAligned = false)]
     public void RPC_RequestPickupBall(NetworkId networkID) // this function is executed on the host's computer
     {
         RPC_EnforcePickupBall(networkID);
@@ -625,16 +613,14 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void ApplyThrowBall(NetworkDodgeball ball, Vector3 targetPos)
     {
-        if (heldBall == null) return;
+        if (!IsHoldingBall) return;
         heldBall = null;
-        ball.isHeld = false;
+        ball.IsHeld = false;
         ball.transform.SetParent(null);
         ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
-        ball.GetRigidbody().isKinematic = false;
-        ball.GetRigidbody().detectCollisions = true;
         Vector3 diff = targetPos - ball.transform.position;
         Vector3 arc = new Vector3(0, arcMultiplier * diff.magnitude, 0);
-        ball.GetRigidbody().AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
+        ball.Rig.AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
     }
 
     public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)
@@ -648,12 +634,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
         else
         {
-            ApplyThrowBall(ball, targetPos); // local prediction so that the client doesn't have to wait
+            //ApplyThrowBall(ball, targetPos); // local prediction so that the client doesn't have to wait
             RPC_RequestThrowBall(networkID, targetPos); // tell the host that everyone should do this thing
         }
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer, TickAligned = false)]
     public void RPC_EnforceThrowBall(NetworkId networkID, Vector3 targetPos) // this function is executed on everyone's computer
     {
         if (Runner.TryFindObject(networkID, out var obj))
@@ -662,10 +648,46 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer, TickAligned = false)]
     public void RPC_RequestThrowBall(NetworkId networkID, Vector3 targetPos) // this function is executed on the host's computer
     {
         RPC_EnforceThrowBall(networkID, targetPos);
+    }
+
+    // ======================================
+
+    // Drop Ball ============================
+
+    private void ApplyDropBall()
+    {
+        if (!IsHoldingBall) return;
+        heldBall.IsHeld = false;
+        heldBall.transform.SetParent(null);
+        heldBall = null;
+    }
+
+    public void DropBall()
+    {
+        if (Runner.IsServer)
+        {
+            RPC_EnforceDropBall();
+        }
+        else
+        {
+            RPC_RequestDropBall();
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer, TickAligned = false)]
+    public void RPC_EnforceDropBall()
+    {
+        ApplyDropBall();
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer, TickAligned = false)]
+    public void RPC_RequestDropBall()
+    {
+        RPC_EnforceDropBall();
     }
 
     // ======================================

@@ -1195,7 +1195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 1437923237954681535, guid: 3049e71cd6e7b664999175e509e02cd2, type: 3}
   defaultPoolSize: 10
-  maxPoolSize: 15
+  maxPoolSize: 50
   pool: []
   active: []
 --- !u!114 &-3594434660325473979

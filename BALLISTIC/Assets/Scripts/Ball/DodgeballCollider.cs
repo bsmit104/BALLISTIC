@@ -13,12 +13,12 @@ public class DodgeballCollider : MonoBehaviour
     private void OnCollisionEnter(Collision collider)
     {
         // Check if the collided GameObject has the "Player" tag
-        if (collider.gameObject.CompareTag("Player") && networkBall.owner != PlayerRef.None && !networkBall.isHeld)
+        if (collider.gameObject.CompareTag("Player") && networkBall.Owner != PlayerRef.None && !networkBall.IsHeld)
         {
             // Activate the ragdoll for the player
             NetworkPlayer player = collider.gameObject.GetComponent<NetworkPlayer>();
 
-            if (player?.GetRef == networkBall.owner) return;
+            if (player?.GetRef == networkBall.Owner) return;
 
             Debug.Log("hit player");
             if (player) // add " && networkBall.Runner.IsServer" to make collision detection host priority
@@ -28,7 +28,7 @@ public class DodgeballCollider : MonoBehaviour
         }
         else if (collider.gameObject.CompareTag("Floor"))
         {
-            networkBall.owner = PlayerRef.None;
+            networkBall.NetworkSetOwner(PlayerRef.None);
         }
     }
 }

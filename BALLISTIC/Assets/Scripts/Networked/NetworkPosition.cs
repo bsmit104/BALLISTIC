@@ -13,6 +13,7 @@ public class NetworkPosition : NetworkBehaviour
     [Networked, HideInInspector] public Vector3 position { get; set; }
     [Networked, HideInInspector] public Vector3 rotation { get; set; }
     [Networked, HideInInspector] public Vector3 velocity { get; set; }
+    [Networked, HideInInspector] public Vector3 angVelocity { get; set; }
     [Networked, HideInInspector] public bool networkEnabled { get; set; }
 
     private bool hasParent = false;
@@ -49,6 +50,9 @@ public class NetworkPosition : NetworkBehaviour
                 case nameof(velocity):
                     if (rig && !rig.isKinematic) rig.velocity = velocity;
                     break;
+                case nameof(angVelocity):
+                    if (rig && !rig.isKinematic) rig.angularVelocity = angVelocity;
+                    break;
                 case nameof(networkEnabled):
                     hasParent = !networkEnabled;
                     break;
@@ -66,10 +70,14 @@ public class NetworkPosition : NetworkBehaviour
         position = transform.position;
         rotation = transform.eulerAngles;
         velocity = rig?.velocity ?? Vector3.zero;
+        angVelocity = rig?.angularVelocity ?? Vector3.zero;
 
         if (refreshTimer <= 0)
         {
-            RPC_EnforceState(position, rotation, velocity);
+            if (velocity == Vector3.zero || angVelocity == Vector3.zero)
+            {
+                RPC_EnforceState(position, rotation, velocity, angVelocity);
+            } 
             refreshTimer = REFRESH_RATE;
         }
 
@@ -77,11 +85,15 @@ public class NetworkPosition : NetworkBehaviour
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_EnforceState(Vector3 pos, Vector3 rot, Vector3 vel)
+    public void RPC_EnforceState(Vector3 pos, Vector3 rot, Vector3 vel, Vector3 angVel)
     {
-        if (Runner.IsServer) return;
-        position = pos;
-        rotation = rot;
-        velocity = vel;
+        if (Runner.IsServer || hasParent) return;
+        transform.position = pos;
+        transform.eulerAngles = rot;
+        if (rig && !rig.isKinematic)
+        {
+            rig.velocity = vel;
+            rig.angularVelocity = angVel;
+        }
     }
 }
