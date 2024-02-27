@@ -21,9 +21,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Lobby.unity
     guid: 427b44eed667cd54793f7cc0b42a1c16
   - enabled: 1
-    path: Assets/Scenes/Levels/Playground_Map.unity
-    guid: 0afe3688d2b03f64f90a39e517a6a0d5
-  - enabled: 1
     path: Assets/Scenes/Testing/TestLevel1.unity
     guid: 781b93f8c946a4e4981499bbc25e7dbc
   - enabled: 1
@@ -33,6 +30,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Levels/alienMap.unity
     guid: 9706c4b852b1652469b30f074d25b3cf
   - enabled: 1
-    path: Assets/Scenes/Levels/COLOR_Playground_Map 1.unity
+    path: Assets/Scenes/Levels/Playground.unity
     guid: ab5516d9c01415345ab3e48574713eb3
   m_configObjects: {}
