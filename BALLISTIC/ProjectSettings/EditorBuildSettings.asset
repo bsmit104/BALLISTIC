@@ -32,4 +32,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Levels/alienMap.unity
     guid: 9706c4b852b1652469b30f074d25b3cf
+  - enabled: 1
+    path: Assets/Scenes/Levels/COLOR_Playground_Map 1.unity
+    guid: ab5516d9c01415345ab3e48574713eb3
   m_configObjects: {}
