@@ -59,6 +59,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [SerializeField] private float minCmraDist;
     [Tooltip("How far the camera will sit off of the surface it is colliding with.")]
     [SerializeField] private float cmraWallOffset;
+    [SerializeField] private float cmraShoulderOffset;
     public Cinemachine.AxisState xAxis, yAxis;
     private Transform cmraParent;
     private Transform cmraReferencePos;
@@ -339,7 +340,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         Vector3 dir = (cmraReferencePos.position - cmraParent.position).normalized;
         if (Physics.Raycast(cmraParent.position, dir, out RaycastHit hit, maxCmraDist + cmraWallOffset, LayerMask.GetMask("Surfaces")))
         {
-            cmra.transform.position = cmraParent.position + (dir * Mathf.Max(minCmraDist, (hit.point - cmraParent.position).magnitude - cmraWallOffset));
+            float dist = Mathf.Max(minCmraDist, (hit.point - cmraParent.position).magnitude - cmraWallOffset);
+            cmra.transform.position = cmraParent.position + (dir * dist);
+            cmra.transform.position += (cmraShoulderOffset / dist) * transform.right;
         }
         else
         {
