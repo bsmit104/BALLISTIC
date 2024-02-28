@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Palmmedia.ReportGenerator.Core.Parser.Analysis;
 using UnityEngine;
 
 public class GroundedCollider : MonoBehaviour
@@ -25,12 +24,14 @@ public class GroundedCollider : MonoBehaviour
     }
 
     [SerializeField] private int inContactWith = 0;
+    private List<Collider> cols = new List<Collider>();
 
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.CompareTag("Surfaces") || col.gameObject.CompareTag("Floor"))
         {
-            inContactWith++;
+            cols.Add(col);
+            inContactWith = cols.Count;
         }
     }
 
@@ -38,12 +39,21 @@ public class GroundedCollider : MonoBehaviour
     {
         if (col.gameObject.CompareTag("Surfaces") || col.gameObject.CompareTag("Floor"))
         {
-            inContactWith--;
+            cols.Remove(col);
+            inContactWith = cols.Count;
         }
     }
 
     public void Reset()
     {
-        inContactWith = 0;
+        for (int i = 0; i < cols.Count; i++) 
+        {
+            if (cols[i] == null)
+            {
+                cols.RemoveAt(i);
+                i--;
+            }
+        }
+        inContactWith = cols.Count;
     }
 }

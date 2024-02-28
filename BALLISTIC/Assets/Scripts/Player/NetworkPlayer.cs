@@ -454,7 +454,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer, TickAligned = false)]
     public void RPC_EnforceReset()
     {
         _isAlive = true;
