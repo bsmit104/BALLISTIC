@@ -47,6 +47,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     }
     private PlayerRef _playerRef = PlayerRef.None;
 
+    private bool _isAlive = true;
+    public bool isAlive { get { return _isAlive; } }
+
 
     // * Client-Sided Attributes ================================
 
@@ -167,7 +170,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
             { nameof(isWalking), IsWalkingOnChange },
-            { nameof(isAlive), IsAliveOnChange },
             { nameof(isWalkingBack), IsWalkingBackOnChange },
             { nameof(isStrafingRight), IsStrafingRightOnChange },
             { nameof(isStrafingLeft), IsStrafingLeftOnChange },
@@ -184,30 +186,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // Position ======================================
 
     [HideInInspector] public NetworkPosition netPos;
-
-    // ===============================================
-
-    // Dead State ====================================
-
-    [Networked, HideInInspector] public bool isAlive { get; set; } = true;
-    void IsAliveOnChange()
-    {
-        if (isAlive)
-        {
-            animator.enabled = true;
-            rb.isKinematic = false;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            GetComponent<CapsuleCollider>().enabled = true;
-        }
-        else
-        {
-            animator.enabled = false;
-            rb.isKinematic = true;
-            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            GetComponent<CapsuleCollider>().enabled = false;
-            if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
-        }
-    }
 
     // ===============================================
 
@@ -274,7 +252,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // get the networked position
         netPos = GetComponentInChildren<NetworkPosition>();
 
-        isAlive = true;
+        _isAlive = true;
 
         // Check if this player instance is the local client
         if (Object.HasInputAuthority)
@@ -322,7 +300,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         NetworkInputData data;
         if (!GetInput(out data)) return;
 
-        if (!isAlive) return;
+        if (!_isAlive) return;
 
         HandleMovement(data);
         HandleThrowBall(data);
@@ -365,9 +343,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         // Start jump
-        if (data.jumpButtonPressed && grounded.isGrounded)
+        if (data.jumpButtonPressed && grounded.IsGrounded)
         {
-            grounded.isGrounded = false;
             rb.velocity = new Vector3(0, jumpImpulse, 0);
             isJumping = true;
         }
@@ -379,6 +356,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // Move the character based on the input
         Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Runner.DeltaTime;
         rb.MovePosition(transform.position + movement);
+        //rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
 
         // Trigger the walk animation when moving forward and not holding the sprint key
         isWalking = isMovingForward && !isSprinting && !isMovingBackward;
@@ -472,18 +450,19 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         if (Runner.IsServer)
         {
-            isAlive = true;
-        }
-        else
-        {
-            RPC_RequestReset();
+            RPC_EnforceReset();
         }
     }
 
-    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority)]
-    public void RPC_RequestReset()
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_EnforceReset()
     {
-        isAlive = true;
+        _isAlive = true;
+        animator.enabled = true;
+        rb.isKinematic = false;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        GetComponent<CapsuleCollider>().enabled = true;
+        grounded.Reset();
     }
 
     // =======================================
@@ -517,11 +496,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void RagdollActivation()
     {
-        isAlive = false;
+        _isAlive = false;
         animator.enabled = false;
         rb.isKinematic = true;
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         GetComponent<CapsuleCollider>().enabled = false;
+        if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
     }
 
     // enforce ragdoll activation from host to clients
