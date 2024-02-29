@@ -358,9 +358,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         // Move the character based on the input
         Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed;
-        //ApplyMovement(movement);
+        ApplyMovement(movement);
 
-        rb.MovePosition(transform.position + movement * Runner.DeltaTime);
+        //rb.MovePosition(transform.position + movement * Runner.DeltaTime);
 
         // Trigger the walk animation when moving forward and not holding the sprint key
         isWalking = isMovingForward && !isSprinting && !isMovingBackward;
@@ -372,7 +372,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         isIdle = vertical == 0 && horizontal == 0;
     }
 
-    // dont think about it it works and that's all that matters
+    // dont think about it, it works and that's all that matters
     private void ApplyMovement(Vector3 movement)
     {
         Vector3 centerDir = movement.normalized;
@@ -413,7 +413,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             Vector2 newDir = hitPerp * dot;
             movement = new Vector3(newDir.x, 0, newDir.y);
         }
-        rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
+        rb.MovePosition(transform.position + movement * Runner.DeltaTime);
     }
 
     Vector2 Rotate(Vector2 v, float angle) {
