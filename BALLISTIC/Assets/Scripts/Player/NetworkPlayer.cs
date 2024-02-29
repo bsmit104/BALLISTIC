@@ -67,6 +67,28 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private Transform cmraParent;
     private Transform cmraReferencePos;
 
+    [Header("Movement Settings")]
+    public float walkSpeed = 2f;
+    public float sprintSpeed = 5f;
+    public float realSpeed = 0f;
+    public float rotationSpeed = 10f;
+    public float jumpImpulse;
+    public GroundedCollider grounded;
+    public RagdollActivator ragdollActivator;
+
+    [HideInInspector] public Vector3 dir;
+    float horizontal;
+    float vertical;
+
+    [Space]
+    [Header("Ball Throwing")]
+    public Transform throwPoint;            // Point from where the dodgeball is thrown
+    public float minThrowForce = 10f;          // Force applied to the dodgeball when thrown
+    public float maxThrowForce;
+    public float chargeTime;
+    public float throwCooldown = 1f;        // Cooldown duration between throws
+    private float lastThrowTime;            // Time when the last throw happened
+
     [Tooltip("The max distance aim target detection will be tested for.")]
     [SerializeField] private float aimDist;
     [Tooltip("The upward angle of the throw multiplier. Scales with distance to throw target.")]
@@ -85,26 +107,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             }
         }
     }
-
-    [Header("Movement Settings")]
-    public float walkSpeed = 2f;
-    public float sprintSpeed = 5f;
-    public float realSpeed = 0f;
-    public float rotationSpeed = 10f;
-    public float jumpImpulse;
-    public GroundedCollider grounded;
-    public RagdollActivator ragdollActivator;
-
-    [HideInInspector] public Vector3 dir;
-    float horizontal;
-    float vertical;
-
-    [Space]
-    [Header("Ball Throwing")]
-    public Transform throwPoint;            // Point from where the dodgeball is thrown
-    public float throwForce = 10f;          // Force applied to the dodgeball when thrown
-    public float throwCooldown = 1f;        // Cooldown duration between throws
-    private float lastThrowTime;            // Time when the last throw happened
 
     [Space]
     [Header("Ball Pickup")]
@@ -458,6 +460,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // If not already holding ball, pickup closest ball
             if (!IsHoldingBall)
             {
+                pickupCollider.GetAllDodgeballs(ref nearbyDodgeballs);
                 NetworkDodgeball ball = FindClosestDodgeball();
                 if (ball != null)
                 {
@@ -659,8 +662,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.transform.SetParent(null);
         ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
         Vector3 diff = targetPos - ball.transform.position;
-        Vector3 arc = new Vector3(0, arcMultiplier * diff.magnitude, 0);
-        ball.Rig.AddForce((diff.normalized + arc) * throwForce, ForceMode.Impulse);
+        Vector3 arc = new Vector3(0, arcMultiplier, 0);
+        ball.Rig.AddForce((diff.normalized + arc) * minThrowForce, ForceMode.Impulse);
     }
 
     public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)
