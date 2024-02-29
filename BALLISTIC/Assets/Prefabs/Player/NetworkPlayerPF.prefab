@@ -325,14 +325,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4928343053991318739}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0.38268343, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1440294222840731826}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -518,8 +518,6 @@ MonoBehaviour:
       m_RecenteringTime: 0
       m_LegacyHeadingDefinition: 0
       m_LegacyVelocityFilterStrength: 0
-  aimDist: 100
-  arcMultiplier: 0.005
   walkSpeed: 5
   sprintSpeed: 8
   realSpeed: 0
@@ -529,8 +527,12 @@ MonoBehaviour:
   ragdollActivator: {fileID: 8316736064853450462}
   dir: {x: 0, y: 0, z: 0}
   throwPoint: {fileID: 8874166371456309043}
-  throwForce: 1000
+  minThrowForce: 1000
+  maxThrowForce: 0
+  chargeTime: 0
   throwCooldown: 0.3
+  aimDist: 100
+  arcMultiplier: 0.1
   pickupCollider: {fileID: 7337151837620291511}
   netPos: {fileID: 0}
   _isWalking: 0
