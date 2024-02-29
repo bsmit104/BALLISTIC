@@ -520,6 +520,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         rb.isKinematic = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         GetComponent<CapsuleCollider>().enabled = true;
+        ApplyDropBall();
         ragdollActivator.DeactivateRagdoll();
         grounded.Reset();
     }
@@ -560,6 +561,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         rb.isKinematic = true;
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         GetComponent<CapsuleCollider>().enabled = false;
+        ApplyDropBall();
         ragdollActivator.ActivateRagdoll();
         if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
     }
