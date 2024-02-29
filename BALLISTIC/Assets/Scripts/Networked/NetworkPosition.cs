@@ -69,8 +69,11 @@ public class NetworkPosition : NetworkBehaviour
 
         position = transform.position;
         rotation = transform.eulerAngles;
-        velocity = rig?.velocity ?? Vector3.zero;
-        angVelocity = rig?.angularVelocity ?? Vector3.zero;
+        if (rig)
+        {
+            velocity = rig.velocity;
+            angVelocity = rig.angularVelocity;
+        }
 
         if (refreshTimer <= 0)
         {
