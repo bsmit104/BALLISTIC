@@ -5,27 +5,55 @@ using UnityEngine;
 
 public class GroundedCollider : MonoBehaviour
 {
-    public bool isGrounded 
+    private Rigidbody _rig = null;
+    private Rigidbody Rig {
+        get {
+            if (_rig == null)
+            {
+                _rig = transform.parent.GetComponent<Rigidbody>();
+            }
+            return _rig;
+        }
+    }
+
+    public bool IsGrounded 
     { 
-        get { return inContactWith > 0; } 
-        set { inContactWith = value ? 1 : 0; }
+        get { 
+            return inContactWith > 0 && Rig.velocity.y <= 0; 
+        } 
     }
 
     [SerializeField] private int inContactWith = 0;
+    private List<Collider> cols = new List<Collider>();
 
     void OnTriggerEnter(Collider col)
     {
-        if (col.gameObject.CompareTag("Floor"))
+        if (col.gameObject.CompareTag("Surfaces") || col.gameObject.CompareTag("Floor"))
         {
-            inContactWith++;
+            cols.Add(col);
+            inContactWith = cols.Count;
         }
     }
 
     void OnTriggerExit(Collider col)
     {
-        if (col.gameObject.CompareTag("Floor"))
+        if (col.gameObject.CompareTag("Surfaces") || col.gameObject.CompareTag("Floor"))
         {
-            inContactWith = Math.Max(0, inContactWith - 1);
+            cols.Remove(col);
+            inContactWith = cols.Count;
         }
+    }
+
+    public void Reset()
+    {
+        for (int i = 0; i < cols.Count; i++) 
+        {
+            if (cols[i] == null)
+            {
+                cols.RemoveAt(i);
+                i--;
+            }
+        }
+        inContactWith = cols.Count;
     }
 }

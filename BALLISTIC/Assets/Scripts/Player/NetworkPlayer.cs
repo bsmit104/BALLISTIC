@@ -47,6 +47,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     }
     private PlayerRef _playerRef = PlayerRef.None;
 
+    private bool _isAlive = true;
+    public bool isAlive { get { return _isAlive; } }
+
 
     // * Client-Sided Attributes ================================
 
@@ -59,6 +62,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [SerializeField] private float minCmraDist;
     [Tooltip("How far the camera will sit off of the surface it is colliding with.")]
     [SerializeField] private float cmraWallOffset;
+    [SerializeField] private float cmraShoulderOffset;
     public Cinemachine.AxisState xAxis, yAxis;
     private Transform cmraParent;
     private Transform cmraReferencePos;
@@ -89,6 +93,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public float rotationSpeed = 10f;
     public float jumpImpulse;
     public GroundedCollider grounded;
+    public RagdollActivator ragdollActivator;
 
     [HideInInspector] public Vector3 dir;
     float horizontal;
@@ -131,6 +136,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public bool IsHoldingBall { get { return heldBall != null; } }
 
     private Rigidbody rb;
+    private Collider col;
     private Animator animator;
 
     private bool _isDummy = false;
@@ -166,7 +172,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         networkChangeListeners = new Dictionary<string, Notify>{
             // ? Example: { nameof(myAttribute), MyAttributeOnChange }
             { nameof(isWalking), IsWalkingOnChange },
-            { nameof(isAlive), IsAliveOnChange },
             { nameof(isWalkingBack), IsWalkingBackOnChange },
             { nameof(isStrafingRight), IsStrafingRightOnChange },
             { nameof(isStrafingLeft), IsStrafingLeftOnChange },
@@ -183,30 +188,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // Position ======================================
 
     [HideInInspector] public NetworkPosition netPos;
-
-    // ===============================================
-
-    // Dead State ====================================
-
-    [Networked, HideInInspector] public bool isAlive { get; set; } = true;
-    void IsAliveOnChange()
-    {
-        if (isAlive)
-        {
-            animator.enabled = true;
-            rb.isKinematic = false;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            GetComponent<CapsuleCollider>().enabled = true;
-        }
-        else
-        {
-            animator.enabled = false;
-            rb.isKinematic = true;
-            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            GetComponent<CapsuleCollider>().enabled = false;
-            if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
-        }
-    }
 
     // ===============================================
 
@@ -266,6 +247,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         // Get the Rigidbody component attached to the character
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
 
         // Get the animator component from the attached animator object
         animator = GetComponentInChildren<Animator>();
@@ -273,7 +255,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // get the networked position
         netPos = GetComponentInChildren<NetworkPosition>();
 
-        isAlive = true;
+        _isAlive = true;
 
         // Check if this player instance is the local client
         if (Object.HasInputAuthority)
@@ -321,7 +303,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         NetworkInputData data;
         if (!GetInput(out data)) return;
 
-        if (!isAlive) return;
+        if (!_isAlive) return;
 
         HandleMovement(data);
         HandleThrowBall(data);
@@ -339,7 +321,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         Vector3 dir = (cmraReferencePos.position - cmraParent.position).normalized;
         if (Physics.Raycast(cmraParent.position, dir, out RaycastHit hit, maxCmraDist + cmraWallOffset, LayerMask.GetMask("Surfaces")))
         {
-            cmra.transform.position = cmraParent.position + (dir * Mathf.Max(minCmraDist, (hit.point - cmraParent.position).magnitude - cmraWallOffset));
+            float dist = Mathf.Max(minCmraDist, (hit.point - cmraParent.position).magnitude - cmraWallOffset);
+            cmra.transform.position = cmraParent.position + (dir * dist);
+            cmra.transform.position += (cmraShoulderOffset / dist) * transform.right;
         }
         else
         {
@@ -362,9 +346,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         // Start jump
-        if (data.jumpButtonPressed && grounded.isGrounded)
+        if (data.jumpButtonPressed && grounded.IsGrounded)
         {
-            grounded.isGrounded = false;
             rb.velocity = new Vector3(0, jumpImpulse, 0);
             isJumping = true;
         }
@@ -374,8 +357,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
 
         // Move the character based on the input
-        Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed * Runner.DeltaTime;
-        rb.MovePosition(transform.position + movement);
+        Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed;
+        ApplyMovement(movement);
+
+        //rb.MovePosition(transform.position + movement * Runner.DeltaTime);
 
         // Trigger the walk animation when moving forward and not holding the sprint key
         isWalking = isMovingForward && !isSprinting && !isMovingBackward;
@@ -385,6 +370,57 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         // Trigger the idle animation when standing still and not pressing any movement keys
         isIdle = vertical == 0 && horizontal == 0;
+    }
+
+    // dont think about it, it works and that's all that matters
+    private void ApplyMovement(Vector3 movement)
+    {
+        Vector3 centerDir = movement.normalized;
+        Vector2 lowDir2D = Rotate(new Vector2(centerDir.x, centerDir.z), -45f);
+        Vector3 lowDir = new Vector3(lowDir2D.x, 0, lowDir2D.y);
+        Vector2 highDir2D = Rotate(new Vector2(centerDir.x, centerDir.z), 45f);
+        Vector3 highDir = new Vector3(highDir2D.x, 0, highDir2D.y);
+
+        Vector3 centerStart = transform.position + Vector3.up * col.bounds.extents.y + centerDir * col.bounds.extents.x;
+        Vector3 lowStart = transform.position + Vector3.up * col.bounds.extents.y + lowDir * col.bounds.extents.x;
+        Vector3 highStart = transform.position + Vector3.up * col.bounds.extents.y + highDir * col.bounds.extents.x;
+
+        float dist = movement.magnitude * Runner.DeltaTime * 2f;
+
+        Debug.DrawLine(centerStart, centerStart + (movement.normalized * dist ));
+        RaycastHit hit;
+        if (Physics.Raycast(centerStart, centerDir, out hit, dist, LayerMask.GetMask("Surfaces")))
+        {
+            Vector2 move = new Vector2(movement.x, movement.z);
+            Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
+            float dot = Vector2.Dot(move, hitPerp);
+            Vector2 newDir = hitPerp * dot;
+            movement = new Vector3(newDir.x, 0, newDir.y);
+        }
+        else if (Physics.Raycast(lowStart, lowDir, out hit, dist, LayerMask.GetMask("Surfaces")))
+        {
+            Vector2 move = new Vector2(movement.x, movement.z);
+            Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
+            float dot = Vector2.Dot(move, hitPerp);
+            Vector2 newDir = hitPerp * dot;
+            movement = new Vector3(newDir.x, 0, newDir.y);
+        }
+        else if (Physics.Raycast(highStart, highDir, out hit, dist, LayerMask.GetMask("Surfaces")))
+        {
+            Vector2 move = new Vector2(movement.x, movement.z);
+            Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
+            float dot = Vector2.Dot(move, hitPerp);
+            Vector2 newDir = hitPerp * dot;
+            movement = new Vector3(newDir.x, 0, newDir.y);
+        }
+        rb.MovePosition(transform.position + movement * Runner.DeltaTime);
+    }
+
+    Vector2 Rotate(Vector2 v, float angle) {
+        return new Vector2(
+            v.x * Mathf.Cos(angle * Mathf.Deg2Rad) - v.y * Mathf.Sin(angle * Mathf.Deg2Rad),
+            v.x * Mathf.Sin(angle * Mathf.Deg2Rad) + v.y * Mathf.Cos(angle * Mathf.Deg2Rad)
+        );
     }
 
     bool IsThrowing()
@@ -469,18 +505,20 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         if (Runner.IsServer)
         {
-            isAlive = true;
-        }
-        else
-        {
-            RPC_RequestReset();
+            RPC_EnforceReset();
         }
     }
 
-    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority)]
-    public void RPC_RequestReset()
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer, TickAligned = false)]
+    public void RPC_EnforceReset()
     {
-        isAlive = true;
+        _isAlive = true;
+        animator.enabled = true;
+        rb.isKinematic = false;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        GetComponent<CapsuleCollider>().enabled = true;
+        ragdollActivator.DeactivateRagdoll();
+        grounded.Reset();
     }
 
     // =======================================
@@ -514,11 +552,13 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void RagdollActivation()
     {
-        isAlive = false;
+        _isAlive = false;
         animator.enabled = false;
         rb.isKinematic = true;
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         GetComponent<CapsuleCollider>().enabled = false;
+        ragdollActivator.ActivateRagdoll();
+        if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
     }
 
     // enforce ragdoll activation from host to clients
