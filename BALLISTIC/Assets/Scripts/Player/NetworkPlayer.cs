@@ -179,7 +179,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             { nameof(isStrafingLeft), IsStrafingLeftOnChange },
             { nameof(isSprinting), IsSprintingOnChange },
             { nameof(isIdle), IsIdleOnChange },
-            { nameof(isJumping), IsJumpingOnChange }
+            { nameof(isJumping), IsJumpingOnChange },
+            { nameof(isCrouching), IsCrouchingOnChange },
+            { nameof(isCrouchingForward), IsCrouchingForwardOnChange },
+            { nameof(isCrouchingBackward), IsCrouchingBackwardOnChange },
+            { nameof(isCrouchingRight), IsCrouchingRightOnChange },
+            { nameof(isCrouchingLeft), IsCrouchingLeftOnChange }
         };
     }
 
@@ -215,6 +220,21 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     [Networked, HideInInspector] public bool isJumping { get; set; }
     void IsJumpingOnChange() { animator.SetBool("isJump", isJumping); }
+
+    [Networked, HideInInspector] public bool isCrouching { get; set; }
+    void IsCrouchingOnChange() { animator.SetBool("isCrouching", isCrouching); }
+
+    [Networked, HideInInspector] public bool isCrouchingForward { get; set; }
+    void IsCrouchingForwardOnChange() { animator.SetBool("isCrouchingForward", isCrouchingForward); }
+
+    [Networked, HideInInspector] public bool isCrouchingBackward { get; set; }
+    void IsCrouchingBackwardOnChange() { animator.SetBool("isCrouchingBackward", isCrouchingBackward); }
+
+    [Networked, HideInInspector] public bool isCrouchingRight { get; set; }
+    void IsCrouchingRightOnChange() { animator.SetBool("isCrouchingRight", isCrouchingRight); }
+
+    [Networked, HideInInspector] public bool isCrouchingLeft { get; set; }
+    void IsCrouchingLeftOnChange() { animator.SetBool("isCrouchingLeft", isCrouchingLeft); }
 
     // ===============================================
 
@@ -338,17 +358,37 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         horizontal = data.horizontal;
         vertical = data.vertical;
 
+        // Regular movement (jog) --------------
         bool isMovingForward = vertical > 0f;
         bool isMovingBackward = vertical < 0f;
         isStrafingRight = horizontal > 0f;
         isStrafingLeft = horizontal < 0f;
+
+        // Crouch movement ---------------------
+        // start crouching
+        if (data.crouchButtonPressed && !isSprinting)
+        {
+            // TODO: adjust collider height and center of player to be smaller
+            isCrouching = true;
+        } // stop crouching
+        else
+        {
+            // TODO: adjust collider height and center of player to be normal
+            isCrouching = false;
+        }
+        bool isCrouchForward = isCrouching && isMovingForward;
+        bool isCrouchBackward = isCrouching && isMovingBackward;
+        bool isCrouchRight = isCrouching && isStrafingRight;
+        bool isCrouchLeft = isCrouching && isStrafingLeft;
+
+        // Sprint movement
         isSprinting = isMovingForward && data.sprintButtonPressed;
 
         // Set the speed based on the input
         float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         // Start jump
-        if (data.jumpButtonPressed && grounded.IsGrounded)
+        if (data.jumpButtonPressed && grounded.IsGrounded && !isCrouching)
         {
             rb.velocity = new Vector3(0, jumpImpulse, 0);
             isJumping = true;
@@ -364,11 +404,15 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         //rb.MovePosition(transform.position + movement * Runner.DeltaTime);
 
-        // Trigger the walk animation when moving forward and not holding the sprint key
+        // Trigger the walk animations when moving in that direction and not holding the sprint key
         isWalking = isMovingForward && !isSprinting && !isMovingBackward;
-
-        // Trigger the walkBackwards animation when moving backward and not holding the sprint key
         isWalkingBack = isMovingBackward && !isSprinting && !isMovingForward;
+
+        // Trigger the crouch animations when crouching in that direction and not holding the sprint key
+        isCrouchingForward = isCrouchForward && !isSprinting && !isCrouchBackward;
+        isCrouchingBackward = isCrouchBackward && !isSprinting && !isCrouchForward;
+        isCrouchingRight = isCrouchRight && !isSprinting && !isCrouchLeft;
+        isCrouchingLeft = isCrouchLeft && !isSprinting && !isCrouchRight;
 
         // Trigger the idle animation when standing still and not pressing any movement keys
         isIdle = vertical == 0 && horizontal == 0;
@@ -389,7 +433,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         float dist = movement.magnitude * Runner.DeltaTime * 2f;
 
-        Debug.DrawLine(centerStart, centerStart + (movement.normalized * dist ));
+        Debug.DrawLine(centerStart, centerStart + (movement.normalized * dist));
         RaycastHit hit;
         if (Physics.Raycast(centerStart, centerDir, out hit, dist, LayerMask.GetMask("Surfaces")))
         {
@@ -418,7 +462,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         rb.MovePosition(transform.position + movement * Runner.DeltaTime);
     }
 
-    Vector2 Rotate(Vector2 v, float angle) {
+    Vector2 Rotate(Vector2 v, float angle)
+    {
         return new Vector2(
             v.x * Mathf.Cos(angle * Mathf.Deg2Rad) - v.y * Mathf.Sin(angle * Mathf.Deg2Rad),
             v.x * Mathf.Sin(angle * Mathf.Deg2Rad) + v.y * Mathf.Cos(angle * Mathf.Deg2Rad)

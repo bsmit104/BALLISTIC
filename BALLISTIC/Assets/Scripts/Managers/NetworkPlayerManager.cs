@@ -128,7 +128,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
 
     // * Network Events =========================================
 
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) 
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         if (runner.IsServer)
         {
@@ -153,8 +153,8 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         return Spawner.GetSpawnPoint();
     }
 
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) 
-    { 
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
+    {
         if (spawnedPlayers.TryGetValue(player, out NetworkPlayer networkPlayer))
         {
             runner.Despawn(networkPlayer.GetComponent<NetworkObject>());
@@ -164,8 +164,8 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     }
 
 
-    public void OnInput(NetworkRunner runner, NetworkInput input) 
-    { 
+    public void OnInput(NetworkRunner runner, NetworkInput input)
+    {
         var data = new NetworkInputData();
 
         data.horizontal = Input.GetAxis("Horizontal");
@@ -174,6 +174,7 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         data.throwButtonPressed = Input.GetMouseButton(0);
         data.testButtonPressed = Input.GetKey(KeyCode.R);
         data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
+        data.crouchButtonPressed = Input.GetKey(KeyCode.C);
 
         input.Set(data);
     }
@@ -183,31 +184,31 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
 
-    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) 
-    { 
-        Application.Quit();
-    }
-
-    public void OnConnectedToServer(NetworkRunner runner) 
-    {
-        
-    }
-    
-    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) 
+    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
         Application.Quit();
     }
 
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) 
-    { 
+    public void OnConnectedToServer(NetworkRunner runner)
+    {
+
+    }
+
+    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
+    {
+        Application.Quit();
+    }
+
+    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
+    {
         // if (!levelManager.IsAtLobby)
         // {
         //     request.
         // }
     }
 
-    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) 
-    { 
+    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
+    {
         Application.Quit();
     }
 
@@ -217,8 +218,8 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
     public void OnSceneLoadDone(NetworkRunner runner) { }
     public void OnSceneLoadStart(NetworkRunner runner) { }
-    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player){ }
-    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player){ }
-    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data){ }
-    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress){ }
+    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
+    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
+    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
 }
