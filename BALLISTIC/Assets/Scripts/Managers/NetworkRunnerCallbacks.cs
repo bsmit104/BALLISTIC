@@ -253,7 +253,10 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     // * Scene Loading Events =============================
 
-    public void OnSceneLoadDone(NetworkRunner runner) { }
+    public void OnSceneLoadDone(NetworkRunner runner) 
+    { 
+        
+    }
     public void OnSceneLoadStart(NetworkRunner runner) { }
 
     // * ==================================================

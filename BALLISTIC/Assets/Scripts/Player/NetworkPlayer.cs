@@ -61,7 +61,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     public void SetColor(Material mat)
     {
-        Debug.Log("setting color");
         SetColorRecursive(transform, mat);
     }
 
@@ -457,38 +456,66 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         Vector2 highDir2D = Rotate(new Vector2(centerDir.x, centerDir.z), 45f);
         Vector3 highDir = new Vector3(highDir2D.x, 0, highDir2D.y);
 
-        Vector3 centerStart = transform.position + Vector3.up * col.bounds.extents.y + centerDir * col.bounds.extents.x;
-        Vector3 lowStart = transform.position + Vector3.up * col.bounds.extents.y + lowDir * col.bounds.extents.x;
-        Vector3 highStart = transform.position + Vector3.up * col.bounds.extents.y + highDir * col.bounds.extents.x;
+        Vector3[] centerStarts = {
+            transform.position + Vector3.up * col.bounds.extents.y + centerDir * col.bounds.extents.x, // torso
+            transform.position + Vector3.up * col.bounds.size.y * 0.9f + centerDir * col.bounds.extents.x, // head
+            transform.position + Vector3.up * col.bounds.size.y * 0.6f + centerDir * col.bounds.extents.x, // shoulders
+            transform.position + Vector3.up * col.bounds.size.y * 0.3f + centerDir * col.bounds.extents.x, // knees
+            transform.position + Vector3.up * col.bounds.size.y * 0.1f + centerDir * col.bounds.extents.x, // feet
+        };
+
+        Vector3[] lowStarts = {
+            transform.position + Vector3.up * col.bounds.extents.y + lowDir * col.bounds.extents.x, // torso
+            transform.position + Vector3.up * col.bounds.size.y * 0.95f + lowDir * col.bounds.extents.x, // head
+            transform.position + Vector3.up * col.bounds.size.y * 0.6f + lowDir * col.bounds.extents.x, // shoulders
+            transform.position + Vector3.up * col.bounds.size.y * 0.3f + lowDir * col.bounds.extents.x, // knees
+            transform.position + Vector3.up * col.bounds.size.y * 0.1f + lowDir * col.bounds.extents.x, // feet
+        };
+
+        Vector3[] highStarts = {
+            transform.position + Vector3.up * col.bounds.extents.y + highDir * col.bounds.extents.x, // torso
+            transform.position + Vector3.up * col.bounds.size.y * 0.95f + highDir * col.bounds.extents.x, // head
+            transform.position + Vector3.up * col.bounds.size.y * 0.6f + highDir * col.bounds.extents.x, // shoulders
+            transform.position + Vector3.up * col.bounds.size.y * 0.3f + highDir * col.bounds.extents.x, // knees
+            transform.position + Vector3.up * col.bounds.size.y * 0.1f + highDir * col.bounds.extents.x, // feet
+        };
 
         float dist = movement.magnitude * Runner.DeltaTime * 2f;
 
-        Debug.DrawLine(centerStart, centerStart + (movement.normalized * dist));
         RaycastHit hit;
-        if (Physics.Raycast(centerStart, centerDir, out hit, dist, LayerMask.GetMask("Surfaces")))
+        for (int i = 0; i < centerStarts.Length; i++) 
         {
-            Vector2 move = new Vector2(movement.x, movement.z);
-            Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
-            float dot = Vector2.Dot(move, hitPerp);
-            Vector2 newDir = hitPerp * dot;
-            movement = new Vector3(newDir.x, 0, newDir.y);
+            if (Physics.Raycast(centerStarts[i], centerDir, out hit, dist, LayerMask.GetMask("Surfaces")))
+            {
+                Vector2 move = new Vector2(movement.x, movement.z);
+                Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
+                float dot = Vector2.Dot(move, hitPerp);
+                Vector2 newDir = hitPerp * dot;
+                movement = new Vector3(newDir.x, 0, newDir.y);
+            }
+            else if (Physics.Raycast(lowStarts[i], lowDir, out hit, dist, LayerMask.GetMask("Surfaces")))
+            {
+                Vector2 move = new Vector2(movement.x, movement.z);
+                Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
+                float dot = Vector2.Dot(move, hitPerp);
+                Vector2 newDir = hitPerp * dot;
+                movement = new Vector3(newDir.x, 0, newDir.y);
+            }
+            else if (Physics.Raycast(highStarts[i], highDir, out hit, dist, LayerMask.GetMask("Surfaces")))
+            {
+                Vector2 move = new Vector2(movement.x, movement.z);
+                Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
+                float dot = Vector2.Dot(move, hitPerp);
+                Vector2 newDir = hitPerp * dot;
+                movement = new Vector3(newDir.x, 0, newDir.y);
+            }
+            if (grounded.IsGrounded && i == centerStarts.Length - 2)
+            {
+                break;
+            }
         }
-        else if (Physics.Raycast(lowStart, lowDir, out hit, dist, LayerMask.GetMask("Surfaces")))
-        {
-            Vector2 move = new Vector2(movement.x, movement.z);
-            Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
-            float dot = Vector2.Dot(move, hitPerp);
-            Vector2 newDir = hitPerp * dot;
-            movement = new Vector3(newDir.x, 0, newDir.y);
-        }
-        else if (Physics.Raycast(highStart, highDir, out hit, dist, LayerMask.GetMask("Surfaces")))
-        {
-            Vector2 move = new Vector2(movement.x, movement.z);
-            Vector2 hitPerp = new Vector2(hit.normal.z, -hit.normal.x);
-            float dot = Vector2.Dot(move, hitPerp);
-            Vector2 newDir = hitPerp * dot;
-            movement = new Vector3(newDir.x, 0, newDir.y);
-        }
+
+
         rb.MovePosition(transform.position + movement * Runner.DeltaTime);
     }
 
