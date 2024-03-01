@@ -4,7 +4,7 @@ using UnityEngine;
 using Fusion;
 using Fusion.Sockets;
 using System;
-using Unity.VisualScripting;
+using TMPro;
 
 /// <summary>
 /// Implements all network events, and initializes managers.
@@ -77,6 +77,13 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     // * Joining and Leaving: Host Controlled =============
 
+    [Header("Joining and Leaving Popups")]
+    [SerializeField] private GameObject joinLeaveCanvas;
+    [SerializeField] private TextMeshProUGUI joinLeaveText;
+    [SerializeField] private float joinLeaveDisplayTime;
+
+    private Coroutine joinLeaveTween;
+
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         if (runner.IsServer && NotInitialized)
@@ -94,11 +101,38 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         {
             Debug.Log($"Player {player.PlayerId} Joined The Game");
         }
+
+        if (joinLeaveTween != null)
+        {
+            StopCoroutine(joinLeaveTween);
+        }
+        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Joined"));
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
         playerManager.DespawnPlayer(player);
+        if (joinLeaveTween != null)
+        {
+            StopCoroutine(joinLeaveTween);
+        }
+        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Left"));
+    }
+
+    private IEnumerator DisplayJoinLeave(string message)
+    {
+        float timer = joinLeaveDisplayTime;
+
+        joinLeaveText.text = message;
+        joinLeaveCanvas.SetActive(true);
+
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
+        joinLeaveCanvas.SetActive(false);
     }
 
     // * ==================================================
