@@ -47,6 +47,14 @@ public class NetworkPlayerManager : MonoBehaviour
         this.levelManager = levelManager;
     }
 
+    void OnDestroy()
+    {
+        foreach (var pair in spawnedPlayers)
+        {
+            Destroy(pair.Value.gameObject);
+        }
+    }
+
     // * ==================================================
 
     // * Spawning and Despawning ==========================

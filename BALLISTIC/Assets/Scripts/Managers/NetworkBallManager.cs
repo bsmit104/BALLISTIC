@@ -46,6 +46,11 @@ public class NetworkBallManager : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        
+    }
+
     // * ==================================================
 
     [Tooltip("Prefab object that will be spawned on request")]

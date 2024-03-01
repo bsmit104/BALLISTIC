@@ -5,6 +5,7 @@ using Fusion;
 using Fusion.Sockets;
 using System;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Implements all network events, and initializes managers.
@@ -160,9 +161,70 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     // * On Connection & On Disconnection =================
 
+    [Space]
+    [Header("Connection Status Popups")]
+    [SerializeField] private GameObject connectionStatusCanvas;
+    [SerializeField] private TextMeshProUGUI connectionStatusText;
+
+    Coroutine shutdownPopup;
+    private bool closedPopup = false;
+
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        Application.Quit();
+        string message = "Network Connection Closed:\n";
+        switch (shutdownReason)
+        {
+            case ShutdownReason.Ok:
+                message += "Host has ended the game.";
+                break;
+            case ShutdownReason.ServerInRoom:
+            case ShutdownReason.GameIdAlreadyExists:
+                message += "Failed to host lobby.";
+                break;
+            case ShutdownReason.GameNotFound:
+                message += "Lobby could not be found.";
+                break;
+            case ShutdownReason.ConnectionRefused:
+            case ShutdownReason.GameIsFull:
+                message += "Lobby could not be joined.";
+                break;
+            case ShutdownReason.ConnectionTimeout:
+            case ShutdownReason.OperationTimeout:
+            case ShutdownReason.PhotonCloudTimeout:
+                message += "Connection timeout.";
+                break;
+            default:
+                message += "Network Error.";
+                break;
+        }
+        if (shutdownPopup != null)
+        {
+            StopCoroutine(shutdownPopup);
+        }
+        StartCoroutine(ShutdownPopup(message));
+    }
+
+
+    private IEnumerator ShutdownPopup(string message)
+    {
+        connectionStatusText.text = message;
+        connectionStatusCanvas.SetActive(true);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        while (!closedPopup)
+        {
+            yield return null;
+        }
+
+        SceneManager.LoadScene("PlayMenu");
+        Destroy(gameObject);
+    }
+
+    public void ClosePopup()
+    {
+        closedPopup = true;
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
@@ -173,7 +235,18 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
-        Application.Quit();
+        switch (reason)
+        {
+            case NetDisconnectReason.Timeout:
+                runner.Shutdown(false, ShutdownReason.ConnectionTimeout);
+                break;
+            case NetDisconnectReason.Requested:
+                runner.Shutdown(false, ShutdownReason.Ok);
+                break;
+            default:
+                runner.Shutdown(false, ShutdownReason.Error);
+                break;
+        }
     }
 
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
@@ -190,7 +263,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
     {
-        Application.Quit();
+        runner.Shutdown(false, ShutdownReason.ConnectionRefused);
     }
 
     // * ==================================================
