@@ -53,8 +53,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     /// <summary>
     /// Returns the color assigned to this player.
     /// </summary>
-    public PlayerColor Color { 
-        get {
+    public PlayerColor Color
+    {
+        get
+        {
             return NetworkPlayerManager.Instance.GetColor(GetRef);
         }
     }
@@ -71,7 +73,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             renderer.material = mat;
         }
 
-        for (int i = 0; i < root.childCount; i++) 
+        for (int i = 0; i < root.childCount; i++)
         {
             SetColorRecursive(root.GetChild(i), mat);
         }
@@ -444,7 +446,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         isCrouchingLeft = isCrouchLeft && !isSprinting && !isCrouchRight;
 
         // Trigger the idle animation when standing still and not pressing any movement keys
-        isIdle = vertical == 0 && horizontal == 0;
+        // isIdle = vertical == 0 && horizontal == 0;
+        // isIdle = false;
     }
 
     // dont think about it, it works and that's all that matters
@@ -483,7 +486,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         float dist = movement.magnitude * Runner.DeltaTime * 2f;
 
         RaycastHit hit;
-        for (int i = 0; i < centerStarts.Length; i++) 
+        for (int i = 0; i < centerStarts.Length; i++)
         {
             if (Physics.Raycast(centerStarts[i], centerDir, out hit, dist, LayerMask.GetMask("Surfaces")))
             {
