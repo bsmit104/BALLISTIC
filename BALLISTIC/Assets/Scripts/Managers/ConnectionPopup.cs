@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 public class ConnectionPopup : MonoBehaviour
 {
@@ -19,6 +20,13 @@ public class ConnectionPopup : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        EventSystem[] eventSystems = FindObjectsOfType<EventSystem>();
+
+        if (eventSystems.Length > 1)
+        {
+            Destroy(transform.GetChild(1).gameObject);
+        }
     }
 
     void Update()

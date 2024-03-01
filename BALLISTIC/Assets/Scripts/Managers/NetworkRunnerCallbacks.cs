@@ -171,6 +171,8 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     /// </summary>
     public void LeaveGame()
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         runner.Shutdown(true, ShutdownReason.Ok);
         SceneManager.LoadScene("PlayMenu");
     }
