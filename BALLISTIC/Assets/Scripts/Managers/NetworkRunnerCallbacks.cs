@@ -163,11 +163,17 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     [Space]
     [Header("Connection Status Popups")]
-    [SerializeField] private GameObject connectionStatusCanvas;
-    [SerializeField] private TextMeshProUGUI connectionStatusText;
+    [SerializeField] ConnectionPopup popupPrefab;
 
-    Coroutine shutdownPopup;
-    private bool closedPopup = false;
+    /// <summary>
+    /// Leave the current lobby. If the player is the host, then the lobby will be shutdown,
+    /// and all players will be disconnected.
+    /// </summary>
+    public void LeaveGame()
+    {
+        runner.Shutdown(true, ShutdownReason.Ok);
+        SceneManager.LoadScene("PlayMenu");
+    }
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
@@ -197,35 +203,10 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
                 message += "Network Error.";
                 break;
         }
-        if (shutdownPopup != null)
-        {
-            StopCoroutine(shutdownPopup);
-        }
-        StartCoroutine(ShutdownPopup(message));
+        var popup = Instantiate(popupPrefab);
+        popup.SetText(message);
     }
-
-
-    private IEnumerator ShutdownPopup(string message)
-    {
-        connectionStatusText.text = message;
-        connectionStatusCanvas.SetActive(true);
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
-        while (!closedPopup)
-        {
-            yield return null;
-        }
-
-        SceneManager.LoadScene("PlayMenu");
-        Destroy(gameObject);
-    }
-
-    public void ClosePopup()
-    {
-        closedPopup = true;
-    }
+    
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
@@ -238,13 +219,13 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         switch (reason)
         {
             case NetDisconnectReason.Timeout:
-                runner.Shutdown(false, ShutdownReason.ConnectionTimeout);
+                runner.Shutdown(true, ShutdownReason.ConnectionTimeout);
                 break;
             case NetDisconnectReason.Requested:
-                runner.Shutdown(false, ShutdownReason.Ok);
+                runner.Shutdown(true, ShutdownReason.Ok);
                 break;
             default:
-                runner.Shutdown(false, ShutdownReason.Error);
+                runner.Shutdown(true, ShutdownReason.Error);
                 break;
         }
     }
@@ -263,7 +244,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
     {
-        runner.Shutdown(false, ShutdownReason.ConnectionRefused);
+        runner.Shutdown(true, ShutdownReason.ConnectionRefused);
     }
 
     // * ==================================================

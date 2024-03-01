@@ -51,7 +51,7 @@ public class NetworkPlayerManager : MonoBehaviour
     {
         foreach (var pair in spawnedPlayers)
         {
-            Destroy(pair.Value.gameObject);
+            if (pair.Value) Destroy(pair.Value.gameObject);
         }
     }
 
