@@ -18,31 +18,20 @@ public class NetworkLevelManager : MonoBehaviour
     public static NetworkLevelManager Instance { get { return _instance; } }
     private static NetworkLevelManager _instance = null;
 
+    // * Managers and Init ================================
+
     public static NetworkRunner Runner { get { return _runner; } }
     private static NetworkRunner _runner = null;
 
     private NetworkPlayerManager playerManager;
-    // private NetworkBallManager ballManager;
-
-    [Header("Lobby Code")]
-    [SerializeField] private GameObject lobbyCanvas;
-    [SerializeField] private TextMeshProUGUI lobbyCodeText;
-
-    [Header("Scene Indices")]
-    [Tooltip("The build index of the lobby scene")]
-    [SerializeField] private int lobbySceneIndex;
-    [Tooltip("The next level will be picked based on a range of scene build indices. Each level should be placed in a row.")]
-    [SerializeField] private int firstLevelIndex;
-    [Tooltip("The next level will be picked based on a range of scene build indices. Each level should be placed in a row.")]
-    [SerializeField] private int lastLevelIndex;
+    private NetworkBallManager ballManager;
 
     private Coroutine waitForGameStart;
 
     /// <summary>
     /// Initializes the level manager, should only be called once when the NetworkRunnerPrefab is created.
     /// </summary>
-    /// <param name="runner">The local NetworkRunner.</param>
-    public void Init(NetworkRunner runner, NetworkPlayerManager players) // TODO: add in ball manager
+    public void Init(NetworkRunner runner, NetworkPlayerManager players, NetworkBallManager balls)
     {
         if (_instance != null && _instance != this)
         {
@@ -52,43 +41,48 @@ public class NetworkLevelManager : MonoBehaviour
         _instance = this;
         _runner = runner;
         playerManager = players;
-        // ballManager = balls;
+        ballManager = balls;
 
         numLevels = lastLevelIndex - firstLevelIndex + 1;
         remainingLevels = new List<int>(numLevels);
         
-        waitForGameStart = StartCoroutine(WaitForGameStart());
+        if (Runner.IsServer)
+        {
+            waitForGameStart = StartCoroutine(WaitForGameStart());
+        }
     }
+
+    [Header("Lobby Code")]
+    [SerializeField] private GameObject lobbyCanvas;
+    [SerializeField] private TextMeshProUGUI lobbyCodeText;
 
     IEnumerator WaitForGameStart()
     {
-        float timer = 10f;
-
-        while (timer > 0 && !Runner.IsServer)
+        Debug.Log("Press P To Start Game");
+        lobbyCodeText.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
+        lobbyCanvas.SetActive(true);
+        while (true)
         {
-            timer -= Time.deltaTime;
+            if (Runner.IsServer && Input.GetKeyDown(KeyCode.P))
+            {
+                break;
+            }
             yield return null;
         }
+        lobbyCanvas.SetActive(false);
 
-        if (Runner.IsServer)
-        {
-            Debug.Log("Press P To Start Game");
-            lobbyCodeText.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
-            lobbyCanvas.SetActive(true);
-            while (true)
-            {
-                if (Runner.IsServer && Input.GetKeyDown(KeyCode.P))
-                {
-                    break;
-                }
-                yield return null;
-            }
-            lobbyCanvas.SetActive(false);
-
-            StartLevelTransition(GetRandomLevel());
-        }
-
+        StartLevelTransition(GetRandomLevel());
     }
+
+    // * ==================================================
+
+    [Header("Scene Indices")]
+    [Tooltip("The build index of the lobby scene")]
+    [SerializeField] private int lobbySceneIndex;
+    [Tooltip("The next level will be picked based on a range of scene build indices. Each level should be placed in a row.")]
+    [SerializeField] private int firstLevelIndex;
+    [Tooltip("The next level will be picked based on a range of scene build indices. Each level should be placed in a row.")]
+    [SerializeField] private int lastLevelIndex;
 
     /// <summary>
     /// Returns true if the current scene loaded in the lobby waiting room.
@@ -499,7 +493,7 @@ public class NetworkLevelManager : MonoBehaviour
         {
             localWinText.SetActive(false);
             remoteWinText.SetActive(true);
-            winText.text = "PLAYER " + winner.PlayerId + " IS THE";
+            winText.text = playerManager.GetColor(winner).colorName + " IS THE";
         }
         winScreen.SetActive(true);
 

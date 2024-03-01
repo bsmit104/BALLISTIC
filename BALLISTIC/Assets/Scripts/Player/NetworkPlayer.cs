@@ -50,6 +50,34 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private bool _isAlive = true;
     public bool isAlive { get { return _isAlive; } }
 
+    /// <summary>
+    /// Returns the color assigned to this player.
+    /// </summary>
+    public PlayerColor Color { 
+        get {
+            return NetworkPlayerManager.Instance.GetColor(GetRef);
+        }
+    }
+
+    public void SetColor(Material mat)
+    {
+        Debug.Log("setting color");
+        SetColorRecursive(transform, mat);
+    }
+
+    private void SetColorRecursive(Transform root, Material mat)
+    {
+        if (root.TryGetComponent<Renderer>(out var renderer))
+        {
+            renderer.material = mat;
+        }
+
+        for (int i = 0; i < root.childCount; i++) 
+        {
+            SetColorRecursive(root.GetChild(i), mat);
+        }
+    }
+
 
     // * Client-Sided Attributes ================================
 
@@ -278,6 +306,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         netPos = GetComponentInChildren<NetworkPosition>();
 
         _isAlive = true;
+
+        SetColor(Color.material);
 
         // Check if this player instance is the local client
         if (Object.HasInputAuthority)

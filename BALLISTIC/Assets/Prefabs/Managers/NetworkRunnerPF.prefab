@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 3.126}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -160, y: 24}
-  m_SizeDelta: {x: 1216.224, y: 273.2536}
+  m_AnchoredPosition: {x: -160, y: 40.02102}
+  m_SizeDelta: {x: 1216.224, y: 247.4391}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5872147035791815713
 CanvasRenderer:
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PLAYER 3 IS THE
+  m_text: TURQUOISE IS THE
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7f9b3af120e4f0341b7c8acef0f44cf0, type: 2}
   m_sharedMaterial: {fileID: -5853458858090674363, guid: 7f9b3af120e4f0341b7c8acef0f44cf0, type: 2}
@@ -93,7 +93,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 148.85
+  m_fontSize: 130.3
   m_fontSizeBase: 64
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1129,6 +1129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5497236797057163156}
   - component: {fileID: 5674648568997470240}
+  - component: {fileID: 2749031124658408062}
   - component: {fileID: 3370978793957886318}
   - component: {fileID: 2600095694235042499}
   - component: {fileID: -3594434660325473979}
@@ -1167,6 +1168,18 @@ MonoBehaviour:
   m_Script: {fileID: -1199893898, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2749031124658408062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7399520618018888314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c6963d172686324c9577e2941f2305b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &3370978793957886318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1181,6 +1194,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab:
     RawGuidValue: 25e1be3ffe17daf41833738111a3b8b5
+  playerColors:
+  - colorName: RED
+    material: {fileID: 2100000, guid: cf50a770f41812843afbfed98a5bfe55, type: 2}
+  - colorName: BLUE
+    material: {fileID: 2100000, guid: 64fbd0ad9af19ef4eb8001d34a44de52, type: 2}
+  - colorName: PINK
+    material: {fileID: 2100000, guid: 32cbd8429ff8c914391c758af11c6a68, type: 2}
+  - colorName: PURPLE
+    material: {fileID: 2100000, guid: 064586f53f708f64f862555e4578565a, type: 2}
+  - colorName: GREEN
+    material: {fileID: 2100000, guid: 6acfb7720492b5340ac622e122f447dc, type: 2}
+  - colorName: YELLOW
+    material: {fileID: 2100000, guid: 64af135cc7e0ec84bb142a68feb6fb87, type: 2}
+  - colorName: ORANGE
+    material: {fileID: 2100000, guid: 03d50c5557f6a3a4797d687a2a7db1de, type: 2}
+  - colorName: TURQUOISE
+    material: {fileID: 2100000, guid: 53ec44096752b6f4eab7ca08594e2dca, type: 2}
+  - colorName: BLACK
+    material: {fileID: 2100000, guid: e58c3ac44d3860a4bb590ae39381732a, type: 2}
+  - colorName: WHITE
+    material: {fileID: 2100000, guid: 147bace03cacaf94cad09624a2abd6fa, type: 2}
 --- !u!114 &2600095694235042499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1196,8 +1230,6 @@ MonoBehaviour:
   ballPrefab: {fileID: 1437923237954681535, guid: 3049e71cd6e7b664999175e509e02cd2, type: 3}
   defaultPoolSize: 10
   maxPoolSize: 50
-  pool: []
-  active: []
 --- !u!114 &-3594434660325473979
 MonoBehaviour:
   m_ObjectHideFlags: 0

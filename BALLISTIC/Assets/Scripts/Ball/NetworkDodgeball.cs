@@ -191,7 +191,7 @@ public class NetworkDodgeball : NetworkBehaviour
         }
         else
         {
-            transform.SetParent(NetworkPlayerManager.GetPlayer(owner).throwPoint);
+            transform.SetParent(NetworkPlayerManager.Instance.GetPlayer(owner).throwPoint);
         }
     }
 

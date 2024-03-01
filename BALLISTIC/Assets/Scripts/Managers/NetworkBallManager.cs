@@ -14,20 +14,10 @@ public class NetworkBallManager : MonoBehaviour
     public static NetworkBallManager Instance { get { return _instance; } }
     private static NetworkBallManager _instance = null;
 
-    [Tooltip("Prefab object that will be spawned on request")]
-    [SerializeField] private NetworkObject ballPrefab;
-    [Tooltip("Size pool queue will be initialized at")]
-    [SerializeField] private int defaultPoolSize;
-    [Tooltip("Max size of pool queue before dodgeballs will be recycled")]
-    [SerializeField] private int maxPoolSize;
-
-    private int totalBalls;
-
-    [SerializeField] private List<NetworkDodgeball> pool = new List<NetworkDodgeball>();
-    [SerializeField] private List<NetworkDodgeball> active = new List<NetworkDodgeball>();
-
-    private NetworkRunner runner;
     public NetworkRunner Runner { get { return runner; } }
+    private NetworkRunner runner;
+
+    // * Init =============================================
 
     /// <summary>
     /// Initializes the ball manager, this should only happen once per lobby creation.
@@ -38,25 +28,13 @@ public class NetworkBallManager : MonoBehaviour
         if (_instance != null && _instance != this)
         {
             Debug.LogError("NetworkBallManager singleton instantiated twice");
-            Destroy(this);
+            Destroy(gameObject);
         }
         _instance = this;
 
         runner = networkRunner;
 
-        StartCoroutine(InitialSpawn());
-    }
-
-    IEnumerator InitialSpawn()
-    {
-        float timer = 10f;
-
-        while (timer > 0 && !Runner.IsServer)
-        {
-            timer -= Time.deltaTime;
-            yield return null;
-        }
-
+        // seed pool
         if (Runner.IsServer)
         {
             for (int i = 0; i < defaultPoolSize; i++) 
@@ -66,8 +44,21 @@ public class NetworkBallManager : MonoBehaviour
 
             ReleaseAllBalls();
         }
-
     }
+
+    // * ==================================================
+
+    [Tooltip("Prefab object that will be spawned on request")]
+    [SerializeField] private NetworkObject ballPrefab;
+    [Tooltip("Size pool queue will be initialized at")]
+    [SerializeField] private int defaultPoolSize;
+    [Tooltip("Max size of pool queue before dodgeballs will be recycled")]
+    [SerializeField] private int maxPoolSize;
+
+
+    private List<NetworkDodgeball> pool = new List<NetworkDodgeball>();
+    private List<NetworkDodgeball> active = new List<NetworkDodgeball>();
+    private int totalBalls;
 
     private NetworkDodgeball SpawnNew()
     {
