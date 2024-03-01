@@ -8,6 +8,7 @@ using Fusion;
 /// </summary>
 [RequireComponent(typeof(DodgeballCollider))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(TrailRenderer))]
 public class NetworkDodgeball : NetworkBehaviour
 {
     // * Client-Sided Attributes =======================================
@@ -25,6 +26,12 @@ public class NetworkDodgeball : NetworkBehaviour
     /// </summary>
     public SphereCollider Col { get { return col; } }
     private SphereCollider col;
+
+    /// <summary>
+    /// The ball's Trail Renderer.
+    /// </summary>
+    public TrailRenderer Trail { get { return trail; } }
+    private TrailRenderer trail;
 
     /// <summary>
     /// Returns the NetworkId associated with the NetworkObject attached to the ball.
@@ -127,6 +134,7 @@ public class NetworkDodgeball : NetworkBehaviour
         ballCol.networkBall = this;
         rig = GetComponent<Rigidbody>();
         col = GetComponent<SphereCollider>();
+        trail = GetComponent<TrailRenderer>();
         gameObject.SetActive(false);
     }
 
@@ -225,6 +233,11 @@ public class NetworkDodgeball : NetworkBehaviour
         RPC_EnforceSetOwner(player);
     }
 
+    public void setTrail()
+    {
+            trail.emitting = owner != PlayerRef.None && !isHeld;
+    }
+
     // =========================================
 
     // add force ===============================
@@ -258,4 +271,10 @@ public class NetworkDodgeball : NetworkBehaviour
     {
         RPC_EnforceAddForce(force);
     }
+
+    private void Update()
+    {
+        setTrail();
+    }
+
 }
