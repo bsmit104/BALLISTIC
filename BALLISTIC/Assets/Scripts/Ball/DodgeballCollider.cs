@@ -25,6 +25,7 @@ public class DodgeballCollider : MonoBehaviour
                 Debug.Log("hit player");
                 if (player) // add " && networkBall.Runner.IsServer" to make collision detection host priority
                 {
+                    networkBall.OnPlayerHit(player.GetRef);
                     player.ActivatePlayerRagdoll();
                 }
             }

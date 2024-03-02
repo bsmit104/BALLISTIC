@@ -722,6 +722,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.SetOwner(GetRef);
         ball.transform.position = throwPoint.position;
         ball.transform.localPosition = Vector3.zero;
+        ball.OnPickup(GetRef);
     }
 
     public void PickupBall(NetworkDodgeball ball)
@@ -810,6 +811,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (!IsHoldingBall) return;
         heldBall.IsHeld = false;
         heldBall.transform.SetParent(null);
+        heldBall.OnDropped(GetRef);
         heldBall = null;
     }
 

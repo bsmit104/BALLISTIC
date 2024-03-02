@@ -121,12 +121,13 @@ public class NetworkDodgeball : NetworkBehaviour
     /// Reset any attributes for this NetworkDodgeball. 
     /// Used by the NetworkBallManager to reset dodgeballs returned by GetBall().
     /// </summary>
-    public NetworkDodgeball Reset()
+    public NetworkDodgeball Reset(int newBuff)
     {
         NetworkSetOwner(PlayerRef.None);
         transform.position = Vector3.zero;
         rig.velocity = Vector3.zero;
         rig.angularVelocity = Vector3.zero;
+        SetBuff(newBuff);
         return this;
     }
 
@@ -147,9 +148,10 @@ public class NetworkDodgeball : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
+        if (!gameObject.activeInHierarchy) return;
+
         if (IsDeadly)
         {
-            //Rig.AddForce(Vector3.up * Physics.gravity.magnitude * (1f - deadlyGravity));
             Rig.velocity = travelDir * throwSpeed;
 
             Vector3 start = transform.position;
@@ -159,6 +161,16 @@ public class NetworkDodgeball : NetworkBehaviour
             {
                 travelDir = Vector3.Reflect(travelDir, hit.normal);
                 bounceCount++;
+                OnBounce(hit.normal, travelDir, bounceCount);
+            }
+            buff?.WhileDeadly(travelDir);
+        }
+        else
+        {
+            buff?.WhileNotDeadly();
+            if (IsHeld)
+            {
+                buff?.WhileHeld(NetworkPlayerManager.Instance.GetPlayer(Owner));
             }
         }
     }
@@ -170,10 +182,14 @@ public class NetworkDodgeball : NetworkBehaviour
         isDeadly = true;
         deadlyTimer = deadlyTime;
         bounceCount = 0;
+        OnThrow(Owner, dir);
+        //trail.material.color = NetworkPlayerManager.Instance.GetColor(Owner).color;
     }
 
     private void Update()
     {
+        if (!gameObject.activeInHierarchy) return;
+
         setTrail();
         if (deadlyTimer > 0)
         {
@@ -183,7 +199,9 @@ public class NetworkDodgeball : NetworkBehaviour
                 if (Runner.IsServer)
                 {
                     NetworkSetOwner(PlayerRef.None);
+                    OnNotDeadly();
                 }
+                deadlyTimer = 0;
             }
         }
     }
@@ -191,14 +209,144 @@ public class NetworkDodgeball : NetworkBehaviour
     public void setTrail()
     {
         trail.emitting = IsDeadly;
-        //trail.material.color = NetworkPlayerManager.Instance.GetColor(Owner).color;
     }
 
     // * ===============================================================
 
     // * Ball-Buff Events ==============================================
 
+    private BallBuff buff;
+
+    /// <summary>
+    /// Returns a string containing the name, and description of the ball buff.
+    /// </summary>
+    public string BuffText { get {
+        return buff.Title + "\n" + buff.Description;
+    } }
+
+    public void SetBuff(int buffID)
+    {
+        if (Runner.IsServer)
+        {
+            RPC_SetBuff(buffID);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_SetBuff(int buffID)
+    {
+        BallBuff buff = NetworkBallManager.Instance.GetBuff(buffID);
+        this.buff = buff;
+        buff.transform.SetParent(transform);
+        buff.OnSpawn(this);
+    }
+
+    public void SetMaterial(Material material)
+    {
+        GetComponent<MeshRenderer>().material = material;
+    }
+
+    // ------------
     
+    private void OnThrow(PlayerRef player, Vector3 throwDirection)
+    {
+        if (Runner.IsServer)
+        {
+            RPC_OnThrow(player, throwDirection);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_OnThrow(PlayerRef player, Vector3 throwDirection)
+    {
+        buff?.OnThrow(NetworkPlayerManager.Instance.GetPlayer(player), throwDirection);
+    }
+
+    // ------------
+
+    private void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount)
+    {
+        if (Runner.IsServer)
+        {
+            RPC_OnBounce(normal, newDirection, bounceCount);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount)
+    {
+        buff?.OnBounce(normal, newDirection, bounceCount);
+    }
+
+    // ------------
+
+    public void OnPlayerHit(PlayerRef player)
+    {
+        if (Runner.IsServer)
+        {
+            RPC_OnPlayerHit(player);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_OnPlayerHit(PlayerRef player)
+    {
+        buff?.OnPlayerHit(NetworkPlayerManager.Instance.GetPlayer(player));
+    }
+
+    // ------------
+
+    public void OnPickup(PlayerRef player)
+    {
+        if (Owner == NetworkPlayer.Local.GetRef)
+        {
+            NetworkBallManager.Instance.DisplayBuffText(buff.Title, buff.Description);
+        }
+        if (Runner.IsServer)
+        {
+            RPC_OnPickup(player);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_OnPickup(PlayerRef player)
+    {
+        buff?.OnPickup(NetworkPlayerManager.Instance.GetPlayer(player));
+    }
+
+    // ------------
+
+    public void OnDropped(PlayerRef player)
+    {
+        if (Runner.IsServer)
+        {
+            RPC_OnDropped(player);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_OnDropped(PlayerRef player)
+    {
+        buff?.OnDropped(NetworkPlayerManager.Instance.GetPlayer(player));
+    }
+
+    // ------------
+
+    private void OnNotDeadly()
+    {
+        if (Runner.IsServer)
+        {
+            RPC_OnNotDeadly();
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
+    public void RPC_OnNotDeadly()
+    {
+        buff?.OnNotDeadly();
+    }
+
+    // ------------
 
     // * ===============================================================
 
