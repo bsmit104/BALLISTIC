@@ -1,8 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
+using TMPro;
 using UnityEngine;
-using UnityEngine.Pool;
+
+[System.Serializable]
+public struct BallBuffChance
+{
+    [Tooltip("The ball buff prefab that will be added as a child to the actual ball.")]
+    public BallBuff ballBuffPrefab;
+    [Tooltip(@"The chances of a ball having this buff. Value will be normalized. 
+        The higher it is compared to other buffs, the more likely it will appear.")]
+    public int chance;
+}
+
 
 /// <summary>
 /// Singleton object manager for Dodgeballs, makes sure they are networked properly.
@@ -37,6 +48,14 @@ public class NetworkBallManager : MonoBehaviour
         // seed pool
         if (Runner.IsServer)
         {
+            for (int i = 0; i < ballBuffs.Length; i++) 
+            {
+                for (int j = 0; j < ballBuffs[i].chance; j++) 
+                {
+                    buffChances.Add(i);
+                }
+            }
+
             for (int i = 0; i < defaultPoolSize; i++) 
             {
                 SpawnNew();
@@ -44,11 +63,6 @@ public class NetworkBallManager : MonoBehaviour
 
             ReleaseAllBalls();
         }
-    }
-
-    void OnDestroy()
-    {
-        
     }
 
     // * ==================================================
@@ -60,6 +74,9 @@ public class NetworkBallManager : MonoBehaviour
     [Tooltip("Max size of pool queue before dodgeballs will be recycled")]
     [SerializeField] private int maxPoolSize;
 
+    [Space]
+    [SerializeField] private BallBuffChance[] ballBuffs;
+    private List<int> buffChances = new List<int>();
 
     private List<NetworkDodgeball> pool = new List<NetworkDodgeball>();
     private List<NetworkDodgeball> active = new List<NetworkDodgeball>();
@@ -114,7 +131,7 @@ public class NetworkBallManager : MonoBehaviour
         {
             ball = SpawnNew();
         }
-        return ball.Reset();
+        return ball.Reset(Random.Range(0, buffChances.Count));
     }
 
     /// <summary>
@@ -123,7 +140,6 @@ public class NetworkBallManager : MonoBehaviour
     /// <param name="ball">The ball to be released.</param>
     public void ReleaseBall(NetworkDodgeball ball)
     {
-        ball.Reset();
         MakeInactive(ball);
     }
 
@@ -136,5 +152,50 @@ public class NetworkBallManager : MonoBehaviour
         {
             ReleaseBall(active[0]);
         }
+    }
+
+    /// <summary>
+    /// Returns a new instance of a requested ball buff.
+    /// </summary>
+    /// <param name="index">The index in the ball buffs array.</param>
+    /// <returns>A newly instantiated ball buff.</returns>
+    public BallBuff GetBuff(int index)
+    {
+        return Instantiate(ballBuffs[index].ballBuffPrefab);
+    }
+
+    [Space]
+    [Header("Ball Buff Descriptions")]
+    [SerializeField] GameObject ballBuffCanvas;
+    [SerializeField] TextMeshProUGUI buffTitleText;
+    [SerializeField] TextMeshProUGUI buffDescText;
+    [SerializeField] float ballBuffTextDuration;
+
+    public void DisplayBuffText(string title, string desc)
+    {
+        if (buffTextTween != null)
+        {
+            StopCoroutine(buffTextTween);
+        }
+        buffTextTween = StartCoroutine(BuffTextTween(title, desc));
+    }
+
+    private Coroutine buffTextTween;
+
+    IEnumerator BuffTextTween(string title, string desc)
+    {
+        buffTitleText.text = title;
+        buffDescText.text = desc;
+        ballBuffCanvas.SetActive(true);
+
+        float timer = ballBuffTextDuration;
+
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
+        ballBuffCanvas.SetActive(false);
     }
 }

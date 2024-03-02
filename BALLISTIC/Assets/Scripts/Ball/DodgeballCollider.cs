@@ -10,25 +10,25 @@ public class DodgeballCollider : MonoBehaviour
 {
     [HideInInspector] public NetworkDodgeball networkBall;
 
-    private void OnCollisionEnter(Collision collider)
+    private void OnCollisionEnter(Collision col)
     {
         // Check if the collided GameObject has the "Player" tag
-        if (collider.gameObject.CompareTag("Player") && networkBall.Owner != PlayerRef.None && !networkBall.IsHeld)
+        if (networkBall.IsDeadly)
         {
-            // Activate the ragdoll for the player
-            NetworkPlayer player = collider.gameObject.GetComponent<NetworkPlayer>();
-
-            if (player?.GetRef == networkBall.Owner) return;
-
-            Debug.Log("hit player");
-            if (player) // add " && networkBall.Runner.IsServer" to make collision detection host priority
+            if (col.gameObject.CompareTag("Player"))
             {
-                player.ActivatePlayerRagdoll();
+                // Activate the ragdoll for the player
+                NetworkPlayer player = col.gameObject.GetComponent<NetworkPlayer>();
+
+                if (player?.GetRef == networkBall.Owner) return;
+
+                Debug.Log("hit player");
+                if (player) // add " && networkBall.Runner.IsServer" to make collision detection host priority
+                {
+                    networkBall.OnPlayerHit(player.GetRef);
+                    player.ActivatePlayerRagdoll();
+                }
             }
-        }
-        else if (collider.gameObject.CompareTag("Floor"))
-        {
-            networkBall.NetworkSetOwner(PlayerRef.None);
         }
     }
 }

@@ -527,12 +527,9 @@ MonoBehaviour:
   ragdollActivator: {fileID: 8316736064853450462}
   dir: {x: 0, y: 0, z: 0}
   throwPoint: {fileID: 8874166371456309043}
-  minThrowForce: 1000
-  maxThrowForce: 0
-  chargeTime: 0
+  throwForce: 800
   throwCooldown: 0.3
   aimDist: 100
-  arcMultiplier: 0.1
   pickupCollider: {fileID: 7337151837620291511}
   netPos: {fileID: 0}
   _isWalking: 0
@@ -547,7 +544,6 @@ MonoBehaviour:
   _isCrouchingBackward: 0
   _isCrouchingRight: 0
   _isCrouchingLeft: 0
-  networkRunner: {fileID: 7399520618018888314, guid: 6ae7aef8407fb224a9cd99cf12995ecb, type: 3}
 --- !u!114 &1469680522173836522
 MonoBehaviour:
   m_ObjectHideFlags: 0
