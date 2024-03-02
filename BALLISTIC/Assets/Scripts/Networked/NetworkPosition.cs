@@ -90,7 +90,7 @@ public class NetworkPosition : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
     public void RPC_EnforceState(Vector3 pos, Vector3 rot, Vector3 vel, Vector3 angVel)
     {
-        if (Runner.IsServer || hasParent) return;
+        if (Runner.IsServer || hasParent || !enabled) return;
         transform.position = pos;
         transform.eulerAngles = rot;
         if (rig && !rig.isKinematic)

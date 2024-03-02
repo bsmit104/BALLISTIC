@@ -198,4 +198,50 @@ public class NetworkBallManager : MonoBehaviour
 
         ballBuffCanvas.SetActive(false);
     }
+
+    public void SendBallStates(PlayerRef receiver)
+    {
+        foreach (var ball in active)
+        {
+            BallManagerMessages.RPC_SendBallState(Runner, receiver, ball.NetworkID, ball.gameObject.activeInHierarchy, ball.transform.position, ball.BuffID);
+        }
+    }
+
+    public void FindBall(NetworkId id, bool enabled, Vector3 position, int buffIndex)
+    {
+        StartCoroutine(SearchForBall(id, enabled, position, buffIndex));
+    }
+
+    IEnumerator SearchForBall(NetworkId id, bool enabled, Vector3 position, int buffIndex)
+    {
+        float timer = 10f;
+        NetworkObject ballObj = null;
+
+        while (timer > 0)
+        {
+            if (Runner.TryFindObject(id, out ballObj))
+            {
+                break;
+            }
+            yield return null;
+        }
+
+        if (ballObj)
+        {
+            var ball = ballObj.GetComponent<NetworkDodgeball>();
+            ball.gameObject.SetActive(enabled);
+            ball.transform.position = position;
+            ball.SetBuff(buffIndex);
+        }
+    }
+}
+
+public class BallManagerMessages : SimulationBehaviour
+{
+    [Rpc]
+    public static void RPC_SendBallState(NetworkRunner runner, PlayerRef receiver, NetworkId id, bool enabled, Vector3 position, int buffIndex)
+    {
+        if (NetworkBallManager.Instance.Runner.LocalPlayer != receiver) return;
+        NetworkBallManager.Instance.FindBall(id, enabled, position, buffIndex);
+    }    
 }
