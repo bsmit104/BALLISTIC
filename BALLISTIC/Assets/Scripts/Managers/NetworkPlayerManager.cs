@@ -5,73 +5,151 @@ using Fusion.Sockets;
 using UnityEngine;
 using System;
 
+[Serializable]
+public struct PlayerColor
+{
+    public string colorName;
+    public Material material;
+}
+
 /// <summary>
 /// Manages instances of NetworkPlayers, each joined client will have a NetworkPlayer assigned to represent them in-game.
 /// </summary>
-public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
+public class NetworkPlayerManager : MonoBehaviour
 {
-    private static NetworkPlayerManager _instance = null;
     /// <summary>
     /// Returns the singleton instance of the local NetworkPlayerManager.
     /// </summary>
     public static NetworkPlayerManager Instance { get { return _instance; } }
+    private static NetworkPlayerManager _instance = null;
+
+    // * Managers =========================================
 
     private NetworkRunner runner;
-    private NetworkBallManager ballManager;
     private NetworkLevelManager levelManager;
 
-    void Start()
+    public void Init(NetworkRunner runner, NetworkLevelManager levelManager)
     {
         if (_instance != null && _instance != this)
         {
             Debug.LogError("NetworkPlayerManager singleton instantiated twice");
-            Destroy(this);
+            Destroy(gameObject);
+            return;
         }
         _instance = this;
 
-        runner = GetComponent<NetworkRunner>();
-        if (runner == null)
+        if (MaxPlayerCount > playerColors.Length)
         {
-            Debug.LogError("No NetworkRunner found");
+            Debug.LogError("There are not enough colors for every player!");
         }
 
-        ballManager = GetComponent<NetworkBallManager>();
-        if (ballManager == null)
-        {
-            Debug.LogError("No NetworkBallManager found");
-        }
-        ballManager.Init(runner);
-
-        levelManager = GetComponent<NetworkLevelManager>();
-        if (levelManager == null)
-        {
-            Debug.LogError("No NetworkLevelManager found");
-        }
-        levelManager.Init(runner, this);
+        this.runner = runner;
+        this.levelManager = levelManager;
     }
 
+    void OnDestroy()
+    {
+        foreach (var pair in spawnedPlayers)
+        {
+            if (pair.Value) Destroy(pair.Value.gameObject);
+        }
+    }
+
+    // * ==================================================
+
+    // * Spawning and Despawning ==========================
 
     [Tooltip("Prefab that will be instantiated for each player, this has the character controller")]
     [SerializeField] private NetworkPrefabRef playerPrefab;
+    [Tooltip("The colors mapped to each player. Length of this list defines the max number of players.")]
+    [SerializeField] private PlayerColor[] playerColors;
+
     private Dictionary<PlayerRef, NetworkPlayer> spawnedPlayers = new Dictionary<PlayerRef, NetworkPlayer>();
     public Dictionary<PlayerRef, NetworkPlayer> Players { get { return spawnedPlayers; } }
+
+    /// <summary>
+    /// Returns the number of players currently in the lobby.
+    /// </summary>
     public int PlayerCount { get { return spawnedPlayers.Count; } }
 
-    public static void AddPlayer(PlayerRef pRef, NetworkPlayer player)
+    /// <summary>
+    /// The max number of players allowed in a lobby.
+    /// </summary>
+    public int MaxPlayerCount { get { return playerColors.Length; } }
+
+    /// <summary>
+    /// Returns true if the current player count is below the max player count.
+    /// </summary>
+    public bool LobbyHasSpace { get { return PlayerCount < MaxPlayerCount; } }
+
+    /// <summary>
+    /// Spawns a new player in the lobby, gives them a random valid position.
+    /// </summary>
+    /// <param name="player">The PlayerRef that will be attached to the player.</param>
+    /// <returns></returns>
+    public NetworkPlayer SpawnPlayer(PlayerRef player)
     {
-        Instance.spawnedPlayers.Add(pRef, player);
+        // Create a unique position for the player
+        Vector3 spawnPosition = Spawner.GetSpawnPoint();
+        if (runner == null) Debug.Log("wtf");
+        NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
+        NetworkPlayer netPlayer = networkPlayerObject.gameObject.GetComponent<NetworkPlayer>();
+
+        // Keep track of the player avatars for easy access
+        spawnedPlayers.Add(player, netPlayer);
+        alivePlayers.Add(player);
+        runner.SetPlayerObject(player, networkPlayerObject);
+
+        return netPlayer;
+    }
+
+    /// <summary>
+    /// Despawns the player, removing them from the lobby.
+    /// </summary>
+    /// <param name="player">The player who will be despawned.</param>
+    public void DespawnPlayer(PlayerRef player)
+    {
+        if (runner.IsServer && spawnedPlayers.TryGetValue(player, out var netPlayer))
+        {
+            spawnedPlayers.Remove(player);
+            if (alivePlayers.Contains(player))
+            {
+                alivePlayers.Remove(player);
+            }
+            runner.Despawn(netPlayer.GetComponent<NetworkObject>());
+        }
+    }
+
+    /// <summary>
+    /// Spawn a dummy player object.
+    /// </summary>
+    /// <returns>Dummy NetworkPlayer</returns>
+    public NetworkPlayer GetDummy()
+    {
+        var obj = runner.Spawn(playerPrefab, Vector3.zero);
+        obj.GetComponent<NetworkPlayer>().isDummy = true;
+        return obj.GetComponent<NetworkPlayer>();
+    }
+
+    // * ==================================================
+
+    // * Getting ==========================================
+
+    private void AddPlayer(PlayerRef pRef, NetworkPlayer player)
+    {
+        spawnedPlayers.Add(pRef, player);
     }
 
     /// <summary>
     /// Get the NetworkPlayer linked to the given playerRef
     /// </summary>
     /// <param name="playerRef">Synchronized, unique player identifier</param>
-    /// <returns>NetworkPlayer instance</returns>
-    public static NetworkPlayer GetPlayer(PlayerRef playerRef)
+    /// <returns>NetworkPlayer instance, or null if no matching player is found</returns>
+    public NetworkPlayer GetPlayer(PlayerRef playerRef)
     {
-        if (!Instance.spawnedPlayers.ContainsKey(playerRef))
+        if (!spawnedPlayers.ContainsKey(playerRef))
         {
-            if (Instance.runner.TryGetPlayerObject(playerRef, out var obj))
+            if (runner.TryGetPlayerObject(playerRef, out var obj))
             {
                 AddPlayer(playerRef, obj.GetComponent<NetworkPlayer>());
             }
@@ -80,15 +158,17 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
                 return null;
             }
         }
-        return Instance.spawnedPlayers[playerRef];
+        return spawnedPlayers[playerRef];
     }
 
-    public NetworkPlayer GetDummy()
+    public PlayerColor GetColor(PlayerRef player)
     {
-        var obj = runner.Spawn(playerPrefab, Vector3.zero);
-        obj.GetComponent<NetworkPlayer>().isDummy = true;
-        return obj.GetComponent<NetworkPlayer>();
+        return playerColors[Mathf.Max(0, player.PlayerId - 1)];
     }
+
+    // * ==================================================
+
+    // * Track Living Players =============================
 
     private List<PlayerRef> alivePlayers = new List<PlayerRef>();
 
@@ -110,6 +190,10 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    // * ==================================================
+
+    // * Reset ============================================
+
     /// <summary>
     /// Reset all players to their alive state, and add them back to the living players list.
     /// </summary>
@@ -125,101 +209,4 @@ public class NetworkPlayerManager : MonoBehaviour, INetworkRunnerCallbacks
             }
         }
     }
-
-    // * Network Events =========================================
-
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
-    {
-        if (runner.IsServer)
-        {
-            // Create a unique position for the player
-            Vector3 spawnPosition = GetSpawnPosition(player.RawEncoded);
-            NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
-            // Keep track of the player avatars for easy access
-            spawnedPlayers.Add(player, networkPlayerObject.gameObject.GetComponent<NetworkPlayer>());
-            alivePlayers.Add(player);
-            runner.SetPlayerObject(player, networkPlayerObject);
-
-            Debug.Log($"Added player no. {player.PlayerId}");
-        }
-        else
-        {
-            Debug.Log($"Player {player.PlayerId} Joined The Game");
-        }
-    }
-
-    private Vector3 GetSpawnPosition(int playerNum)
-    {
-        return Spawner.GetSpawnPoint();
-    }
-
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
-    {
-        if (spawnedPlayers.TryGetValue(player, out NetworkPlayer networkPlayer))
-        {
-            runner.Despawn(networkPlayer.GetComponent<NetworkObject>());
-            spawnedPlayers.Remove(player);
-            alivePlayers.Remove(player);
-        }
-    }
-
-
-    public void OnInput(NetworkRunner runner, NetworkInput input)
-    {
-        var data = new NetworkInputData();
-
-        data.horizontal = Input.GetAxis("Horizontal");
-        data.vertical = Input.GetAxis("Vertical");
-        data.sprintButtonPressed = Input.GetKey(KeyCode.LeftShift);
-        data.throwButtonPressed = Input.GetMouseButton(0);
-        data.testButtonPressed = Input.GetKey(KeyCode.R);
-        data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
-        data.crouchButtonPressed = Input.GetKey(KeyCode.C);
-
-        input.Set(data);
-    }
-
-    // * Other Network Events ===================================================
-    // TODO: Handle all events
-
-    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
-
-    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
-    {
-        Application.Quit();
-    }
-
-    public void OnConnectedToServer(NetworkRunner runner)
-    {
-
-    }
-
-    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
-    {
-        Application.Quit();
-    }
-
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
-    {
-        // if (!levelManager.IsAtLobby)
-        // {
-        //     request.
-        // }
-    }
-
-    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
-    {
-        Application.Quit();
-    }
-
-    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
-    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
-    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
-    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
-    public void OnSceneLoadDone(NetworkRunner runner) { }
-    public void OnSceneLoadStart(NetworkRunner runner) { }
-    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
-    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
-    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
-    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
 }

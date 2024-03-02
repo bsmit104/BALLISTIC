@@ -41,6 +41,10 @@ public class NetworkRunnerHandler : MonoBehaviour
     /// </summary>
     public void OnHost()
     {
+        if (FindFirstObjectByType<NetworkRunner>() != null)
+        {
+            return;
+        }
         string lobbyName = UnityEngine.Random.Range((int)Mathf.Pow(10, (lobbyCodeDigits - 1)), (int)Mathf.Pow(10, lobbyCodeDigits)).ToString();
         Debug.Log("OnHost Clicked, creating lobby: " + lobbyName);
         // string lobbyName = "Test20";
@@ -52,7 +56,10 @@ public class NetworkRunnerHandler : MonoBehaviour
     /// </summary>
     public void OnClient()
     {
-        // TODO: Add lobby name/code input value
+        if (FindFirstObjectByType<NetworkRunner>() != null)
+        {
+            return;
+        }
         string lobbyName = lobbyNameInputField.text;
         // string lobbyName = "Test";
         StartGame(GameMode.Client, lobbyName);

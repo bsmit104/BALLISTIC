@@ -542,6 +542,12 @@ MonoBehaviour:
   _isSprinting: 0
   _isIdle: 0
   _isJumping: 0
+  _isCrouching: 0
+  _isCrouchingForward: 0
+  _isCrouchingBackward: 0
+  _isCrouchingRight: 0
+  _isCrouchingLeft: 0
+  networkRunner: {fileID: 7399520618018888314, guid: 6ae7aef8407fb224a9cd99cf12995ecb, type: 3}
 --- !u!114 &1469680522173836522
 MonoBehaviour:
   m_ObjectHideFlags: 0
