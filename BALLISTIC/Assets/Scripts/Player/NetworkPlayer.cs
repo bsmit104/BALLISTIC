@@ -811,6 +811,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (!IsHoldingBall) return;
         heldBall.IsHeld = false;
         heldBall.transform.SetParent(null);
+        heldBall.SetOwner(PlayerRef.None);
         heldBall.OnDropped(GetRef);
         heldBall = null;
     }
