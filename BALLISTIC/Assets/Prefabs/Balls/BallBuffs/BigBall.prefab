@@ -49,3 +49,5 @@ MonoBehaviour:
   description: Grows in size when it's thrown.
   throwScale: 1.5
   scaleChangeDuration: 0.2
+  throwSpeed: 25
+  bounceLimit: 7

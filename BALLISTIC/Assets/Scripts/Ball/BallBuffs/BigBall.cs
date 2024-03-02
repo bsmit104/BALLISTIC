@@ -8,6 +8,8 @@ public class BigBall : BallBuff
     [Header("Big Ball Buff")]
     [SerializeField] float throwScale;
     [SerializeField] float scaleChangeDuration;
+    [SerializeField] float throwSpeed;
+    [SerializeField] int bounceLimit;
 
     Vector3 originalScale;
 
@@ -16,6 +18,8 @@ public class BigBall : BallBuff
     protected override void OnSpawnBuff(NetworkDodgeball ball) 
     {
         originalScale = ball.transform.localScale;
+        ball.ThrowSpeed = throwSpeed;
+        ball.BounceLimit = bounceLimit;
     }
 
     public override void OnThrow(NetworkPlayer thrower, Vector3 throwDirection) 
