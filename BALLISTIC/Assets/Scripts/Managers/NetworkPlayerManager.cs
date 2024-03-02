@@ -10,6 +10,7 @@ public struct PlayerColor
 {
     public string colorName;
     public Material material;
+    public Color color;
 }
 
 /// <summary>

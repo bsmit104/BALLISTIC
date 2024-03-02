@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Networked object to manage dodgeball. Spawn and release using the NetworkBallManager.
@@ -61,23 +62,15 @@ public class NetworkDodgeball : NetworkBehaviour
     }
     private NetworkPosition _netPos;
 
+    /// <summary>
+    /// Returns true if the ball kill a player on collision.
+    /// </summary>
+    public bool IsDeadly { get { return isDeadly; } }
+    private bool isDeadly = false;
+
     // * ===============================================================
 
     // * Networked Attributes ==========================================
-
-    private ChangeDetector detector;
-    private Dictionary<string, Notify> networkChangeListeners;
-    // Creates a map of event listeners for networked attribute changes.
-    private void SetChangeListeners()
-    {
-        networkChangeListeners = new Dictionary<string, Notify>{
-            // ? Example: { nameof(myAttribute), MyAttributeOnChange }
-        };
-    }
-
-    // ? Example:
-    // [Networked] Type myAttribute { get; set; }
-    // void MyAttributeOnChange() { ... }
 
     /// <summary>
     /// The player who threw the ball, or is currently holding it.
@@ -92,10 +85,10 @@ public class NetworkDodgeball : NetworkBehaviour
     /// </summary>
     public bool IsHeld 
     { 
-        get { return isHeld; } 
+        get { return _isHeld; } 
         set {
-            isHeld = value;
-            if (isHeld)
+            _isHeld = value;
+            if (_isHeld)
             {
                 Rig.isKinematic = true;
                 Rig.detectCollisions = false;
@@ -107,19 +100,7 @@ public class NetworkDodgeball : NetworkBehaviour
             }
         }
     }
-    [Networked, HideInInspector] public bool isHeld { get; set; }
-
-    // Detect changes, and trigger event listeners.
-    public override void Render()
-    {
-        // foreach (var attrName in detector.DetectChanges(this))
-        // {
-        //     if (networkChangeListeners.ContainsKey(attrName))
-        //     {
-        //         networkChangeListeners[attrName]();
-        //     } 
-        // }
-    }
+    [Networked, HideInInspector] public bool _isHeld { get; set; }
 
     // * ===============================================================
 
@@ -128,8 +109,6 @@ public class NetworkDodgeball : NetworkBehaviour
     public override void Spawned()
     {
         DontDestroyOnLoad(gameObject);
-        SetChangeListeners();
-        detector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         ballCol = GetComponent<DodgeballCollider>();
         ballCol.networkBall = this;
         rig = GetComponent<Rigidbody>();
@@ -147,8 +126,79 @@ public class NetworkDodgeball : NetworkBehaviour
         NetworkSetOwner(PlayerRef.None);
         transform.position = Vector3.zero;
         rig.velocity = Vector3.zero;
+        rig.angularVelocity = Vector3.zero;
         return this;
     }
+
+    // * ===============================================================
+
+    // * Throw Physics =================================================
+
+    [Tooltip("The constant speed the ball will travel at will it is deadly.")]
+    [SerializeField] private float throwSpeed;
+    [Tooltip("The duration the ball will be deadly for after being thrown.")]
+    [SerializeField] private float deadlyTime;
+    [Tooltip("The ball will stop being deadly after bouncing this many times.")]
+    [SerializeField] private int bounceLimit;
+
+    private float deadlyTimer;
+    private Vector3 travelDir;
+    private int bounceCount;
+
+    public override void FixedUpdateNetwork()
+    {
+        if (IsDeadly)
+        {
+            //Rig.AddForce(Vector3.up * Physics.gravity.magnitude * (1f - deadlyGravity));
+            Rig.velocity = travelDir * throwSpeed;
+
+            Vector3 start = transform.position;
+            Vector3 dir = Rig.velocity.normalized;
+            float dist = Rig.velocity.magnitude * Runner.DeltaTime + Col.bounds.extents.x;
+            if (Physics.Raycast(start, dir, out RaycastHit hit, dist, LayerMask.GetMask("Surfaces")))
+            {
+                travelDir = Vector3.Reflect(travelDir, hit.normal);
+                bounceCount++;
+            }
+        }
+    }
+
+    public void Throw(Vector3 dir)
+    {
+        Rig.velocity = dir * throwSpeed;
+        travelDir = dir;
+        isDeadly = true;
+        deadlyTimer = deadlyTime;
+        bounceCount = 0;
+    }
+
+    private void Update()
+    {
+        setTrail();
+        if (deadlyTimer > 0)
+        {
+            deadlyTimer -= Time.deltaTime;
+            if (deadlyTimer <= 0 || bounceCount >= bounceLimit)
+            {
+                if (Runner.IsServer)
+                {
+                    NetworkSetOwner(PlayerRef.None);
+                }
+            }
+        }
+    }
+
+    public void setTrail()
+    {
+        trail.emitting = IsDeadly;
+        //trail.material.color = NetworkPlayerManager.Instance.GetColor(Owner).color;
+    }
+
+    // * ===============================================================
+
+    // * Ball-Buff Events ==============================================
+
+    
 
     // * ===============================================================
 
@@ -196,6 +246,7 @@ public class NetworkDodgeball : NetworkBehaviour
         if (player == PlayerRef.None)
         {
             transform.SetParent(null);
+            isDeadly = false;
         }
         else
         {
@@ -233,48 +284,5 @@ public class NetworkDodgeball : NetworkBehaviour
         RPC_EnforceSetOwner(player);
     }
 
-    public void setTrail()
-    {
-            trail.emitting = owner != PlayerRef.None && !isHeld;
-    }
-
     // =========================================
-
-    // add force ===============================
-
-    /// <summary>
-    /// Wrapper around Rigidbody.AddForce(). Applies to client simulation for prediction, and sends the 
-    /// function call to the host for synchronization.
-    /// </summary>
-    /// <param name="force">The force vector passed to Rigidbody.AddForce()</param>
-    public void NetworkAddForce(Vector3 force)
-    {
-        if (Runner.IsServer)
-        {
-            RPC_EnforceAddForce(force);
-        }
-        else
-        {
-            rig.AddForce(force, ForceMode.Impulse);
-            RPC_RequestAddForce(force);
-        }
-    }
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_EnforceAddForce(Vector3 force)
-    {
-        rig.AddForce(force, ForceMode.Impulse);
-    }
-
-    [Rpc(RpcSources.Proxies, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_RequestAddForce(Vector3 force)
-    {
-        RPC_EnforceAddForce(force);
-    }
-
-    private void Update()
-    {
-        setTrail();
-    }
-
 }
