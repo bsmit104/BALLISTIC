@@ -112,16 +112,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Space]
     [Header("Ball Throwing")]
     public Transform throwPoint;            // Point from where the dodgeball is thrown
-    public float minThrowForce = 10f;          // Force applied to the dodgeball when thrown
-    public float maxThrowForce;
-    public float chargeTime;
     public float throwCooldown = 1f;        // Cooldown duration between throws
     private float lastThrowTime;            // Time when the last throw happened
 
     [Tooltip("The max distance aim target detection will be tested for.")]
     [SerializeField] private float aimDist;
-    [Tooltip("The upward angle of the throw multiplier. Scales with distance to throw target.")]
-    [SerializeField] private float arcMultiplier;
+
     public Vector3 LookTarget
     {
         get
@@ -726,6 +722,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.SetOwner(GetRef);
         ball.transform.position = throwPoint.position;
         ball.transform.localPosition = Vector3.zero;
+        ball.OnPickup(GetRef);
     }
 
     public void PickupBall(NetworkDodgeball ball)
@@ -771,8 +768,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.transform.SetParent(null);
         ball.transform.position = throwPoint.position + transform.forward; // ball a bit in front of player so doesn't immediately collide with hand
         Vector3 diff = targetPos - ball.transform.position;
-        Vector3 arc = new Vector3(0, arcMultiplier, 0);
-        ball.Rig.AddForce((diff.normalized + arc) * minThrowForce, ForceMode.Impulse);
+        ball.Throw(diff.normalized);
     }
 
     public void ThrowBall(NetworkDodgeball ball, Vector3 targetPos)
@@ -815,6 +811,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (!IsHoldingBall) return;
         heldBall.IsHeld = false;
         heldBall.transform.SetParent(null);
+        heldBall.OnDropped(GetRef);
         heldBall = null;
     }
 

@@ -25,7 +25,7 @@ public class ConnectionPopup : MonoBehaviour
 
         if (eventSystems.Length > 1)
         {
-            Destroy(transform.GetChild(1).gameObject);
+            transform.GetChild(1).gameObject.SetActive(false);
         }
     }
 
@@ -37,11 +37,20 @@ public class ConnectionPopup : MonoBehaviour
             SceneManager.LoadScene("PlayMenu");
             Destroy(gameObject);
         }
+
+        if (!transform.GetChild(1).gameObject.activeInHierarchy)
+        {
+            EventSystem[] eventSystems = FindObjectsOfType<EventSystem>();
+
+            if (eventSystems.Length == 1)
+            {
+                transform.GetChild(1).gameObject.SetActive(true);
+            }
+        }
     }
 
     public void ClosePopup()
     {
         closedPopup = true;
-        Debug.Log("closed popup");
     }
 }
