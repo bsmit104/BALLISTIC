@@ -130,7 +130,7 @@ public class NetworkDodgeball : NetworkBehaviour
         transform.position = Vector3.zero;
         rig.velocity = Vector3.zero;
         rig.angularVelocity = Vector3.zero;
-        SetBuff(newBuff);
+        NetworkSetBuff(newBuff);
         return this;
     }
 
@@ -249,6 +249,9 @@ public class NetworkDodgeball : NetworkBehaviour
     // * Ball-Buff Events ==============================================
 
     private BallBuff buff;
+    private int buffId;
+
+    public int BuffID { get { return buffId; } }
 
     /// <summary>
     /// Returns a string containing the name, and description of the ball buff.
@@ -257,7 +260,7 @@ public class NetworkDodgeball : NetworkBehaviour
         return buff.Title + "\n" + buff.Description;
     } }
 
-    public void SetBuff(int buffID)
+    public void NetworkSetBuff(int buffID)
     {
         if (Runner.IsServer)
         {
@@ -268,9 +271,20 @@ public class NetworkDodgeball : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
     public void RPC_SetBuff(int buffID)
     {
+        SetBuff(buffID);
+    }
+
+    public void SetBuff(int buffID)
+    {
         throwSpeed = originalSpeed;
         deadlyTime = originalDeadlyTime;
         bounceLimit = originalBounceLimit;
+        if (this.buff != null)
+        {
+            Destroy(this.buff.gameObject);
+            this.buff = null;
+        }
+        buffId = buffID;
         BallBuff buff = NetworkBallManager.Instance.GetBuff(buffID);
         this.buff = buff;
         buff.transform.SetParent(transform);
