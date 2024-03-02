@@ -115,6 +115,9 @@ public class NetworkDodgeball : NetworkBehaviour
         col = GetComponent<SphereCollider>();
         trail = GetComponent<TrailRenderer>();
         gameObject.SetActive(false);
+        originalSpeed = throwSpeed;
+        originalDeadlyTime = deadlyTime;
+        originalBounceLimit = bounceLimit;
     }
 
     /// <summary>
@@ -137,10 +140,40 @@ public class NetworkDodgeball : NetworkBehaviour
 
     [Tooltip("The constant speed the ball will travel at will it is deadly.")]
     [SerializeField] private float throwSpeed;
+    private float originalSpeed;
+
+    /// <summary>
+    /// The speed the ball will travel at when thrown, must be greater than 0.
+    /// </summary>
+    public float ThrowSpeed {
+        get { return throwSpeed; }
+        set { throwSpeed = Mathf.Max(0f, value); }
+    }
+
     [Tooltip("The duration the ball will be deadly for after being thrown.")]
     [SerializeField] private float deadlyTime;
+    private float originalDeadlyTime;
+
+    /// <summary>
+    /// The max duration the ball will be deadly for after being thrown, must be greater than 0.
+    /// </summary>
+    public float DeadlyTime {
+        get { return deadlyTime; }
+        set { deadlyTime = Mathf.Max(0f, value); }
+    }
+
     [Tooltip("The ball will stop being deadly after bouncing this many times.")]
     [SerializeField] private int bounceLimit;
+    private int originalBounceLimit;
+
+    /// <summary>
+    /// The max number of times the ball will bounce before becoming not deadly, 
+    /// must be greater than or equal to 1.
+    /// </summary>
+    public int BounceLimit {
+        get { return bounceLimit; }
+        set { bounceLimit = Mathf.Max(1, value); }
+    }
 
     private float deadlyTimer;
     private Vector3 travelDir;
@@ -235,6 +268,9 @@ public class NetworkDodgeball : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
     public void RPC_SetBuff(int buffID)
     {
+        throwSpeed = originalSpeed;
+        deadlyTime = originalDeadlyTime;
+        bounceLimit = originalBounceLimit;
         BallBuff buff = NetworkBallManager.Instance.GetBuff(buffID);
         this.buff = buff;
         buff.transform.SetParent(transform);
