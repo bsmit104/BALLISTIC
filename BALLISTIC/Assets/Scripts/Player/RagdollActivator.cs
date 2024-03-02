@@ -14,14 +14,14 @@ public class RagdollActivator : MonoBehaviour
     public void ActivateRagdoll()
     {
         ActivateColliders();
-        //transform.SetParent(null);
+        transform.SetParent(null);
     }
 
     public void DeactivateRagdoll()
     {
         DeactivateColliders();
-        // transform.SetParent(parent);
-        // transform.localPosition = Vector3.zero;
+        transform.SetParent(parent);
+        transform.localPosition = Vector3.zero;
     }
 
     private void ActivateColliders()

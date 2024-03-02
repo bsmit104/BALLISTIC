@@ -48,7 +48,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private PlayerRef _playerRef = PlayerRef.None;
 
     private bool _isAlive = true;
-    public bool isAlive { get { return _isAlive; } }
+    public bool IsAlive { get { return _isAlive; } }
 
     /// <summary>
     /// Returns the color assigned to this player.
@@ -352,9 +352,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         NetworkInputData data;
         if (!GetInput(out data)) return;
 
-        if (!_isAlive) return;
 
         HandleMovement(data);
+
+        if (!_isAlive) return;
+
         HandleThrowBall(data);
     }
 
@@ -623,6 +625,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         rb.isKinematic = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         GetComponent<CapsuleCollider>().enabled = true;
+        netPos.enabled = true;
         ApplyDropBall();
         ragdollActivator.DeactivateRagdoll();
         grounded.Reset();
@@ -661,9 +664,16 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         _isAlive = false;
         animator.enabled = false;
-        rb.isKinematic = true;
-        rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-        GetComponent<CapsuleCollider>().enabled = false;
+        if (this != Local)
+        {
+            rb.isKinematic = true;
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            GetComponent<CapsuleCollider>().enabled = false;
+        }
+        else
+        {
+            netPos.enabled = false;
+        }
         ApplyDropBall();
         ragdollActivator.ActivateRagdoll();
         if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
