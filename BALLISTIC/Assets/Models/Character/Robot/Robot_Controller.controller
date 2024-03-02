@@ -78,7 +78,7 @@ AnimatorStateTransition:
 --- !u!1102 &-8361855781342770389
 AnimatorState:
   serializedVersion: 6
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -248,7 +248,7 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -4132518233775214845}
-    m_Position: {x: 200, y: 460, z: 0}
+    m_Position: {x: 100, y: 640, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -3705491808381896153}
     m_Position: {x: 100, y: -100, z: 0}
@@ -269,25 +269,25 @@ AnimatorStateMachine:
     m_Position: {x: 1430, y: 30, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5356740425788445471}
-    m_Position: {x: 900, y: 400, z: 0}
+    m_Position: {x: 950, y: 490, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 421783392684380728}
-    m_Position: {x: 1130, y: 400, z: 0}
+    m_Position: {x: 1180, y: 490, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6585459944720817728}
-    m_Position: {x: 1580, y: 400, z: 0}
+    m_Position: {x: 1630, y: 490, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 322322057139354938}
-    m_Position: {x: 1350, y: 400, z: 0}
+    m_Position: {x: 1400, y: 490, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 645959035477022645}
-    m_Position: {x: 680, y: 400, z: 0}
+    m_Position: {x: 680, y: 490, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8457201538149238126}
-    m_Position: {x: 420, y: 560, z: 0}
+    m_Position: {x: 470, y: 650, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -3226004985021759499}
-    m_Position: {x: 670, y: 490, z: 0}
+    m_Position: {x: 720, y: 580, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -994,7 +994,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0
   m_ExitTime: 0.625
-  m_HasExitTime: 1
+  m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -2220,7 +2220,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0
   m_ExitTime: 0.5588236
-  m_HasExitTime: 1
+  m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1

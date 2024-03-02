@@ -140,17 +140,41 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     // * Input Reading: Client-Sided ======================
 
+    [Header("Pause Menu")]
+    [SerializeField] private GameObject PauseCanvas;
+    [SerializeField] private TextMeshProUGUI lobbyCodeText;
+
+    public bool IsPaused { get { return PauseCanvas.activeInHierarchy; } }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            // toggle cursor visiblity and lock state
+            Cursor.visible = !Cursor.visible;
+            Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
+
+            // enable pause menu canvas
+            PauseCanvas.SetActive(Cursor.visible);
+
+            lobbyCodeText.text = runner.SessionInfo.Name;
+        }
+    }
+
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
         var data = new NetworkInputData();
 
-        data.horizontal = Input.GetAxis("Horizontal");
-        data.vertical = Input.GetAxis("Vertical");
-        data.sprintButtonPressed = Input.GetKey(KeyCode.LeftShift);
-        data.throwButtonPressed = Input.GetMouseButton(0);
-        data.testButtonPressed = Input.GetKey(KeyCode.R);
-        data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
-        data.crouchButtonPressed = Input.GetKey(KeyCode.C);
+        if (!PauseCanvas.activeInHierarchy)
+        {
+            data.horizontal = Input.GetAxis("Horizontal");
+            data.vertical = Input.GetAxis("Vertical");
+            data.sprintButtonPressed = Input.GetKey(KeyCode.LeftShift);
+            data.throwButtonPressed = Input.GetMouseButton(0);
+            data.testButtonPressed = Input.GetKey(KeyCode.R);
+            data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
+            data.crouchButtonPressed = Input.GetKey(KeyCode.C);
+        }
 
         input.Set(data);
     }
@@ -208,7 +232,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         var popup = Instantiate(popupPrefab);
         popup.SetText(message);
     }
-    
+
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
@@ -253,9 +277,9 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     // * Scene Loading Events =============================
 
-    public void OnSceneLoadDone(NetworkRunner runner) 
-    { 
-        
+    public void OnSceneLoadDone(NetworkRunner runner)
+    {
+
     }
     public void OnSceneLoadStart(NetworkRunner runner) { }
 

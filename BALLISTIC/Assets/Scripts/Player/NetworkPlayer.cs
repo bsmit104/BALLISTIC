@@ -366,6 +366,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         if (!Object.HasInputAuthority) return;
 
+        if (NetworkRunnerCallbacks.Instance.IsPaused) return;
+
         xAxis.Update(Time.deltaTime);
         yAxis.Update(Time.deltaTime);
 
