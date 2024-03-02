@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   __isHeld: 0
-  throwSpeed: 35
+  throwSpeed: 30
   deadlyTime: 5
   bounceLimit: 10
 --- !u!114 &7165026073672892444
