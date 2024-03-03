@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 748515817148721767}
   - component: {fileID: 1437923237954681535}
   - component: {fileID: -7992788401428436404}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: NetworkDodgeballPF
   m_TagString: Dodgeball
   m_Icon: {fileID: 0}

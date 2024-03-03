@@ -26,7 +26,9 @@ public class DodgeballPickup : MonoBehaviour
             if (col.CompareTag("Dodgeball"))
             {
                 NetworkDodgeball ball = col.GetComponent<NetworkDodgeball>();
-                if (!balls.Contains(ball) && ball.Owner == PlayerRef.None)
+                Vector3 diff = ball.transform.position - player.transform.position;
+                if (!balls.Contains(ball) && ball.Owner == PlayerRef.None
+                    && !Physics.Raycast(player.transform.position, diff.normalized, diff.magnitude, LayerMask.GetMask("Surfaces")))
                 {
                     balls.Add(ball);
                 }

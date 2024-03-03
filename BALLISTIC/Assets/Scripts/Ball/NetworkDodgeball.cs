@@ -190,7 +190,7 @@ public class NetworkDodgeball : NetworkBehaviour
             Vector3 start = transform.position;
             Vector3 dir = Rig.velocity.normalized;
             float dist = Rig.velocity.magnitude * Runner.DeltaTime + Col.bounds.extents.x;
-            if (Physics.Raycast(start, dir, out RaycastHit hit, dist, LayerMask.GetMask("Surfaces")))
+            if (Physics.Raycast(start, dir, out RaycastHit hit, dist, LayerMask.GetMask("Surfaces", "Balls")))
             {
                 travelDir = Vector3.Reflect(travelDir, hit.normal);
                 bounceCount++;
