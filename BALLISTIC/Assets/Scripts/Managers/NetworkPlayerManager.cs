@@ -164,7 +164,7 @@ public class NetworkPlayerManager : MonoBehaviour
 
     public PlayerColor GetColor(PlayerRef player)
     {
-        return playerColors[Mathf.Max(0, player.PlayerId - 1)];
+        return playerColors[Mathf.Max(0, player.PlayerId - 1) % playerColors.Length];
     }
 
     // * ==================================================
