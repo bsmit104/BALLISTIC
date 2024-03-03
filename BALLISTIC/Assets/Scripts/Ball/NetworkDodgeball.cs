@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Networked object to manage dodgeball. Spawn and release using the NetworkBallManager.
@@ -15,6 +16,7 @@ public class NetworkDodgeball : NetworkBehaviour
     // * Client-Sided Attributes =======================================
 
     private DodgeballCollider ballCol;
+    [SerializeField] private ScriptableRendererFeature thruWallRender;
 
     /// <summary>
     /// The ball's rigidbody.
@@ -222,8 +224,8 @@ public class NetworkDodgeball : NetworkBehaviour
     private void Update()
     {
         if (!gameObject.activeInHierarchy) return;
-
         setTrail();
+        setVisibleThruWalls();
         if (deadlyTimer > 0)
         {
             deadlyTimer -= Time.deltaTime;
@@ -242,6 +244,17 @@ public class NetworkDodgeball : NetworkBehaviour
     public void setTrail()
     {
         trail.emitting = IsDeadly;
+    }
+
+    public void setVisibleThruWalls()
+    {
+        //if (!isDeadly && !IsHeld)
+        //{
+        //    thruWallRender.SetActive(Time.time % 1f > .5);
+        //}
+
+        thruWallRender.SetActive(!isDeadly && !IsHeld);
+        Debug.Log(thruWallRender.isActive);
     }
 
     // * ===============================================================

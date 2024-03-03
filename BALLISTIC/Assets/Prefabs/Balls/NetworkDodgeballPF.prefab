@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7925254e2324cfd4488b1953df4f140f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  thruWallRender: {fileID: -4899786965520844064, guid: 1a881852a5c2ae046af21b046ebff33a, type: 2}
   __isHeld: 0
   throwSpeed: 30
   deadlyTime: 5
