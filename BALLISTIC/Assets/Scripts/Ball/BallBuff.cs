@@ -102,8 +102,9 @@ public abstract class BallBuff : MonoBehaviour
     /// </summary>
     /// <param name="normal">The normal of the surface the ball bounced off of.</param>
     /// <param name="newDirection">The new direction the ball is traveling in (normalized).</param>
-    /// /// <param name="bounceCount">The number of bounces since the ball was thrown.</param>
-    public abstract void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount);
+    /// <param name="bounceCount">The number of bounces since the ball was thrown.</param>
+    /// <param name="hitSurface">True if the what the ball hit was a level surface.</param>
+    public abstract void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface);
 
     /// <summary>
     /// Called every FixedUpdate while the ball is deadly.

@@ -43,7 +43,7 @@ public class BigBall : BallBuff
         Ball.transform.localScale = Vector3.one * throwScale;
     }
 
-    public override void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount) {}
+    public override void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool isSurface) {}
 
     public override void WhileDeadly(Vector3 curDirection) {}
 

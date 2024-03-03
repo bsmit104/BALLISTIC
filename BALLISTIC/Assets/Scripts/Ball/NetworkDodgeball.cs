@@ -194,7 +194,7 @@ public class NetworkDodgeball : NetworkBehaviour
             {
                 travelDir = Vector3.Reflect(travelDir, hit.normal);
                 bounceCount++;
-                OnBounce(hit.normal, travelDir, bounceCount);
+                OnBounce(hit.normal, travelDir, bounceCount, !hit.collider.gameObject.CompareTag("Dodgeball"));
             }
             buff?.WhileDeadly(travelDir);
         }
@@ -314,18 +314,18 @@ public class NetworkDodgeball : NetworkBehaviour
 
     // ------------
 
-    private void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount)
+    private void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface)
     {
         if (Runner.IsServer)
         {
-            RPC_OnBounce(normal, newDirection, bounceCount);
+            RPC_OnBounce(normal, newDirection, bounceCount, hitSurface);
         }
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount)
+    public void RPC_OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface)
     {
-        buff?.OnBounce(normal, newDirection, bounceCount);
+        buff?.OnBounce(normal, newDirection, bounceCount, hitSurface);
     }
 
     // ------------
