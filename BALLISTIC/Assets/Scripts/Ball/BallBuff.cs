@@ -5,7 +5,25 @@ using UnityEngine;
 
 public abstract class BallBuff : MonoBehaviour
 {
-    // * Getters ===============================-
+    // * Getters ================================
+
+    [Header("Required Parameters")]
+    [Tooltip("A unique material to identify this ball buff.")]
+    [SerializeField] private Material material;
+    [Tooltip("The name of the ball buff.")]
+    [SerializeField] private string title;
+    [Tooltip("A description of the ball buff that can be displayed to players.")]
+    [SerializeField] private string description;
+
+    /// <summary>
+    /// Returns the name of the ball buff.
+    /// </summary>
+    public string Title { get { return title; } }
+
+    /// <summary>
+    /// Returns a helpful blurb that explains what this buff does.
+    /// </summary>
+    public string Description { get { return description; } }
 
     /// <summary>
     /// The NetworkDodgeball this buff is attached to.
@@ -54,24 +72,6 @@ public abstract class BallBuff : MonoBehaviour
     // * ========================================
 
     // * Events =================================
-
-    [Header("Required Parameters")]
-    [Tooltip("A unique material to identify this ball buff.")]
-    [SerializeField] private Material material;
-    [Tooltip("The name of the ball buff.")]
-    [SerializeField] private string title;
-    [Tooltip("A description of the ball buff that can be displayed to players.")]
-    [SerializeField] private string description;
-
-    /// <summary>
-    /// Returns the name of the ball buff.
-    /// </summary>
-    public string Title { get { return title; } }
-
-    /// <summary>
-    /// Returns a helpful blurb that explains what this buff does.
-    /// </summary>
-    public string Description { get { return description; } }
 
     /// <summary>
     /// Called when buff is first attached to the ball.
