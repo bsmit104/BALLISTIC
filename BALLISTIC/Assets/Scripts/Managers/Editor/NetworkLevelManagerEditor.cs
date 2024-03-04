@@ -63,6 +63,7 @@ public class NetworkLevelManagerEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("winText"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("localWinText"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("remoteWinText"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("isThe"));
 
         if (GUILayout.Button("Test Winner Sequence") && !manager.WinSequenceRunning)
         {

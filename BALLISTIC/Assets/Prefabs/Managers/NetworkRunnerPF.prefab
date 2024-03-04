@@ -2396,8 +2396,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lobbyCanvas: {fileID: 8570994248449303074}
   lobbyCodeText: {fileID: 634153841947470690}
-  lobbyCodeText2: {fileID: 0}
-  lobbyCodeText3: {fileID: 0}
   lobbykey:
     m_TableReference:
       m_TableCollectionName: GUID:635185929dcbdd6469fbc029d6057cca
@@ -2435,6 +2433,15 @@ MonoBehaviour:
   winText: {fileID: 5527874522076470968}
   localWinText: {fileID: 5612739044647167319}
   remoteWinText: {fileID: 7431761734804666493}
+  isThe:
+    m_TableReference:
+      m_TableCollectionName: GUID:1f9f6d063d6538e4b946d1a641544ea4
+    m_TableEntryReference:
+      m_KeyId: 8778997760
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   references:
     version: 2
     RefIds: []
@@ -2452,8 +2459,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lobbyCanvas: {fileID: 0}
   lobbyCodeText: {fileID: 0}
-  lobbyCodeText2: {fileID: 0}
-  lobbyCodeText3: {fileID: 0}
   lobbykey:
     m_TableReference:
       m_TableCollectionName: GUID:635185929dcbdd6469fbc029d6057cca
@@ -2491,6 +2496,15 @@ MonoBehaviour:
   winText: {fileID: 0}
   localWinText: {fileID: 0}
   remoteWinText: {fileID: 0}
+  isThe:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   references:
     version: 2
     RefIds: []

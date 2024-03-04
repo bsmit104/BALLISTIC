@@ -56,17 +56,13 @@ public class NetworkLevelManager : MonoBehaviour
     [Header("Lobby Code")]
     [SerializeField] private GameObject lobbyCanvas;
     [SerializeField] private TextMeshProUGUI lobbyCodeText;
-    [SerializeField] private TextMeshProUGUI lobbyCodeText2;
-    [SerializeField] private TextMeshProUGUI lobbyCodeText3;
-    [SerializeField] public LocalizedString lobbykey;
-    [SerializeField] public LocalizedString p2join;
+    [SerializeField] private LocalizedString lobbykey;
+    [SerializeField] private LocalizedString p2join;
 
     IEnumerator WaitForGameStart()
     {
         Debug.Log("Press P To Start Game");
         // lobbyCodeText.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
-        // lobbyCodeText2.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
-        // lobbyCodeText3.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
         string lobbyCode = lobbykey.GetLocalizedString();
         string joinPText = p2join.GetLocalizedString();
         lobbyCodeText.text = $"{lobbyCode}: {Runner.SessionInfo.Name}\n{joinPText}";
@@ -415,6 +411,7 @@ public class NetworkLevelManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI winText;
     [SerializeField] private GameObject localWinText;
     [SerializeField] private GameObject remoteWinText;
+    [SerializeField] private LocalizedString isThe;
 
     private PlayerRef winner;
 
@@ -503,7 +500,9 @@ public class NetworkLevelManager : MonoBehaviour
         {
             localWinText.SetActive(false);
             remoteWinText.SetActive(true);
-            winText.text = playerManager.GetColor(winner).colorName + " IS THE";
+            //winText.text = playerManager.GetColor(winner).colorName + " IS THE";
+            string isThee = isThe.GetLocalizedString();
+            winText.text = playerManager.GetColor(winner).colorName + $"{isThee}";
         }
         winScreen.SetActive(true);
 

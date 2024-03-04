@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: win screen
+  m_EditorClassIdentifier: 
+  m_SharedTableData: {fileID: 11400000, guid: 1f9f6d063d6538e4b946d1a641544ea4, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: 53026a8fd20bc634d949decadbbb73da, type: 2}
+  - {fileID: 11400000, guid: b34bca7ef0326684f9e13b3d6dfb36de, type: 2}
+  - {fileID: 11400000, guid: fbacb1a4dba2cc84990784b175155fb4, type: 2}
+  - {fileID: 11400000, guid: d8b42a2276108b941bf3b0cd222dc077, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []
