@@ -20,7 +20,7 @@ public class RobotRagdoll : BallBuff
 
     public override void WhileHeld(NetworkPlayer player)
     {
-        transform.position = Ball.transform.position + transform.right * 0.3f;
+        transform.position = Ball.transform.position - (transform.up * 0.3f);
     }
 
     public override void OnThrow(NetworkPlayer thrower, Vector3 direction)
@@ -28,9 +28,18 @@ public class RobotRagdoll : BallBuff
         ragdoll.OnThrow();
     }
 
+    public override void OnDropped(NetworkPlayer player)
+    {
+        ragdoll.OnThrow();
+        Ball.Rig.isKinematic = true;
+        ragdoll.transform.SetParent(null);
+        Ball.transform.SetParent(transform);
+        Ball.transform.localPosition = Vector3.zero;
+    }
+
     public override void WhileDeadly(Vector3 curDirection)
     {
-        ragdoll.transform.position = Ball.transform.position;
+        ragdoll.transform.position = Ball.transform.position - (transform.up * 0.3f);
     }
 
     public override void OnNotDeadly()
