@@ -18,12 +18,12 @@ public abstract class BallBuff : MonoBehaviour
     /// <summary>
     /// Returns the name of the ball buff.
     /// </summary>
-    public string Title { get { return title; } }
+    public string Title { get { return title; } set { title = value; } }
 
     /// <summary>
     /// Returns a helpful blurb that explains what this buff does.
     /// </summary>
-    public string Description { get { return description; } }
+    public string Description { get { return description; } set { description = value; } }
 
     /// <summary>
     /// The NetworkDodgeball this buff is attached to.
@@ -47,7 +47,7 @@ public abstract class BallBuff : MonoBehaviour
     /// <summary>
     /// This ball's collider.
     /// </summary>
-    public SphereCollider Col { get { return Ball.Col; } }
+    public Collider Col { get { return Ball.Col; } }
 
     /// <summary>
     /// This ball's trail renderer.
@@ -80,7 +80,7 @@ public abstract class BallBuff : MonoBehaviour
     public void OnSpawn(NetworkDodgeball ball)
     {
         _ball = ball;
-        ball.SetMaterial(material);
+        if (material) ball.SetMaterial(material);
         OnSpawnBuff(ball);
     }
 
