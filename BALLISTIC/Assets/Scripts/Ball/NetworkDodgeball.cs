@@ -14,9 +14,10 @@ using UnityEngine.Rendering.Universal;
 public class NetworkDodgeball : NetworkBehaviour
 {
     // * Client-Sided Attributes =======================================
+    private int layerMarkerVisible;
+    private int layerMarkerHidden;
 
     private DodgeballCollider ballCol;
-    [SerializeField] private ScriptableRendererFeature thruWallRender;
 
     /// <summary>
     /// The ball's rigidbody.
@@ -111,6 +112,8 @@ public class NetworkDodgeball : NetworkBehaviour
     public override void Spawned()
     {
         DontDestroyOnLoad(gameObject);
+        layerMarkerVisible = LayerMask.NameToLayer("BallMarkerVisible");
+        layerMarkerHidden = LayerMask.NameToLayer("BallMarkerHidden");
         ballCol = GetComponent<DodgeballCollider>();
         ballCol.networkBall = this;
         rig = GetComponent<Rigidbody>();
@@ -225,7 +228,7 @@ public class NetworkDodgeball : NetworkBehaviour
     {
         if (!gameObject.activeInHierarchy) return;
         setTrail();
-        setVisibleThruWalls();
+        setMarker();
         if (deadlyTimer > 0)
         {
             deadlyTimer -= Time.deltaTime;
@@ -246,15 +249,9 @@ public class NetworkDodgeball : NetworkBehaviour
         trail.emitting = IsDeadly;
     }
 
-    public void setVisibleThruWalls()
+    public void setMarker()
     {
-        //if (!isDeadly && !IsHeld)
-        //{
-        //    thruWallRender.SetActive(Time.time % 1f > .5);
-        //}
-
-        thruWallRender.SetActive(!isDeadly && !IsHeld);
-        Debug.Log(thruWallRender.isActive);
+        gameObject.layer = IsDeadly || IsHeld ? layerMarkerHidden : layerMarkerVisible;
     }
 
     // * ===============================================================

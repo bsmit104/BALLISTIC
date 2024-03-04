@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ball
-  m_Shader: {fileID: -6465566751694194690, guid: ebf84d44e8b24fd419bf7faf361f6152, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 4caaf0c8f4ed6f44a832a527d3e63b2a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -115,6 +115,7 @@ Material:
     - _Specular_Highlights: 0
     - _SrcBlend: 1
     - _UVSec: 0
+    - _Visible: 1
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 0.5188679, g: 0, b: 0, a: 1}

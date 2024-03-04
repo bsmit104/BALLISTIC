@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// General event listener delegate.
@@ -136,6 +137,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Space]
     [Header("Ball Pickup")]
     [SerializeField] public DodgeballPickup pickupCollider;
+
+    [Space]
+    [Header("Markers")]
+    [SerializeField] private ScriptableRendererFeature markerRender;
 
     // nearby balls list =====================
 
@@ -840,4 +845,16 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     }
 
     // ======================================
+
+    // Markers ==============================
+
+    private void Update()
+    {
+        setMarkers();
+    }
+
+    private void setMarkers()
+    {
+        markerRender.SetActive(!IsHoldingBall);
+    }
 }

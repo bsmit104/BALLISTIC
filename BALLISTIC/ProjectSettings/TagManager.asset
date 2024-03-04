@@ -19,8 +19,8 @@ TagManager:
   - Surfaces
   - Players
   - LocalPlayer
-  - Ball
-  - 
+  - BallMarkerVisible
+  - BallMarkerHidden
   - 
   - 
   - 

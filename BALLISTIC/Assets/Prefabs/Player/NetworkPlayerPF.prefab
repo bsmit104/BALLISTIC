@@ -530,6 +530,7 @@ MonoBehaviour:
   throwCooldown: 0.3
   aimDist: 100
   pickupCollider: {fileID: 7337151837620291511}
+  markerRender: {fileID: -4899786965520844064, guid: 1a881852a5c2ae046af21b046ebff33a, type: 2}
   netPos: {fileID: 0}
   _isWalking: 0
   _isWalkingBack: 0
