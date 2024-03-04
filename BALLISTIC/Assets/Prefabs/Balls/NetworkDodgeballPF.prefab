@@ -184,6 +184,7 @@ MonoBehaviour:
   _velocity: {x: 0, y: 0, z: 0}
   _angVelocity: {x: 0, y: 0, z: 0}
   _networkEnabled: 0
+  ForceUpdate: 0
 --- !u!114 &1437923237954681535
 MonoBehaviour:
   m_ObjectHideFlags: 0

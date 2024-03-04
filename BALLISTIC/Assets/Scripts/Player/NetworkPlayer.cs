@@ -309,8 +309,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         _isAlive = true;
 
-        SetColor(Color.material);
-
         // Check if this player instance is the local client
         if (Object.HasInputAuthority)
         {
@@ -331,13 +329,22 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // Set pickup collider
             pickupCollider.gameObject.SetActive(true);
             pickupCollider.player = this;
+        }
 
-            Debug.Log("Spawned Local Player");
-        }
-        else
+        StartCoroutine(SetPlayerRef());
+    }
+
+    IEnumerator SetPlayerRef()
+    {
+        while (GetRef.PlayerId == -1)
         {
-            Debug.Log("Spawned Remote Player");
+            yield return null;
         }
+
+        SetColor(Color.material);
+        ragdollActivator.Init(this);
+
+        Debug.Log("Spawned " + GetRef.PlayerId + " player");
     }
 
     public void PlayerLeft(PlayerRef player)
@@ -688,6 +695,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
     public void RPC_EnforcePlayerRagdoll()
     {
+        if (!IsAlive) return;
         RagdollActivation();
     }
 

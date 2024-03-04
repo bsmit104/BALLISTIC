@@ -10,10 +10,10 @@ public class DodgeballCollider : MonoBehaviour
 {
     [HideInInspector] public NetworkDodgeball networkBall;
 
-    private void OnCollisionEnter(Collision col)
+    public void OnCollisionEnter(Collision col)
     {
         // Check if the collided GameObject has the "Player" tag
-        if (networkBall.IsDeadly)
+        if (networkBall.IsDeadly && networkBall.enabled)
         {
             if (col.gameObject.CompareTag("Player"))
             {
@@ -22,7 +22,6 @@ public class DodgeballCollider : MonoBehaviour
 
                 if (player?.GetRef == networkBall.Owner) return;
 
-                Debug.Log("hit player");
                 if (player) // add " && networkBall.Runner.IsServer" to make collision detection host priority
                 {
                     networkBall.OnPlayerHit(player.GetRef);

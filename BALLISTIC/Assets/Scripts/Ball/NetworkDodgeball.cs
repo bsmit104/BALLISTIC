@@ -17,6 +17,7 @@ public class NetworkDodgeball : NetworkBehaviour
     private int layerMarkerVisible;
     private int layerMarkerHidden;
 
+    public DodgeballCollider BallCol { get { return ballCol; } }
     private DodgeballCollider ballCol;
 
     /// <summary>
@@ -28,8 +29,8 @@ public class NetworkDodgeball : NetworkBehaviour
     /// <summary>
     /// The ball's collider.
     /// </summary>
-    public SphereCollider Col { get { return col; } }
-    private SphereCollider col;
+    public Collider Col { get { return col; } }
+    private Collider col;
 
     /// <summary>
     /// The ball's Trail Renderer.
@@ -117,7 +118,7 @@ public class NetworkDodgeball : NetworkBehaviour
         ballCol = GetComponent<DodgeballCollider>();
         ballCol.networkBall = this;
         rig = GetComponent<Rigidbody>();
-        col = GetComponent<SphereCollider>();
+        col = GetComponent<Collider>();
         trail = GetComponent<TrailRenderer>();
         gameObject.SetActive(false);
         originalSpeed = throwSpeed;
@@ -246,7 +247,7 @@ public class NetworkDodgeball : NetworkBehaviour
 
     public void setTrail()
     {
-        trail.emitting = IsDeadly;
+        if (trail) trail.emitting = IsDeadly;
     }
 
     public void setTrailColor()
@@ -305,13 +306,28 @@ public class NetworkDodgeball : NetworkBehaviour
         throwSpeed = originalSpeed;
         deadlyTime = originalDeadlyTime;
         bounceLimit = originalBounceLimit;
-        if (this.buff != null)
+        if (this.buff != null && this.buff.transform.parent == transform)
         {
             Destroy(this.buff.gameObject);
             this.buff = null;
         }
         buffId = buffID;
         BallBuff buff = NetworkBallManager.Instance.GetBuff(buffID);
+        this.buff = buff;
+        buff.transform.SetParent(transform);
+        buff.OnSpawn(this);
+    }
+
+    public void SetBuff(BallBuff buff)
+    {
+        throwSpeed = originalSpeed;
+        deadlyTime = originalDeadlyTime;
+        bounceLimit = originalBounceLimit;
+        if (this.buff != null)
+        {
+            Destroy(this.buff.gameObject);
+            this.buff = null;
+        }
         this.buff = buff;
         buff.transform.SetParent(transform);
         buff.OnSpawn(this);
