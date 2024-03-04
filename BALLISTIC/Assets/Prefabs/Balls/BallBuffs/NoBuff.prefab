@@ -45,5 +45,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: d69bdd6ce3c6b244e896e456ff5af69f, type: 2}
-  title: Dodgeball
-  description: Left-Click to pick up and throw!
+  titleLocalizationKey:
+    m_TableReference:
+      m_TableCollectionName: GUID:d403c752db19ed849ba2ac19d3f41092
+    m_TableEntryReference:
+      m_KeyId: 783215288320
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  descriptionLocalizationKey:
+    m_TableReference:
+      m_TableCollectionName: GUID:d403c752db19ed849ba2ac19d3f41092
+    m_TableEntryReference:
+      m_KeyId: 902815866880
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []

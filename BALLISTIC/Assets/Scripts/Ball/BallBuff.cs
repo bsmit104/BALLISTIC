@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public abstract class BallBuff : MonoBehaviour
 {
@@ -11,19 +13,30 @@ public abstract class BallBuff : MonoBehaviour
     [Tooltip("A unique material to identify this ball buff.")]
     [SerializeField] private Material material;
     [Tooltip("The name of the ball buff.")]
-    [SerializeField] private string title;
+    [SerializeField] private LocalizedString titleLocalizationKey;
+    //[SerializeField] private string title;
     [Tooltip("A description of the ball buff that can be displayed to players.")]
-    [SerializeField] private string description;
+    //[SerializeField] private string description;
+    [SerializeField] private LocalizedString descriptionLocalizationKey;
 
     /// <summary>
     /// Returns the name of the ball buff.
     /// </summary>
-    public string Title { get { return title; } }
+    //public string Title { get { return title; } }
+    public string Title
+    {
+        get { return titleLocalizationKey.GetLocalizedString(); }
+    }
 
     /// <summary>
     /// Returns a helpful blurb that explains what this buff does.
     /// </summary>
-    public string Description { get { return description; } }
+    //public string Description { get { return description; } }
+    public string Description
+    {
+        get { return descriptionLocalizationKey.GetLocalizedString(); }
+    }
+
 
     /// <summary>
     /// The NetworkDodgeball this buff is attached to.

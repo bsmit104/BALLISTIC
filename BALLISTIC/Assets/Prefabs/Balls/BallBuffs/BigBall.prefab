@@ -45,9 +45,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 0c02cb0cef20f4e46b4808bbbd54b579, type: 2}
-  title: Big Ball
-  description: Grows in size when it's thrown.
+  titleLocalizationKey:
+    m_TableReference:
+      m_TableCollectionName: GUID:d403c752db19ed849ba2ac19d3f41092
+    m_TableEntryReference:
+      m_KeyId: 17196965888
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  descriptionLocalizationKey:
+    m_TableReference:
+      m_TableCollectionName: GUID:d403c752db19ed849ba2ac19d3f41092
+    m_TableEntryReference:
+      m_KeyId: 82934292480
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   throwScale: 1.5
   scaleChangeDuration: 0.2
   throwSpeed: 25
   bounceLimit: 7
+  references:
+    version: 2
+    RefIds: []
