@@ -114,12 +114,12 @@ public class RagdollActivator : MonoBehaviour
 
     public void OnPickup()
     {
-        SetCollisionLayers(transform, LayerMask.GetMask("Players", "LocalPlayer", "Balls"));
+        SetCollisionLayers(transform, LayerMask.GetMask("Players", "LocalPlayer", "BallMarkerVisible", "BallMarkerHidden"));
     }
 
     public void OnThrow()
     {
-        SetCollisionLayers(transform, LayerMask.GetMask("Balls"));
+        SetCollisionLayers(transform, LayerMask.GetMask("BallMarkerVisible", "BallMarkerHidden"));
     }
 
     public void SetCollisionLayers(Transform root, LayerMask ignoreLayers)
