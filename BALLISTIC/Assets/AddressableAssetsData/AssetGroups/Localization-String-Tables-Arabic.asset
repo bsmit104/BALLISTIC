@@ -10,16 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Localization-String-Tables-Arabic (ar)
+  m_Name: Localization-String-Tables-Arabic
   m_EditorClassIdentifier: 
-  m_GroupName: Localization-String-Tables-Arabic (ar)
+  m_GroupName: Localization-String-Tables-Arabic
   m_Data:
     m_SerializedData: []
-  m_GUID: ac5515c7db5036641888947efb5566b4
-  m_SerializeEntries: []
+  m_GUID: ef44cbeb4aaebce4f9e943c8aec430af
+  m_SerializeEntries:
+  - m_GUID: 1e14f80a8181f0e4293629137c9a9cc1
+    m_Address: PlayMenu_ar
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ar
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: e13bb72f65fab834b9b50c43437a409c, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: afedaa32ee167f74e926cee7ff33ae77, type: 2}
-    - {fileID: 11400000, guid: cb100035fdef868468bad0b367b1f22a, type: 2}
+    - {fileID: 11400000, guid: 6ef58fde0f46c924e815286cdd7a468c, type: 2}
+    - {fileID: 11400000, guid: 91f391386107b1644945195c72c4bf48, type: 2}

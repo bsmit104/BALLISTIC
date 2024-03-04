@@ -10,16 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Localization-String-Tables-Arabic (ar)
+  m_Name: Localization-String-Tables-Chinese (Simplified)
   m_EditorClassIdentifier: 
-  m_GroupName: Localization-String-Tables-Arabic (ar)
+  m_GroupName: Localization-String-Tables-Chinese (Simplified)
   m_Data:
     m_SerializedData: []
-  m_GUID: ac5515c7db5036641888947efb5566b4
-  m_SerializeEntries: []
+  m_GUID: 49c57b5a0630a1843a633aa278ae9325
+  m_SerializeEntries:
+  - m_GUID: 2daa40f613b9c564ba0c128be49753f5
+    m_Address: PlayMenu_zh-Hans
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hans
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: e13bb72f65fab834b9b50c43437a409c, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: afedaa32ee167f74e926cee7ff33ae77, type: 2}
-    - {fileID: 11400000, guid: cb100035fdef868468bad0b367b1f22a, type: 2}
+    - {fileID: 11400000, guid: 3730d7625302c224e874069eb4e2976c, type: 2}
+    - {fileID: 11400000, guid: 7dc35e57d0e12b041b5932a435a10a2a, type: 2}
