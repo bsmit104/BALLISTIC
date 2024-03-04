@@ -26,10 +26,6 @@ MonoBehaviour:
     m_Localized: presiona P para empezar
     m_Metadata:
       m_Items: []
-  - m_Id: 8280089092096
-    m_Localized: "c\xF3digo de vest\xEDbulo 111222\npresiona P para empezar"
-    m_Metadata:
-      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -6,6 +6,7 @@ using Fusion.Sockets;
 using System;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Localization;
 
 /// <summary>
 /// Implements all network events, and initializes managers.
@@ -83,6 +84,10 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private TextMeshProUGUI joinLeaveText;
     [SerializeField] private float joinLeaveDisplayTime;
 
+    // localize
+    [SerializeField] private LocalizedString joinedloc;
+    [SerializeField] private LocalizedString leftloc;
+
     private Coroutine joinLeaveTween;
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
@@ -108,7 +113,9 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         {
             StopCoroutine(joinLeaveTween);
         }
-        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Joined"));
+        //joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Joined"));
+        string joinlocal = joinedloc.GetLocalizedString();
+        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + $"{joinlocal}"));
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -118,7 +125,9 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         {
             StopCoroutine(joinLeaveTween);
         }
-        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Left"));
+        //joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Left"));
+        string leftlocal = leftloc.GetLocalizedString();
+        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + $"{leftlocal}"));
     }
 
     private IEnumerator DisplayJoinLeave(string message)
@@ -190,6 +199,15 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     [Header("Connection Status Popups")]
     [SerializeField] ConnectionPopup popupPrefab;
 
+    // localization
+    [SerializeField] private LocalizedString errmsg;
+    [SerializeField] private LocalizedString err1;
+    [SerializeField] private LocalizedString err2;
+    [SerializeField] private LocalizedString err3;
+    [SerializeField] private LocalizedString err4;
+    [SerializeField] private LocalizedString err5;
+    [SerializeField] private LocalizedString err6;
+
     /// <summary>
     /// Leave the current lobby. If the player is the host, then the lobby will be shutdown,
     /// and all players will be disconnected.
@@ -204,30 +222,44 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        string message = "Network Connection Closed:\n";
+        string message = errmsg.GetLocalizedString();
+        string error1 = err1.GetLocalizedString();
+        string error2 = err2.GetLocalizedString();
+        string error3 = err3.GetLocalizedString();
+        string error4 = err4.GetLocalizedString();
+        string error5 = err5.GetLocalizedString();
+        string error6 = err6.GetLocalizedString();
+        // lobbyCodeText.text = $"{lobbyCode}: {Runner.SessionInfo.Name}\n{joinPText}";
+        //string message = "Network Connection Closed:\n";
         switch (shutdownReason)
         {
             case ShutdownReason.Ok:
-                message += "Host has ended the game.";
+                //message += "Host has ended the game.";
+                message += $"{error1}";
                 break;
             case ShutdownReason.ServerInRoom:
             case ShutdownReason.GameIdAlreadyExists:
-                message += "Failed to host lobby.";
+                //message += "Failed to host lobby.";
+                message += $"{error2}";
                 break;
             case ShutdownReason.GameNotFound:
-                message += "Lobby could not be found.";
+                //message += "Lobby could not be found.";
+                message += $"{error3}";
                 break;
             case ShutdownReason.ConnectionRefused:
             case ShutdownReason.GameIsFull:
-                message += "Lobby could not be joined.";
+                //message += "Lobby could not be joined.";
+                message += $"{error4}";
                 break;
             case ShutdownReason.ConnectionTimeout:
             case ShutdownReason.OperationTimeout:
             case ShutdownReason.PhotonCloudTimeout:
-                message += "Connection timeout.";
+                //message += "Connection timeout.";
+                message += $"{error5}";
                 break;
             default:
-                message += "Network Error.";
+                //message += "Network Error.";
+                message += $"{error6}";
                 break;
         }
         var popup = Instantiate(popupPrefab);

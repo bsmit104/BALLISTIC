@@ -16,7 +16,31 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: bd097b48b05a8b546b52878e5dcd88d5
   m_Entries:
   - m_Id: 17465401344
-    m_Key: New Entry
+    m_Key: message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25953023877120
+    m_Key: host ended
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26023974723584
+    m_Key: failed to host
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26028642983936
+    m_Key: lobby not found
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26125233610752
+    m_Key: lobby not joined
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26130199666688
+    m_Key: timeout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26132984684544
+    m_Key: network err
     m_Metadata:
       m_Items: []
   m_Metadata:

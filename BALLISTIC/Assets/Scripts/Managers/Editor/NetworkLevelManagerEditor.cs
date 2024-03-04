@@ -18,6 +18,10 @@ public class NetworkLevelManagerEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("lobbyCanvas"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("lobbyCodeText"));
 
+        // localize
+        // brayden was here
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("lobbykey"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("p2join"));
         // scene indices
         EditorGUILayout.PropertyField(serializedObject.FindProperty("lobbySceneIndex"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("firstLevelIndex"));

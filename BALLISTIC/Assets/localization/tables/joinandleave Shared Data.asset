@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
-  m_Name: LobbyText Shared Data
+  m_Name: joinandleave Shared Data
   m_EditorClassIdentifier: 
-  m_TableCollectionName: LobbyText
-  m_TableCollectionNameGuidString: 635185929dcbdd6469fbc029d6057cca
+  m_TableCollectionName: joinandleave
+  m_TableCollectionNameGuidString: 3c020e71b72369048a54010d59a58f26
   m_Entries:
-  - m_Id: 11538849792
-    m_Key: lobbyCode
+  - m_Id: 14898487296
+    m_Key: has joined
     m_Metadata:
       m_Items: []
-  - m_Id: 16286801920
-    m_Key: pressP
+  - m_Id: 23282900992
+    m_Key: has left
     m_Metadata:
       m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
-    rid: 5994221920793395247
+    rid: 5994221920793395263
   references:
     version: 2
     RefIds:
-    - rid: 5994221920793395247
+    - rid: 5994221920793395263
       type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
       data:
-        m_CustomEpoch: 1709518392927
+        m_CustomEpoch: 1709524838653

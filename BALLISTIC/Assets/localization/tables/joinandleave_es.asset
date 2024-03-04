@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: LobbyText_en
+  m_Name: joinandleave_es
   m_EditorClassIdentifier: 
   m_LocaleId:
-    m_Code: en
-  m_SharedData: {fileID: 11400000, guid: 635185929dcbdd6469fbc029d6057cca, type: 2}
+    m_Code: es
+  m_SharedData: {fileID: 11400000, guid: 3c020e71b72369048a54010d59a58f26, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 11538849792
-    m_Localized: 'Lobby Code:'
+  - m_Id: 14898487296
+    m_Localized: se ha unido
     m_Metadata:
       m_Items: []
-  - m_Id: 16286801920
-    m_Localized: Press P to Start
+  - m_Id: 23282900992
+    m_Localized: se ha ido.
     m_Metadata:
       m_Items: []
   references:

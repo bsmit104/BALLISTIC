@@ -1204,9 +1204,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_StringReference:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:635185929dcbdd6469fbc029d6057cca
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 8280089092096
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -2174,6 +2174,7 @@ GameObject:
   - component: {fileID: 3370978793957886318}
   - component: {fileID: 2600095694235042499}
   - component: {fileID: -3594434660325473979}
+  - component: {fileID: 7414133650476006181}
   m_Layer: 0
   m_Name: NetworkRunnerPF
   m_TagString: Untagged
@@ -2225,9 +2226,93 @@ MonoBehaviour:
   joinLeaveCanvas: {fileID: 7719256826136008817}
   joinLeaveText: {fileID: 4862981917927433754}
   joinLeaveDisplayTime: 5
+  joinedloc:
+    m_TableReference:
+      m_TableCollectionName: GUID:3c020e71b72369048a54010d59a58f26
+    m_TableEntryReference:
+      m_KeyId: 14898487296
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  leftloc:
+    m_TableReference:
+      m_TableCollectionName: GUID:3c020e71b72369048a54010d59a58f26
+    m_TableEntryReference:
+      m_KeyId: 23282900992
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   PauseCanvas: {fileID: 5709046996748276498}
   lobbyCodeText: {fileID: 8529459244341935899}
   popupPrefab: {fileID: 8005574791962314160, guid: e0af9534b14bb924fb312ba17ad2d5d4, type: 3}
+  errmsg:
+    m_TableReference:
+      m_TableCollectionName: GUID:bd097b48b05a8b546b52878e5dcd88d5
+    m_TableEntryReference:
+      m_KeyId: 17465401344
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  err1:
+    m_TableReference:
+      m_TableCollectionName: GUID:bd097b48b05a8b546b52878e5dcd88d5
+    m_TableEntryReference:
+      m_KeyId: 25953023877120
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  err2:
+    m_TableReference:
+      m_TableCollectionName: GUID:bd097b48b05a8b546b52878e5dcd88d5
+    m_TableEntryReference:
+      m_KeyId: 26023974723584
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  err3:
+    m_TableReference:
+      m_TableCollectionName: GUID:bd097b48b05a8b546b52878e5dcd88d5
+    m_TableEntryReference:
+      m_KeyId: 26028642983936
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  err4:
+    m_TableReference:
+      m_TableCollectionName: GUID:bd097b48b05a8b546b52878e5dcd88d5
+    m_TableEntryReference:
+      m_KeyId: 26125233610752
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  err5:
+    m_TableReference:
+      m_TableCollectionName: GUID:bd097b48b05a8b546b52878e5dcd88d5
+    m_TableEntryReference:
+      m_KeyId: 26130199666688
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  err6:
+    m_TableReference:
+      m_TableCollectionName: GUID:bd097b48b05a8b546b52878e5dcd88d5
+    m_TableEntryReference:
+      m_KeyId: 26132984684544
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &3370978793957886318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2311,6 +2396,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lobbyCanvas: {fileID: 8570994248449303074}
   lobbyCodeText: {fileID: 634153841947470690}
+  lobbyCodeText2: {fileID: 0}
+  lobbyCodeText3: {fileID: 0}
+  lobbykey:
+    m_TableReference:
+      m_TableCollectionName: GUID:635185929dcbdd6469fbc029d6057cca
+    m_TableEntryReference:
+      m_KeyId: 11538849792
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  p2join:
+    m_TableReference:
+      m_TableCollectionName: GUID:635185929dcbdd6469fbc029d6057cca
+    m_TableEntryReference:
+      m_KeyId: 16286801920
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   lobbySceneIndex: 4
   firstLevelIndex: 8
   lastLevelIndex: 8
@@ -2330,6 +2435,65 @@ MonoBehaviour:
   winText: {fileID: 5527874522076470968}
   localWinText: {fileID: 5612739044647167319}
   remoteWinText: {fileID: 7431761734804666493}
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &7414133650476006181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7399520618018888314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a238ba935e2a634c86de765013b53a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lobbyCanvas: {fileID: 0}
+  lobbyCodeText: {fileID: 0}
+  lobbyCodeText2: {fileID: 0}
+  lobbyCodeText3: {fileID: 0}
+  lobbykey:
+    m_TableReference:
+      m_TableCollectionName: GUID:635185929dcbdd6469fbc029d6057cca
+    m_TableEntryReference:
+      m_KeyId: 11538849792
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  p2join:
+    m_TableReference:
+      m_TableCollectionName: GUID:635185929dcbdd6469fbc029d6057cca
+    m_TableEntryReference:
+      m_KeyId: 16286801920
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  lobbySceneIndex: 0
+  firstLevelIndex: 0
+  lastLevelIndex: 0
+  refreshChance: 0
+  transitionCanvas: {fileID: 0}
+  transitionElement: {fileID: 0}
+  enterTransitionDuration: 0
+  enterTransitionEndPos: {x: 0, y: 0}
+  exitTransitionDuration: 0
+  exitTransitionStartPos: {x: 0, y: 0}
+  waitBetweenTransitions: 0
+  loadCompletionCheck: 0.05
+  ballsPerLevel: 5
+  waitBeforeWinScreen: 0
+  winScreenDuration: 0
+  winScreen: {fileID: 0}
+  winText: {fileID: 0}
+  localWinText: {fileID: 0}
+  remoteWinText: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &7431761734804666493
 GameObject:
   m_ObjectHideFlags: 0
