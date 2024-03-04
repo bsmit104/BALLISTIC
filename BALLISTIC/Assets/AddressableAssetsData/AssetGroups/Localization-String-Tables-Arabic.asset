@@ -31,6 +31,27 @@ MonoBehaviour:
     - Locale-ar
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eed6432e0d8550d448e3e0390b447b99
+    m_Address: Network Pop Ups_ar
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ar
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 067e74de1c4f10a44882e8a14dc5e3a1
+    m_Address: LobbyText_ar
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ar
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b5dd0a3d61510cd4a9539a33f79a7840
+    m_Address: PauseText_ar
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ar
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: e13bb72f65fab834b9b50c43437a409c, type: 2}
   m_SchemaSet:

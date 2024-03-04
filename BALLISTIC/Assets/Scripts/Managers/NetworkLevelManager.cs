@@ -5,6 +5,7 @@ using Fusion;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Localization;
 
 /// <summary>
 /// Manages scene transitions between levels.
@@ -55,11 +56,16 @@ public class NetworkLevelManager : MonoBehaviour
     [Header("Lobby Code")]
     [SerializeField] private GameObject lobbyCanvas;
     [SerializeField] private TextMeshProUGUI lobbyCodeText;
+    // [SerializeField] private LocalizedString lobbykey;
+    // [SerializeField] private LocalizedString p2join;
 
     IEnumerator WaitForGameStart()
     {
         Debug.Log("Press P To Start Game");
         lobbyCodeText.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
+        // string lobbyCode = lobbykey.GetLocalizedString();
+        // string joinPText = p2join.GetLocalizedString();
+        // lobbyCodeText.text = $"{lobbyCode}: {Runner.SessionInfo.Name}\n{joinPText}";
         lobbyCanvas.SetActive(true);
         while (true)
         {
