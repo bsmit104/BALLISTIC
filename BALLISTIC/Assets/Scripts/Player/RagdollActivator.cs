@@ -63,9 +63,6 @@ public class RagdollActivator : MonoBehaviour
 
     public void DeactivateRagdoll()
     {
-        DeactivateColliders();
-        transform.SetParent(parent);
-        transform.localPosition = Vector3.zero;
         if (ragdollBall)
         {
             ragdollBall.GetComponent<MeshRenderer>().enabled = true;
@@ -75,6 +72,9 @@ public class RagdollActivator : MonoBehaviour
             ragdollBall.transform.SetParent(null);
             ragdollBall = null;
         }
+        DeactivateColliders();
+        transform.SetParent(parent);
+        transform.localPosition = Vector3.zero;
     }
 
     private void ActivateColliders()
