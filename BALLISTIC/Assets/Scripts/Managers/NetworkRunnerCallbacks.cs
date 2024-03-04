@@ -95,6 +95,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         if (runner.IsServer)
         {
             playerManager.SpawnPlayer(player).SetColor(playerManager.GetColor(player).material);
+            ballManager.SendBallStates(player);
 
             Debug.Log($"Added player no. {player.PlayerId}");
         }
@@ -150,7 +151,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (Input.GetKeyDown(KeyCode.U))
         {
-            // toggle cursor visiblity and lock state
+            // toggle cursor visibility and lock state
             Cursor.visible = !Cursor.visible;
             Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
 

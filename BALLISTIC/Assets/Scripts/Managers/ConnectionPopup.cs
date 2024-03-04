@@ -42,7 +42,7 @@ public class ConnectionPopup : MonoBehaviour
         {
             EventSystem[] eventSystems = FindObjectsOfType<EventSystem>();
 
-            if (eventSystems.Length == 1)
+            if (eventSystems.Length <= 1)
             {
                 transform.GetChild(1).gameObject.SetActive(true);
             }

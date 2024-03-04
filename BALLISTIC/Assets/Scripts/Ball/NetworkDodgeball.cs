@@ -135,7 +135,7 @@ public class NetworkDodgeball : NetworkBehaviour
         transform.position = Vector3.zero;
         rig.velocity = Vector3.zero;
         rig.angularVelocity = Vector3.zero;
-        SetBuff(newBuff);
+        NetworkSetBuff(newBuff);
         return this;
     }
 
@@ -195,11 +195,11 @@ public class NetworkDodgeball : NetworkBehaviour
             Vector3 start = transform.position;
             Vector3 dir = Rig.velocity.normalized;
             float dist = Rig.velocity.magnitude * Runner.DeltaTime + Col.bounds.extents.x;
-            if (Physics.Raycast(start, dir, out RaycastHit hit, dist, LayerMask.GetMask("Surfaces")))
+            if (Physics.Raycast(start, dir, out RaycastHit hit, dist, LayerMask.GetMask("Surfaces", "Balls")))
             {
                 travelDir = Vector3.Reflect(travelDir, hit.normal);
                 bounceCount++;
-                OnBounce(hit.normal, travelDir, bounceCount);
+                OnBounce(hit.normal, travelDir, bounceCount, !hit.collider.gameObject.CompareTag("Dodgeball"));
             }
             buff?.WhileDeadly(travelDir);
         }
@@ -259,6 +259,9 @@ public class NetworkDodgeball : NetworkBehaviour
     // * Ball-Buff Events ==============================================
 
     private BallBuff buff;
+    private int buffId;
+
+    public int BuffID { get { return buffId; } }
 
     /// <summary>
     /// Returns a string containing the name, and description of the ball buff.
@@ -267,7 +270,7 @@ public class NetworkDodgeball : NetworkBehaviour
         return buff.Title + "\n" + buff.Description;
     } }
 
-    public void SetBuff(int buffID)
+    public void NetworkSetBuff(int buffID)
     {
         if (Runner.IsServer)
         {
@@ -278,9 +281,20 @@ public class NetworkDodgeball : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
     public void RPC_SetBuff(int buffID)
     {
+        SetBuff(buffID);
+    }
+
+    public void SetBuff(int buffID)
+    {
         throwSpeed = originalSpeed;
         deadlyTime = originalDeadlyTime;
         bounceLimit = originalBounceLimit;
+        if (this.buff != null)
+        {
+            Destroy(this.buff.gameObject);
+            this.buff = null;
+        }
+        buffId = buffID;
         BallBuff buff = NetworkBallManager.Instance.GetBuff(buffID);
         this.buff = buff;
         buff.transform.SetParent(transform);
@@ -310,18 +324,18 @@ public class NetworkDodgeball : NetworkBehaviour
 
     // ------------
 
-    private void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount)
+    private void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface)
     {
         if (Runner.IsServer)
         {
-            RPC_OnBounce(normal, newDirection, bounceCount);
+            RPC_OnBounce(normal, newDirection, bounceCount, hitSurface);
         }
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount)
+    public void RPC_OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface)
     {
-        buff?.OnBounce(normal, newDirection, bounceCount);
+        buff?.OnBounce(normal, newDirection, bounceCount, hitSurface);
     }
 
     // ------------

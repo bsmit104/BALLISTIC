@@ -43,16 +43,6 @@ public class BigBall : BallBuff
         Ball.transform.localScale = Vector3.one * throwScale;
     }
 
-    public override void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount) {}
-
-    public override void WhileDeadly(Vector3 curDirection) {}
-
-    public override void OnPlayerHit(NetworkPlayer player) {}
-
-    public override void OnPickup(NetworkPlayer player) {}
-
-    public override void OnDropped(NetworkPlayer player) {}
-
     public override void OnNotDeadly() 
     {
         if (scaleChangeTween != null)
@@ -73,8 +63,4 @@ public class BigBall : BallBuff
         }
         Ball.transform.localScale = originalScale;
     }
-
-    public override void WhileNotDeadly() {}
-
-    public override void WhileHeld(NetworkPlayer player) {}
 }

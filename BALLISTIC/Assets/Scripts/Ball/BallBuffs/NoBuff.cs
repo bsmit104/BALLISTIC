@@ -11,7 +11,7 @@ public class NoBuff : BallBuff
 
     public override void OnThrow(NetworkPlayer thrower, Vector3 throwDirection) {}
 
-    public override void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount) {}
+    public override void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool isSurface) {}
 
     public override void WhileDeadly(Vector3 curDirection) {}
 
