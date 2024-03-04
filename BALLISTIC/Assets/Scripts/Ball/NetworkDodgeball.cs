@@ -221,7 +221,7 @@ public class NetworkDodgeball : NetworkBehaviour
         deadlyTimer = deadlyTime;
         bounceCount = 0;
         OnThrow(Owner, dir);
-        //trail.material.color = NetworkPlayerManager.Instance.GetColor(Owner).color;
+        setTrailColor();
     }
 
     private void Update()
@@ -247,6 +247,22 @@ public class NetworkDodgeball : NetworkBehaviour
     public void setTrail()
     {
         trail.emitting = IsDeadly;
+    }
+
+    public void setTrailColor()
+    {
+        var g = new Gradient();
+        List<GradientColorKey> modifiedColorKeys = new List<GradientColorKey>();
+
+        foreach (GradientColorKey k in trail.colorGradient.colorKeys)
+        {
+            GradientColorKey modifiedKey = new GradientColorKey(NetworkPlayerManager.Instance.GetColor(Owner).color, k.time);
+            modifiedColorKeys.Add(modifiedKey);
+        }
+        
+        g.SetKeys(modifiedColorKeys.ToArray(), trail.colorGradient.alphaKeys);
+
+        trail.colorGradient = g;
     }
 
     public void setMarker()
