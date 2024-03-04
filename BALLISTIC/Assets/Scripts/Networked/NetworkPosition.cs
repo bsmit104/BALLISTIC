@@ -18,6 +18,8 @@ public class NetworkPosition : NetworkBehaviour
 
     private bool hasParent = false;
 
+    public bool ForceUpdate = false;
+
     private Rigidbody rig;
 
     public override void Spawned()
@@ -35,7 +37,7 @@ public class NetworkPosition : NetworkBehaviour
             networkEnabled = !hasParent;
         }
 
-        if (Runner.IsServer || hasParent) return;
+        if (Runner.IsServer || (hasParent && !ForceUpdate)) return;
 
         foreach (var attrName in detector.DetectChanges(this))
         {
@@ -90,7 +92,7 @@ public class NetworkPosition : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
     public void RPC_EnforceState(Vector3 pos, Vector3 rot, Vector3 vel, Vector3 angVel)
     {
-        if (Runner.IsServer || hasParent || !enabled) return;
+        if (Runner.IsServer || (hasParent && !ForceUpdate) || !enabled) return;
         transform.position = pos;
         transform.eulerAngles = rot;
         if (rig && !rig.isKinematic)

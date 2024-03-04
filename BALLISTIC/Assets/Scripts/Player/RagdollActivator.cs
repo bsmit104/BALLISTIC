@@ -37,9 +37,16 @@ public class RagdollActivator : MonoBehaviour
     private void RecurseColliders(Transform root, bool state)
     {
         Collider col = null;
-        if ((col = root.gameObject.GetComponent<Collider>()) != null)
+        if ((col = root.gameObject.GetComponent<Collider>()) != null && NetworkPlayer.Local.Runner.IsServer)
         {
             col.enabled = state;
+            root.gameObject.GetComponent<Rigidbody>().isKinematic = !state;
+        }
+        NetworkPosition pos = null;
+        if ((pos = root.gameObject.GetComponent<NetworkPosition>()) != null)
+        {
+            pos.enabled = state;
+            pos.ForceUpdate = true;
         }
 
         for (int i = 0; i < root.childCount; i++)
