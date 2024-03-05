@@ -246,7 +246,21 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     void IsSprintingOnChange() { animator.SetBool("isSprinting", isSprinting); }
 
     [Networked, HideInInspector] public bool isIdle { get; set; }
-    void IsIdleOnChange() { animator.SetBool("isIdle", isIdle); }
+    void IsIdleOnChange()
+    {
+        animator.SetBool("isIdle", isIdle);
+        if (!isIdle)
+        {
+            AudioManager.Instance.PlaySound("Footsteps", gameObject);
+            Debug.Log("footsteps active");
+        }
+        else
+        {
+            AudioManager.Instance.StopSound("Footsteps", gameObject);
+            Debug.Log("footsteps inactive");
+        }
+            
+    }
 
     [Networked, HideInInspector] public bool isJumping { get; set; }
     void IsJumpingOnChange() { animator.SetBool("isJump", isJumping); }
@@ -458,7 +472,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         isCrouchingLeft = isCrouchLeft && !isSprinting && !isCrouchRight;
 
         // Trigger the idle animation when standing still and not pressing any movement keys
-        // isIdle = vertical == 0 && horizontal == 0;
+        isIdle = vertical == 0 && horizontal == 0;
         // isIdle = false;
     }
 
@@ -581,6 +595,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                 NetworkDodgeball ball = FindClosestDodgeball();
                 if (ball != null)
                 {
+                    AudioManager.Instance.PlaySound("BallPickup", gameObject);
                     PickupBall(ball);
                 }
             }
