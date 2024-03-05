@@ -12,6 +12,7 @@ public class DodgeballCollider : MonoBehaviour
 
     public void OnCollisionEnter(Collision col)
     {
+        AudioManager.Instance.PlaySound("BallHit", gameObject);
         // Check if the collided GameObject has the "Player" tag
         if (networkBall.IsDeadly && networkBall.enabled)
         {
