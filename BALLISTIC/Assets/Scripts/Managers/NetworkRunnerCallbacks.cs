@@ -115,7 +115,9 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         }
         //joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Joined"));
         string joinlocal = joinedloc.GetLocalizedString();
-        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + $"{joinlocal}"));
+        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + $" {joinlocal}"));
+        //my attempt to change color
+        //joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorlocal + $"{joinlocal}"));
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -127,7 +129,9 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         }
         //joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Left"));
         string leftlocal = leftloc.GetLocalizedString();
-        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + $"{leftlocal}"));
+        joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + $" {leftlocal}"));
+        //my attempt to change color
+        //joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorlocal + $"{leftlocal}"));
     }
 
     private IEnumerator DisplayJoinLeave(string message)
@@ -229,8 +233,6 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         string error4 = err4.GetLocalizedString();
         string error5 = err5.GetLocalizedString();
         string error6 = err6.GetLocalizedString();
-        // lobbyCodeText.text = $"{lobbyCode}: {Runner.SessionInfo.Name}\n{joinPText}";
-        //string message = "Network Connection Closed:\n";
         switch (shutdownReason)
         {
             case ShutdownReason.Ok:

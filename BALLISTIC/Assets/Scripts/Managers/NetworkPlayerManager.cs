@@ -4,11 +4,14 @@ using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
 using System;
+using UnityEngine.Localization;
 
 [Serializable]
 public struct PlayerColor
 {
     public string colorName;
+    //my attempt to change colorname
+    //public LocalizedString colorlocal;
     public Material material;
     public Color color;
 }

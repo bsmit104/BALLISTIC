@@ -503,6 +503,8 @@ public class NetworkLevelManager : MonoBehaviour
             //winText.text = playerManager.GetColor(winner).colorName + " IS THE";
             string isThee = isThe.GetLocalizedString();
             winText.text = playerManager.GetColor(winner).colorName + $"{isThee}";
+            //my attempt to change color
+            //winText.text = playerManager.GetColor(winner).colorlocal + $"{isThee}";
         }
         winScreen.SetActive(true);
 

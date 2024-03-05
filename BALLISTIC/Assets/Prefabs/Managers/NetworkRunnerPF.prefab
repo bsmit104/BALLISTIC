@@ -2329,35 +2329,128 @@ MonoBehaviour:
     RawGuidValue: 25e1be3ffe17daf41833738111a3b8b5
   playerColors:
   - colorName: BLUE
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 399855902720
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 64fbd0ad9af19ef4eb8001d34a44de52, type: 2}
     color: {r: 0.05958529, g: 0.5550515, b: 0.9716981, a: 0}
   - colorName: RED
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 416276602880
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: cf50a770f41812843afbfed98a5bfe55, type: 2}
     color: {r: 0.9811321, g: 0.28230685, b: 0.28230685, a: 0}
   - colorName: PINK
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 423146872832
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 32cbd8429ff8c914391c758af11c6a68, type: 2}
     color: {r: 0.8301887, g: 0.3798505, b: 0.82403475, a: 0}
   - colorName: PURPLE
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 428054208512
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 064586f53f708f64f862555e4578565a, type: 2}
     color: {r: 0.47480226, g: 0.19103774, b: 0.764151, a: 0}
   - colorName: GREEN
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 508471599104
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 6acfb7720492b5340ac622e122f447dc, type: 2}
     color: {r: 0.18614274, g: 0.8396226, b: 0.23788731, a: 0}
   - colorName: YELLOW
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 833358192640
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 64af135cc7e0ec84bb142a68feb6fb87, type: 2}
     color: {r: 0.83181304, g: 0.8679245, b: 0.18422928, a: 0}
   - colorName: ORANGE
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 525206872064
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 03d50c5557f6a3a4797d687a2a7db1de, type: 2}
     color: {r: 0.9433962, g: 0.6109523, b: 0.12904951, a: 0}
   - colorName: TURQUOISE
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 543993159680
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 53ec44096752b6f4eab7ca08594e2dca, type: 2}
     color: {r: 0.19223925, g: 0.9056604, b: 0.8335261, a: 0}
   - colorName: BLACK
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 616407818240
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: e58c3ac44d3860a4bb590ae39381732a, type: 2}
     color: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 0}
   - colorName: WHITE
+    colorlocal:
+      m_TableReference:
+        m_TableCollectionName: GUID:97ca9b8f649fd1f4aae5d680ffd6cc54
+      m_TableEntryReference:
+        m_KeyId: 638348222464
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
     material: {fileID: 2100000, guid: 147bace03cacaf94cad09624a2abd6fa, type: 2}
     color: {r: 0.8584906, g: 0.8584906, b: 0.8584906, a: 0}
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &2600095694235042499
 MonoBehaviour:
   m_ObjectHideFlags: 0
