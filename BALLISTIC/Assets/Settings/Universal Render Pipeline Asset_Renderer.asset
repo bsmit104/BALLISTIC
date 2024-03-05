@@ -101,6 +101,23 @@ MonoBehaviour:
       restoreCamera: 1
       offset: {x: 0, y: 0, z: 0, w: 0}
       cameraFieldOfView: 73.1
+--- !u!114 &-1851094909753224439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d613f08f173d4dd895bb07b3230baa9, type: 3}
+  m_Name: Grayscale High Contrast
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  passMaterial: {fileID: -876546973899608171, guid: af38ec0b89e428f44a6d6247fa6adc78, type: 3}
+  injectionPoint: 600
+  requirements: 4
+  passIndex: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,7 +138,8 @@ MonoBehaviour:
   - {fileID: -4899786965520844064}
   - {fileID: -6334011900039965328}
   - {fileID: 3852111919321636640}
-  m_RendererFeatureMap: 237254e36b4bf699e07a0a0db77500bc70550567bc1119a820df369a61737535
+  - {fileID: -1851094909753224439}
+  m_RendererFeatureMap: 237254e36b4bf699e07a0a0db77500bc70550567bc1119a820df369a617375350913a0b2fc964fe6
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
