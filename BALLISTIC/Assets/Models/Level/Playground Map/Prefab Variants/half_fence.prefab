@@ -64,6 +64,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: -3517486099886242773, guid: 643c74657edb994498dab58a4c2e015d, type: 3}
+      propertyPath: m_TagString
+      value: Floor
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 643c74657edb994498dab58a4c2e015d, type: 3}
       propertyPath: m_Name
       value: half_fence
@@ -71,6 +75,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 643c74657edb994498dab58a4c2e015d, type: 3}
       propertyPath: m_Layer
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 643c74657edb994498dab58a4c2e015d, type: 3}
+      propertyPath: m_TagString
+      value: Floor
       objectReference: {fileID: 0}
     - target: {fileID: 1579146968740344527, guid: 643c74657edb994498dab58a4c2e015d, type: 3}
       propertyPath: m_Materials.Array.data[0]

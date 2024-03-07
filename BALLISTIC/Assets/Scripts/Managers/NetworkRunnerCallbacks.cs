@@ -149,7 +149,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.U))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             // toggle cursor visibility and lock state
             Cursor.visible = !Cursor.visible;
