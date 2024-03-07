@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7925254e2324cfd4488b1953df4f140f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pickupMat: {fileID: 2100000, guid: 41ba38b2b42e20c4b9e0bbeb91979d48, type: 2}
   __isHeld: 0
   throwSpeed: 30
   deadlyTime: 5

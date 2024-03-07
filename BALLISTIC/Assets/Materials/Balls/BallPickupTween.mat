@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ball
-  m_Shader: {fileID: -6465566751694194690, guid: 4caaf0c8f4ed6f44a832a527d3e63b2a, type: 3}
+  m_Name: BallPickupTween
+  m_Shader: {fileID: -6465566751694194690, guid: 1ab2bf7ea49bb9b47b38f1f8c1b020de, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []

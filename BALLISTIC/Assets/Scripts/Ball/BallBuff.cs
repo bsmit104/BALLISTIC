@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
@@ -69,6 +70,8 @@ public abstract class BallBuff : MonoBehaviour
     /// </summary>
     public bool IsDeadly { get { return Ball.IsDeadly; } }
 
+    private static Dictionary<Type, Material> pickupMats;
+
     // * ========================================
 
     // * Events =================================
@@ -79,8 +82,23 @@ public abstract class BallBuff : MonoBehaviour
     /// <param name="ball">The ball this buff is attached to.</param>
     public void OnSpawn(NetworkDodgeball ball)
     {
+        if (pickupMats == null)
+        {
+            pickupMats = new Dictionary<Type, Material>();
+        }
         _ball = ball;
-        if (material) ball.SetMaterial(material);
+        if (material)
+        {
+            var buff = GetType();
+            ball.SetMaterial(material);
+            if (!pickupMats.ContainsKey(buff))
+            {
+                var pickupMat = new Material(material);
+                pickupMat.shader = Shader.Find("Shader Graphs/BallTween");
+                pickupMats[buff] = pickupMat;
+            }
+            ball.SetPickupMaterial(pickupMats[buff]);
+        }
         OnSpawnBuff(ball);
     }
 

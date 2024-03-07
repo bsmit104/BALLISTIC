@@ -164,6 +164,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // ========================================
 
+    private NetworkDodgeball prevClosestBall;
     private NetworkDodgeball heldBall;
     public bool IsHoldingBall { get { return heldBall != null; } }
 
@@ -346,6 +347,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
 
         StartCoroutine(SetPlayerRef());
+        StartCoroutine(PickupTweenCheck());
     }
 
     IEnumerator SetPlayerRef()
@@ -593,9 +595,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             {
                 pickupCollider.GetAllDodgeballs(ref nearbyDodgeballs);
                 NetworkDodgeball ball = FindClosestDodgeball();
+                SetBallMaterial(ball);
                 if (ball != null)
                 {
                     AudioManager.Instance.PlaySound("BallPickup", gameObject);
+                    SetBallMaterial(null);
                     PickupBall(ball);
                 }
             }
@@ -884,11 +888,46 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void Update()
     {
-        setMarkers();
+        SetMarkers();
     }
 
-    private void setMarkers()
+    private void SetMarkers()
     {
         markerRender.SetActive(!IsHoldingBall);
     }
+
+    // Tween ================================
+
+    // Check if there is a ball in range that needs to start tweening
+    private IEnumerator PickupTweenCheck()
+    {
+        while (true)
+        {
+            if (!IsHoldingBall)
+            {
+                pickupCollider.GetAllDodgeballs(ref nearbyDodgeballs);
+                NetworkDodgeball ball = FindClosestDodgeball();
+                SetBallMaterial(ball);
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    // Stop tweening the previous ball and start tweening the new one
+    private void SetBallMaterial(NetworkDodgeball ball)
+    {
+        if (ball != prevClosestBall)
+        {
+            if (prevClosestBall != null)
+            {
+                prevClosestBall.SetNormalMaterial();
+            }
+            if (ball != null)
+            {
+                ball.SetPickupMaterial();
+            }
+            prevClosestBall = ball;
+        }
+    }
+
 }

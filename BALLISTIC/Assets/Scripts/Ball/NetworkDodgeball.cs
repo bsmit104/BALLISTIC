@@ -11,6 +11,7 @@ using UnityEngine.Rendering.Universal;
 [RequireComponent(typeof(DodgeballCollider))]
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(TrailRenderer))]
+[RequireComponent(typeof(MeshRenderer))]
 public class NetworkDodgeball : NetworkBehaviour
 {
     // * Client-Sided Attributes =======================================
@@ -37,6 +38,12 @@ public class NetworkDodgeball : NetworkBehaviour
     /// </summary>
     public TrailRenderer Trail { get { return trail; } }
     private TrailRenderer trail;
+
+    public MeshRenderer Rend { get { return rend; } }
+    private MeshRenderer rend;
+
+    private Material normalMat;
+    [SerializeField] private Material pickupMat;
 
     /// <summary>
     /// Returns the NetworkId associated with the NetworkObject attached to the ball.
@@ -120,10 +127,12 @@ public class NetworkDodgeball : NetworkBehaviour
         rig = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         trail = GetComponent<TrailRenderer>();
+        rend = GetComponent<MeshRenderer>();
         gameObject.SetActive(false);
         originalSpeed = throwSpeed;
         originalDeadlyTime = deadlyTime;
         originalBounceLimit = bounceLimit;
+        normalMat = rend.material;
     }
 
     /// <summary>
@@ -222,14 +231,14 @@ public class NetworkDodgeball : NetworkBehaviour
         deadlyTimer = deadlyTime;
         bounceCount = 0;
         OnThrow(Owner, dir);
-        setTrailColor();
+        SetTrailColor();
     }
 
     private void Update()
     {
         if (!gameObject.activeInHierarchy) return;
-        setTrail();
-        setMarker();
+        SetTrail();
+        SetMarker();
         if (deadlyTimer > 0)
         {
             deadlyTimer -= Time.deltaTime;
@@ -245,12 +254,12 @@ public class NetworkDodgeball : NetworkBehaviour
         }
     }
 
-    public void setTrail()
+    public void SetTrail()
     {
         if (trail) trail.emitting = IsDeadly;
     }
 
-    public void setTrailColor()
+    public void SetTrailColor()
     {
         var g = new Gradient();
         List<GradientColorKey> modifiedColorKeys = new List<GradientColorKey>();
@@ -266,9 +275,19 @@ public class NetworkDodgeball : NetworkBehaviour
         trail.colorGradient = g;
     }
 
-    public void setMarker()
+    public void SetMarker()
     {
         gameObject.layer = IsDeadly || IsHeld ? layerMarkerHidden : layerMarkerVisible;
+    }
+
+    public void SetPickupMaterial()
+    {
+        rend.material = pickupMat;
+    }
+
+    public void SetNormalMaterial()
+    {
+        rend.material = normalMat;
     }
 
     // * ===============================================================
@@ -335,7 +354,13 @@ public class NetworkDodgeball : NetworkBehaviour
 
     public void SetMaterial(Material material)
     {
-        GetComponent<MeshRenderer>().material = material;
+        rend.material = material;
+        normalMat = material;
+    }
+
+    public void SetPickupMaterial(Material material)
+    {
+        pickupMat = material;
     }
 
     // ------------
