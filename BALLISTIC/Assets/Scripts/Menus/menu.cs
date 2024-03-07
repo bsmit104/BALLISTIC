@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class menu : MonoBehaviour
+public class Menu : MonoBehaviour
 {
+    [SerializeField] private GameObject hostJoinCanvas;
+    [SerializeField] private GameObject lobbyCodeCanvas;
+
     public void Play() {
         SceneManager.LoadScene("PlayMenu");
     }
@@ -16,5 +19,17 @@ public class menu : MonoBehaviour
     }
     public void Back() {
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void EnterLobbyCode() 
+    {
+        hostJoinCanvas.SetActive(false);
+        lobbyCodeCanvas.SetActive(true);
+    }
+
+    public void ExitLobbyCode() 
+    {
+        hostJoinCanvas.SetActive(true);
+        lobbyCodeCanvas.SetActive(false);
     }
 }
