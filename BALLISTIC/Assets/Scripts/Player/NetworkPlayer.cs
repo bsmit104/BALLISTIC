@@ -252,12 +252,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         animator.SetBool("isIdle", isIdle);
         if (!isIdle)
         {
-            AudioManager.Instance.PlaySound("Footsteps", gameObject);
+            AudioManager.Instance?.PlaySound("Footsteps", gameObject);
             Debug.Log("footsteps active");
         }
         else
         {
-            AudioManager.Instance.StopSound("Footsteps", gameObject);
+            AudioManager.Instance?.StopSound("Footsteps", gameObject);
             Debug.Log("footsteps inactive");
         }
             
@@ -599,7 +599,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                 SetBallMaterial(ball);
                 if (ball != null)
                 {
-                    AudioManager.Instance.PlaySound("BallPickup", gameObject);
+                    AudioManager.Instance?.PlaySound("BallPickup", gameObject);
                     SetBallMaterial(null);
                     PickupBall(ball);
                 }
