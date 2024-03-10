@@ -888,7 +888,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void Update()
     {
-        SetMarkers();
+        if (this == Local)
+        {
+            SetMarkers();
+        }
     }
 
     private void SetMarkers()
