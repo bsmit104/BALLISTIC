@@ -344,10 +344,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // Set pickup collider
             pickupCollider.gameObject.SetActive(true);
             pickupCollider.player = this;
+
+            StartCoroutine(PickupTweenCheck());
         }
 
         StartCoroutine(SetPlayerRef());
-        StartCoroutine(PickupTweenCheck());
     }
 
     IEnumerator SetPlayerRef()
@@ -708,6 +709,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ApplyDropBall();
         ragdollActivator.ActivateRagdoll();
         if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
+        SetBallMaterial(null);
     }
 
     // enforce ragdoll activation from host to clients
@@ -906,7 +908,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         while (true)
         {
-            if (!IsHoldingBall)
+            if (_isAlive && !IsHoldingBall)
             {
                 pickupCollider.GetAllDodgeballs(ref nearbyDodgeballs);
                 NetworkDodgeball ball = FindClosestDodgeball();
