@@ -160,6 +160,11 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
             lobbyCodeText.text = runner.SessionInfo.Name;
         }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            NetworkPlayer.Local.SetHUDActive(!NetworkPlayer.Local.IsHUDActive);
+        }
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
