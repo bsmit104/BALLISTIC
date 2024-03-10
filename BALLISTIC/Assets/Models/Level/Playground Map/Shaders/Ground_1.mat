@@ -131,7 +131,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Ramp: 0.56
-    - _Ramp_Select: 0.56
+    - _Ramp_Select: 0.558
     - _ReceiveShadows: 1
     - _SPECULAR: 0
     - _Smoothness: 0.32
