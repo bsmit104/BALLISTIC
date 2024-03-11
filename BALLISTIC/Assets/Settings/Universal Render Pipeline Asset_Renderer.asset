@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: Fullscreen Outline
   m_EditorClassIdentifier: 
   m_Active: 1
-  passMaterial: {fileID: -876546973899608171, guid: 5860e04c00dd9f745aff2312e2d96792, type: 3}
   injectionPoint: 450
-  requirements: -9
+  fetchColorBuffer: 1
+  requirements: -13
+  passMaterial: {fileID: -876546973899608171, guid: 5860e04c00dd9f745aff2312e2d96792, type: 3}
   passIndex: 0
+  bindDepthStencilAttachment: 0
+  m_Version: 1
 --- !u!114 &-6334011900039965328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,10 +117,13 @@ MonoBehaviour:
   m_Name: Grayscale High Contrast
   m_EditorClassIdentifier: 
   m_Active: 0
-  passMaterial: {fileID: -876546973899608171, guid: af38ec0b89e428f44a6d6247fa6adc78, type: 3}
   injectionPoint: 600
-  requirements: 4
+  fetchColorBuffer: 1
+  requirements: 0
+  passMaterial: {fileID: -876546973899608171, guid: af38ec0b89e428f44a6d6247fa6adc78, type: 3}
   passIndex: 0
+  bindDepthStencilAttachment: 0
+  m_Version: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
