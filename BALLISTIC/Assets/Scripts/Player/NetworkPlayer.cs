@@ -114,6 +114,13 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private Transform cmraParent;
     private Transform cmraReferencePos;
 
+    public bool IsHUDActive { get { return cmra?.transform.GetChild(0).gameObject.activeInHierarchy ?? false; } }
+
+    public void SetHUDActive(bool state)
+    {
+        cmra?.transform.GetChild(0).gameObject.SetActive(state);
+    }
+
     [Header("Movement Settings")]
     public float walkSpeed = 2f;
     public float sprintSpeed = 5f;
@@ -678,6 +685,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ApplyDropBall();
         ragdollActivator.DeactivateRagdoll();
         grounded.Reset();
+        SetHUDActive(true);
     }
 
     // =======================================
@@ -722,6 +730,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         else
         {
             netPos.enabled = false;
+            SetHUDActive(false);
         }
         ApplyDropBall();
         ragdollActivator.ActivateRagdoll();
@@ -902,6 +911,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     }
 
     // ======================================
+
+    // * ==================================================
+
+    // * VFX ==============================================
 
     // Markers ==============================
 
