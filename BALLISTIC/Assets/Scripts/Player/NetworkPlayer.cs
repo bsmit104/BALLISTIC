@@ -80,6 +80,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     }
 
+    public void SetLayer(string Layer)
+    {
+        SetLayerRecursive(transform, LayerMask.NameToLayer(Layer));
+    }
+
+    private void SetLayerRecursive(Transform root, int Layer)
+    {
+        gameObject.layer = Layer;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Debug.Log(Layer);
+            Debug.Log(root);
+            SetLayerRecursive(root.GetChild(i), Layer);
+        }
+    }
+
 
     // * Client-Sided Attributes ================================
 
@@ -328,7 +345,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (Object.HasInputAuthority)
         {
             _local = this;
-            gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
+            SetLayer("LocalPlayer");
 
             cmra.SetActive(true);
             cmraParent = cmra.transform.parent;
