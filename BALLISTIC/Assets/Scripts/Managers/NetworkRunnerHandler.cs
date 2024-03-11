@@ -56,11 +56,11 @@ public class NetworkRunnerHandler : MonoBehaviour
     /// </summary>
     public void OnClient()
     {
-        if (FindFirstObjectByType<NetworkRunner>() != null)
+        string lobbyName = lobbyNameInputField.text;
+        if (lobbyName.Length != lobbyCodeDigits || FindFirstObjectByType<NetworkRunner>() != null)
         {
             return;
         }
-        string lobbyName = lobbyNameInputField.text;
         // string lobbyName = "Test";
         StartGame(GameMode.Client, lobbyName);
     }
