@@ -87,7 +87,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     private void SetLayerRecursive(Transform root, int Layer)
     {
-        gameObject.layer = Layer;
+        root.gameObject.layer = Layer;
 
         for (int i = 0; i < root.childCount; i++)
         {
