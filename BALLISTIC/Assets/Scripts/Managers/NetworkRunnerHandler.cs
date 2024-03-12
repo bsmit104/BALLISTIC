@@ -18,6 +18,9 @@ public class NetworkRunnerHandler : MonoBehaviour
     [Tooltip("Empty game object with the NetworkRunner and NetworkPlayerManager scripts attached.")]
     [SerializeField] private NetworkRunner networkRunnerPrefab;
 
+    [Tooltip("Loading popup prefab spawned when loading into a game.")]
+    [SerializeField] private GameObject loadingPopupPrefab;
+
     [Tooltip("The number of digits that a lobby name will have")]
     [SerializeField] private int lobbyCodeDigits;
 
@@ -47,7 +50,7 @@ public class NetworkRunnerHandler : MonoBehaviour
         }
         string lobbyName = UnityEngine.Random.Range((int)Mathf.Pow(10, (lobbyCodeDigits - 1)), (int)Mathf.Pow(10, lobbyCodeDigits)).ToString();
         Debug.Log("OnHost Clicked, creating lobby: " + lobbyName);
-        // string lobbyName = "Test20";
+        Instantiate(loadingPopupPrefab);
         StartGame(GameMode.Host, lobbyName);
     }
 
@@ -61,7 +64,7 @@ public class NetworkRunnerHandler : MonoBehaviour
         {
             return;
         }
-        // string lobbyName = "Test";
+        Instantiate(loadingPopupPrefab);
         StartGame(GameMode.Client, lobbyName);
     }
 
