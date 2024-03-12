@@ -147,9 +147,19 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public bool IsPaused { get { return PauseCanvas.activeInHierarchy; } }
 
+    public void Unpause()
+    {
+        // toggle cursor visibility and lock state
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
+        // enable pause menu canvas
+        PauseCanvas.SetActive(false);
+    }
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.U))
         {
             // toggle cursor visibility and lock state
             Cursor.visible = !Cursor.visible;
@@ -158,7 +168,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             // enable pause menu canvas
             PauseCanvas.SetActive(Cursor.visible);
 
-            lobbyCodeText.text = runner.SessionInfo.Name;
+            lobbyCodeText.text = "Lobby Code: " + runner.SessionInfo.Name;
         }
 
         if (Input.GetKeyDown(KeyCode.O))
@@ -171,7 +181,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
         var data = new NetworkInputData();
 
-        if (!PauseCanvas.activeInHierarchy)
+        if (!IsPaused)
         {
             data.horizontal = Input.GetAxis("Horizontal");
             data.vertical = Input.GetAxis("Vertical");
