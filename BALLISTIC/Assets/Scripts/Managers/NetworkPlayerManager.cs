@@ -205,6 +205,10 @@ public class NetworkPlayerManager : MonoBehaviour
             alivePlayers.Clear();
             foreach (var pair in spawnedPlayers)
             {
+                pair.Value.DropBall();
+            }
+            foreach (var pair in spawnedPlayers)
+            {
                 pair.Value.Reset();
                 alivePlayers.Add(pair.Value.GetRef);
             }
