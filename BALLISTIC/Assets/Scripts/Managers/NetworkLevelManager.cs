@@ -20,6 +20,9 @@ public class NetworkLevelManager : MonoBehaviour
 
     // * Managers and Init ================================
 
+    /// <summary>
+    /// The local network runner.
+    /// </summary>
     public static NetworkRunner Runner { get { return _runner; } }
     private static NetworkRunner _runner = null;
 
@@ -43,9 +46,11 @@ public class NetworkLevelManager : MonoBehaviour
         playerManager = players;
         ballManager = balls;
 
+        // Init level picking values
         numLevels = lastLevelIndex - firstLevelIndex + 1;
         remainingLevels = new List<int>(numLevels);
         
+        // Display the lobby code while waiting for the game to start
         if (Runner.IsServer)
         {
             waitForGameStart = StartCoroutine(WaitForGameStart());
@@ -53,12 +58,13 @@ public class NetworkLevelManager : MonoBehaviour
     }
 
     [Header("Lobby Code")]
+    [Tooltip("The canvas which will display the lobby code at the start of the game.")]
     [SerializeField] private GameObject lobbyCanvas;
+    [Tooltip("The text attached to the lobbyCanvas used to display the lobby code.")]
     [SerializeField] private TextMeshProUGUI lobbyCodeText;
 
     IEnumerator WaitForGameStart()
     {
-        Debug.Log("Press P To Start Game");
         lobbyCodeText.text = "Lobby Code: " + Runner.SessionInfo.Name + "\nPress P To Start";
         lobbyCanvas.SetActive(true);
         while (true)
@@ -122,11 +128,13 @@ public class NetworkLevelManager : MonoBehaviour
     /// <returns>A scene build index.</returns>
     public int GetRandomLevel()
     {
+        // Refresh the level queue if it's empty, or by random chance
         if (remainingLevels.Count == 0 || Random.Range(0f, 1f) < refreshChance)
         {
             Refresh();
         }
 
+        // Pick a random level
         int index = Random.Range(0, remainingLevels.Count);
         int selection = remainingLevels[index];
         remainingLevels.RemoveAt(index);
@@ -173,8 +181,12 @@ public class NetworkLevelManager : MonoBehaviour
     // exit transition ============
 
     private Coroutine exitTransition;
-    private bool exitRunning = false;
+
+    /// <summary>
+    /// Returns true if the exit transition is playing.
+    /// </summary>
     public bool ExitRunning { get { return exitRunning; } }
+    private bool exitRunning = false;
 
     public void StartExitTransition()
     {
@@ -206,6 +218,8 @@ public class NetworkLevelManager : MonoBehaviour
             yield return null;
         }
         transitionElement.anchoredPosition = Vector2.zero;
+
+        // Hold on black for a bit
         timer = waitBetweenTransitions;
         while (timer > 0)
         {
@@ -213,6 +227,7 @@ public class NetworkLevelManager : MonoBehaviour
             yield return null;
         }
 
+        // Only deactivate the canvas if this transition isn't being played as part of a larger transition
         if (!LevelChangeRunning && !WinSequenceRunning) SetTransitionCanvasActive(false);
         exitRunning = false;
     }
@@ -222,8 +237,12 @@ public class NetworkLevelManager : MonoBehaviour
     // enter transition ===========
 
     private Coroutine enterTransition;
-    private bool enterRunning = false;
+
+    /// <summary>
+    /// Returns true if the enter transition is playing.
+    /// </summary>
     public bool EnterRunning { get { return enterRunning; } }
+    private bool enterRunning = false;
 
     public void StartEnterTransition()
     {
@@ -257,6 +276,7 @@ public class NetworkLevelManager : MonoBehaviour
         }
         transitionElement.anchoredPosition = enterTransitionEndPos;
 
+        // Only deactivate the canvas if this transition isn't being played as part of a larger transition
         if (!LevelChangeRunning && !WinSequenceRunning) SetTransitionCanvasActive(false);
         enterRunning = false;
     }
@@ -266,16 +286,25 @@ public class NetworkLevelManager : MonoBehaviour
     // full transition ============
 
     private Coroutine fullTransition;
-    private bool levelChangeRunning = false;
-    public bool LevelChangeRunning { get { return levelChangeRunning; } }
 
-    private int clientsLoaded = 0;
+    /// <summary>
+    /// Returns true if the level is currently being switched.
+    /// </summary>
+    public bool LevelChangeRunning { get { return levelChangeRunning; } }
+    private bool levelChangeRunning = false;
+
+    /// <summary>
+    /// Notify the level manager that a player has finished loading into the next level.
+    /// </summary>
     public void ClientLoaded()
     {
         clientsLoaded++;
     }
+    private int clientsLoaded = 0;
 
-    private bool _allClientsLoaded = false;
+    /// <summary>
+    /// Returns true if all players have fished loading into the next level.
+    /// </summary>
     public bool AllClientsLoaded 
     { 
         get 
@@ -295,8 +324,11 @@ public class NetworkLevelManager : MonoBehaviour
             if (!value) clientsLoaded = 0;
         }
     }
+    private bool _allClientsLoaded = false;
 
-    private bool _localLevelLoaded = false;
+    /// <summary>
+    /// Returns true if the local player has finished loading into the next level.
+    /// </summary>
     public bool LocalLevelLoaded
     {
         get { return _localLevelLoaded; }
@@ -306,6 +338,7 @@ public class NetworkLevelManager : MonoBehaviour
             LevelManagerMessages.RPC_ClientHasLoaded(Runner);
         }
     }
+    private bool _localLevelLoaded = false;
 
     private void StartLevelTransition(int buildIndex)
     {
@@ -315,6 +348,8 @@ public class NetworkLevelManager : MonoBehaviour
         }
         levelChangeRunning = true;
         fullTransition = StartCoroutine(LevelTransition(buildIndex));
+
+        // Host tells clients to start their own level transition tweens
         if (Runner.IsServer)
         {
             LevelManagerMessages.RPC_GoToLevel(Runner, buildIndex);
@@ -334,26 +369,40 @@ public class NetworkLevelManager : MonoBehaviour
 
         if (Runner.IsServer) 
         {
+            // Remove the previous levels spawner so that Spawner.Instance doesn't refer to it
             Spawner.Instance.Destroy();
+
+            // Load the next scene for all players
             Runner.LoadScene(SceneRef.FromIndex(buildIndex));
+
+            // Wait for the level to load locally
             while (!LocalLevelLoaded)
             {
                 yield return new WaitForSeconds(loadCompletionCheck);
             }
+
+            // Prep level for gameplay
             ResetLevel();
+
+            // Wait for all clients to finish loading and have the level ready for play
             while (!AllClientsLoaded || IsResetting)
             {
                 yield return new WaitForSeconds(loadCompletionCheck);
             }
+
+            // Tell all players to start their enter level transitions
             LevelManagerMessages.RPC_EnterLevel(Runner);
         }
         else
         {
+            // Wait for host to tell them they can enter the level
             while (!AllClientsLoaded)
             {
                 yield return new WaitForSeconds(loadCompletionCheck);
             }
         }
+
+        // Reset dirty bools for next level transition
         AllClientsLoaded = false;
         _localLevelLoaded = false;
 
@@ -392,8 +441,12 @@ public class NetworkLevelManager : MonoBehaviour
 
     // * Level Prep ==============================================
 
-    [SerializeField] int ballsPerLevel = 5; // TEMP: Hardcoded
+    [Tooltip("Fixed number of balls to spawn per level.")]
+    [SerializeField] private int ballsPerLevel; // TEMP: Hardcoded
 
+    /// <summary>
+    /// Returns true if the level is currently being reset/prepared for play.
+    /// </summary>
     public bool IsResetting { get { return isResetting; } }
     private bool isResetting = false;
 
@@ -409,20 +462,26 @@ public class NetworkLevelManager : MonoBehaviour
 
     IEnumerator WaitForSpawner()
     {
+        // Wait for spawner to load
         while (Spawner.Instance == null)
         {
             yield return null;
         }
-        NetworkBallManager.Instance.ReleaseAllBalls();
+
+
         // Reset all balls in pool
+        ballManager.ReleaseAllBalls();
         for (int i = 0; i < ballsPerLevel; i++)
         {
-            var ball = NetworkBallManager.Instance.GetBall();
+            var ball = ballManager.GetBall();
             ball.transform.position = Spawner.GetSpawnPoint(ball.Col.bounds);
         }
+
         // Reset all players
-        NetworkPlayerManager.Instance.ResetPlayers();
-        foreach (var player in NetworkPlayerManager.Instance.Players)
+        playerManager.ResetPlayers();
+
+        // Give players random spawn points
+        foreach (var player in playerManager.Players)
         {
             player.Value.transform.position = Spawner.GetSpawnPoint();
         }
@@ -442,15 +501,23 @@ public class NetworkLevelManager : MonoBehaviour
     [SerializeField] float winScreenDuration;
     [Tooltip("What screen is displayed when the round is over.")]
     [SerializeField] private GameObject winScreen;
+    [Tooltip("Displays the name of the winner.")]
     [SerializeField] private TextMeshProUGUI winText;
-    [SerializeField] private GameObject localWinText;
+    [Tooltip("Displays the remote player's name that won.")]
     [SerializeField] private GameObject remoteWinText;
+    [Tooltip("Displays 'YOURE THE #1 BALLER'")]
+    [SerializeField] private GameObject localWinText;
 
+    // The winner of that round
     private PlayerRef winner;
 
     private Coroutine winnerSequence;
-    private bool winSequenceRunning = false;
+
+    /// <summary>
+    /// Returns true if the winner is currently being displayed.
+    /// </summary>
     public bool WinSequenceRunning { get { return winSequenceRunning; } }
+    private bool winSequenceRunning = false;
 
     /// <summary>
     /// Set a winner player, and transition to the winning screen.
@@ -470,6 +537,7 @@ public class NetworkLevelManager : MonoBehaviour
         winSequenceRunning = true;
         StartCoroutine(WinnerSequence());
 
+        // Host tells other clients who the winner is
         if (Runner.IsServer)
         {
             LevelManagerMessages.RPC_DeclareWinner(Runner, player);
@@ -478,6 +546,7 @@ public class NetworkLevelManager : MonoBehaviour
 
     private IEnumerator WinnerSequence()
     {
+        // Wait before exiting to win screen so winner can run around
         float timer = waitBeforeWinScreen;
         while (timer > 0)
         {
@@ -524,6 +593,7 @@ public class NetworkLevelManager : MonoBehaviour
 
     IEnumerator AnimateWinScreen()
     {
+        // Display "YOU'RE THE #1 BALLER" if the local player won
         if (NetworkPlayer.Local?.GetRef == winner)
         {
             localWinText.SetActive(true);
@@ -531,6 +601,7 @@ public class NetworkLevelManager : MonoBehaviour
         }
         else
         {
+            // Otherwise display the winner's name
             localWinText.SetActive(false);
             remoteWinText.SetActive(true);
             winText.text = playerManager.GetColor(winner).colorName + " IS THE";
@@ -616,8 +687,14 @@ public class NetworkLevelManager : MonoBehaviour
     }
 }
 
+/// <summary>
+/// Message broker for NetworkLevelManager.
+/// </summary>
 public class LevelManagerMessages : SimulationBehaviour
 {
+    /// <summary>
+    /// Called by the host to notify clients who the winner is, and trigger their winner sequence.
+    /// </summary>
     [Rpc]
     public static void RPC_DeclareWinner(NetworkRunner runner, PlayerRef player)
     {
@@ -625,6 +702,9 @@ public class LevelManagerMessages : SimulationBehaviour
         NetworkLevelManager.Instance.DeclareWinner(player);
     }
 
+    /// <summary>
+    /// Called by host to tell clients to transition to the next level.
+    /// </summary>
     [Rpc]
     public static void RPC_GoToLevel(NetworkRunner runner, int buildIndex)
     {
@@ -633,6 +713,9 @@ public class LevelManagerMessages : SimulationBehaviour
         NetworkLevelManager.Instance.GoToLevel(buildIndex);
     }
 
+    /// <summary>
+    /// Called by clients to tell the host that they've finished loading into the next level.
+    /// </summary>
     [Rpc]
     public static void RPC_ClientHasLoaded(NetworkRunner runner)
     {
@@ -640,6 +723,9 @@ public class LevelManagerMessages : SimulationBehaviour
         NetworkLevelManager.Instance.ClientLoaded();
     }
 
+    /// <summary>
+    /// Called by the host to tell clients to enter into the next level to resume play.
+    /// </summary>
     [Rpc]
     public static void RPC_EnterLevel(NetworkRunner runner)
     {
