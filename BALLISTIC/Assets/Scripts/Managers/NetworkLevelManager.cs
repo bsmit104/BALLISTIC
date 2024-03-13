@@ -6,6 +6,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// ! ANY SERIALIZED FIELDS NEED TO BE ADDED TO THE EDITOR SCRIPT
+
 /// <summary>
 /// Manages scene transitions between levels.
 /// Tracks how many players are alive to know when to end the game, and then move on to the next level.

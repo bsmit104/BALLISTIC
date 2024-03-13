@@ -70,7 +70,35 @@ public abstract class BallBuff : MonoBehaviour
     /// </summary>
     public bool IsDeadly { get { return Ball.IsDeadly; } }
 
+    // Cache materials after finding them
     private static Dictionary<Type, Material> pickupMats;
+
+    /// <summary>
+    /// Returns the pickup material for this specific ball buff.
+    /// Assign to the ball with Ball.SetPickupMaterial().
+    /// </summary>
+    public Material PickupMat
+    {
+        get
+        {
+            // init pickup materials
+            if (pickupMats == null)
+            {
+                pickupMats = new Dictionary<Type, Material>();
+            }
+
+            var buff = GetType();
+
+            // If material is not cached, find it and cache it
+            if (!pickupMats.ContainsKey(buff))
+            {
+                var pickupMat = new Material(material);
+                pickupMat.shader = Shader.Find("Shader Graphs/BallTween");
+                pickupMats[buff] = pickupMat;
+            }
+            return pickupMats[buff];
+        }
+    }
 
     // * ========================================
 
@@ -82,23 +110,16 @@ public abstract class BallBuff : MonoBehaviour
     /// <param name="ball">The ball this buff is attached to.</param>
     public void OnSpawn(NetworkDodgeball ball)
     {
-        if (pickupMats == null)
-        {
-            pickupMats = new Dictionary<Type, Material>();
-        }
         _ball = ball;
+
+        // Set materials
         if (material)
         {
-            var buff = GetType();
             ball.SetMaterial(material);
-            if (!pickupMats.ContainsKey(buff))
-            {
-                var pickupMat = new Material(material);
-                pickupMat.shader = Shader.Find("Shader Graphs/BallTween");
-                pickupMats[buff] = pickupMat;
-            }
-            ball.SetPickupMaterial(pickupMats[buff]);
+            ball.SetPickupMaterial(PickupMat);
         }
+        
+        // specific ball buff spawn logic
         OnSpawnBuff(ball);
     }
 

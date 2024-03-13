@@ -18,6 +18,9 @@ public class NetworkDodgeball : NetworkBehaviour
     private int layerMarkerVisible;
     private int layerMarkerHidden;
 
+    /// <summary>
+    /// The client-sided script responsible for detecting collisions.
+    /// </summary>
     public DodgeballCollider BallCol { get { return ballCol; } }
     private DodgeballCollider ballCol;
 
@@ -39,6 +42,9 @@ public class NetworkDodgeball : NetworkBehaviour
     public TrailRenderer Trail { get { return trail; } }
     private TrailRenderer trail;
 
+    /// <summary>
+    /// The ball's mesh renderer.
+    /// </summary>
     public MeshRenderer Rend { get { return rend; } }
     private MeshRenderer rend;
 
@@ -51,27 +57,30 @@ public class NetworkDodgeball : NetworkBehaviour
     public NetworkId NetworkID 
     {
         get {
-            if (!_id.IsValid)
+            if (!netId.IsValid)
             {
-                _id = GetComponent<NetworkObject>().Id;
+                netId = GetComponent<NetworkObject>().Id;
             }
-            return _id;
+            return netId;
         }
     }
-    private NetworkId _id;
+    private NetworkId netId;
 
+    /// <summary>
+    /// The network position component responsible for synchronizing this ball's transform state.
+    /// </summary>
     public NetworkPosition NetPos
     {
         get
         {
-            if (_netPos == null)
+            if (netPos == null)
             {
-                _netPos = GetComponent<NetworkPosition>();
+                netPos = GetComponent<NetworkPosition>();
             }
-            return _netPos;
+            return netPos;
         }
     }
-    private NetworkPosition _netPos;
+    private NetworkPosition netPos;
 
     /// <summary>
     /// Returns true if the ball kill a player on collision.
@@ -96,10 +105,10 @@ public class NetworkDodgeball : NetworkBehaviour
     /// </summary>
     public bool IsHeld 
     { 
-        get { return _isHeld; } 
+        get { return isHeld; } 
         set {
-            _isHeld = value;
-            if (_isHeld)
+            isHeld = value;
+            if (isHeld)
             {
                 Rig.isKinematic = true;
                 Rig.detectCollisions = false;
@@ -111,7 +120,10 @@ public class NetworkDodgeball : NetworkBehaviour
             }
         }
     }
-    [Networked, HideInInspector] public bool _isHeld { get; set; }
+    /// <summary>
+    /// DO NOT USE. Use IsHeld getter & setter instead.
+    /// </summary>
+    [Networked, HideInInspector] public bool isHeld { get; set; }
 
     // * ===============================================================
 
@@ -119,16 +131,27 @@ public class NetworkDodgeball : NetworkBehaviour
 
     public override void Spawned()
     {
+        // Dodgeballs will be recycled between levels
         DontDestroyOnLoad(gameObject);
+
+        // Cache marker collision layers for displaying them through walls
         layerMarkerVisible = LayerMask.NameToLayer("BallMarkerVisible");
         layerMarkerHidden = LayerMask.NameToLayer("BallMarkerHidden");
+
+        // Cache collider script
         ballCol = GetComponent<DodgeballCollider>();
         ballCol.networkBall = this;
+
+        // Cache components
         rig = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         trail = GetComponent<TrailRenderer>();
         rend = GetComponent<MeshRenderer>();
+
+        // Default to inactive, wait for manager to activate it
         gameObject.SetActive(false);
+
+        // Cache initial values for resets
         originalSpeed = throwSpeed;
         originalDeadlyTime = deadlyTime;
         originalBounceLimit = bounceLimit;
@@ -155,7 +178,7 @@ public class NetworkDodgeball : NetworkBehaviour
 
     [Tooltip("The constant speed the ball will travel at will it is deadly.")]
     [SerializeField] private float throwSpeed;
-    private float originalSpeed;
+    private float originalSpeed; // caches the original speed for resets
 
     /// <summary>
     /// The speed the ball will travel at when thrown, must be greater than 0.
@@ -167,7 +190,7 @@ public class NetworkDodgeball : NetworkBehaviour
 
     [Tooltip("The duration the ball will be deadly for after being thrown.")]
     [SerializeField] private float deadlyTime;
-    private float originalDeadlyTime;
+    private float originalDeadlyTime; // caches the original deadly time for resets
 
     /// <summary>
     /// The max duration the ball will be deadly for after being thrown, must be greater than 0.
@@ -179,7 +202,7 @@ public class NetworkDodgeball : NetworkBehaviour
 
     [Tooltip("The ball will stop being deadly after bouncing this many times.")]
     [SerializeField] private int bounceLimit;
-    private int originalBounceLimit;
+    private int originalBounceLimit; // caches the original bounce limit for resets
 
     /// <summary>
     /// The max number of times the ball will bounce before becoming not deadly, 
@@ -190,26 +213,29 @@ public class NetworkDodgeball : NetworkBehaviour
         set { bounceLimit = Mathf.Max(1, value); }
     }
 
-    private float deadlyTimer;
-    private Vector3 travelDir;
-    private int bounceCount;
+    private float deadlyTimer; // Time left before ball becomes not deadly
+    private Vector3 travelDir; // Direction ball is traveling while deadly
+    private int bounceCount;   // Number of times the ball has bounced since being throw
 
     public override void FixedUpdateNetwork()
     {
         if (!gameObject.activeInHierarchy) return;
 
-        if (IsDeadly)
+        if (IsDeadly) // Apply on throw physics
         {
+            // Travel at a constant speed
             Rig.velocity = travelDir * throwSpeed;
 
+            // Look-ahead for bounce collisions
             Vector3 start = transform.position;
             Vector3 dir = Rig.velocity.normalized;
             float dist = Rig.velocity.magnitude * Runner.DeltaTime + Col.bounds.extents.x;
             if (Physics.Raycast(start, dir, out RaycastHit hit, dist, LayerMask.GetMask("Surfaces", "BallMarkerVisible", "BallMarkerHidden")))
             {
+                // Reflect ball off of surface if a bounce is detected
                 travelDir = Vector3.Reflect(travelDir, hit.normal);
                 bounceCount++;
-                OnBounce(hit.normal, travelDir, bounceCount, !hit.collider.gameObject.CompareTag("Dodgeball"));
+                NetworkOnBounce(hit.normal, travelDir, bounceCount, !hit.collider.gameObject.CompareTag("Dodgeball"));
             }
             buff?.WhileDeadly(travelDir);
         }
@@ -223,6 +249,10 @@ public class NetworkDodgeball : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Activates the ball's throw state.
+    /// </summary>
+    /// <param name="dir">The initial throw direction.</param>
     public void Throw(Vector3 dir)
     {
         Rig.velocity = dir * throwSpeed;
@@ -230,35 +260,46 @@ public class NetworkDodgeball : NetworkBehaviour
         isDeadly = true;
         deadlyTimer = deadlyTime;
         bounceCount = 0;
-        OnThrow(Owner, dir);
+        NetworkOnThrow(Owner, dir);
         SetTrailColor();
     }
 
     private void Update()
     {
         if (!gameObject.activeInHierarchy) return;
+
+        // Set VFX
         SetTrail();
         SetMarker();
+
+        // Count down deadly timer
         if (deadlyTimer > 0)
         {
             deadlyTimer -= Time.deltaTime;
             if (deadlyTimer <= 0 || bounceCount >= bounceLimit)
             {
+                // Become not deadly, only distributed by host
                 if (Runner.IsServer)
                 {
                     NetworkSetOwner(PlayerRef.None);
-                    OnNotDeadly();
+                    NetworkOnNotDeadly();
                 }
                 deadlyTimer = 0;
             }
         }
     }
 
+    /// <summary>
+    /// Activate or deactivate the ball's trail effect.
+    /// </summary>
     public void SetTrail()
     {
         if (trail) trail.emitting = IsDeadly;
     }
 
+    /// <summary>
+    /// Set the ball's trail color to match its owner.
+    /// </summary>
     public void SetTrailColor()
     {
         var g = new Gradient();
@@ -275,6 +316,10 @@ public class NetworkDodgeball : NetworkBehaviour
         trail.colorGradient = g;
     }
 
+    /// <summary>
+    /// Update whether the player should be able to see the ball through walls.
+    /// It should not be seen through walls if it is deadly, or held by a player.
+    /// </summary>
     public void SetMarker()
     {
         gameObject.layer = IsDeadly || IsHeld ? layerMarkerHidden : layerMarkerVisible;
@@ -292,65 +337,113 @@ public class NetworkDodgeball : NetworkBehaviour
 
     // * ===============================================================
 
+    // * Delegates =====================================================
+
+    public delegate void DodgeballEvent(NetworkDodgeball ball);
+
+    public delegate void ThrowEvent(NetworkPlayer player, Vector3 dir);
+
+    public delegate void BounceEvent(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface);
+
+    public delegate void PlayerEvent(NetworkPlayer player);
+
+    public delegate void Notify();
+
+    // * ===============================================================
+
     // * Ball-Buff Events ==============================================
 
     private BallBuff buff;
-    private int buffId;
-
-    public int BuffID { get { return buffId; } }
 
     /// <summary>
-    /// Returns a string containing the name, and description of the ball buff.
+    /// The index of this ball's buff in the NetworkBallManager.ballBuffs array.
+    /// Use with GetBuff(BuffIndex) to get a new instance of this ball buff.
     /// </summary>
-    public string BuffText { get {
-        return buff.Title + "\n" + buff.Description;
-    } }
+    public int BuffIndex { get { return buffIndex; } }
+    private int buffIndex;
 
-    public void NetworkSetBuff(int buffID)
+    // -----------------
+
+    /// <summary>
+    /// Invoked when the ball is activated in the level, and has been given a new ball buff.
+    /// </summary>
+    public event DodgeballEvent OnSpawned;
+
+    /// <summary>
+    /// Called by host to tell all clients to add the specified ball buff to this ball.
+    /// </summary>
+    /// <param name="buffInd">The ball buff's index in the NetworkBallManager.ballBuffs array.</param>
+    public void NetworkSetBuff(int buffInd)
     {
         if (Runner.IsServer)
         {
-            RPC_SetBuff(buffID);
+            RPC_SetBuff(buffInd);
         }
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
-    public void RPC_SetBuff(int buffID)
+    public void RPC_SetBuff(int buffInd)
     {
-        SetBuff(buffID);
+        SetBuff(buffInd);
     }
 
-    public void SetBuff(int buffID)
+    /// <summary>
+    /// Adds the given ball buff to this ball.
+    /// </summary>
+    /// <param name="buffInd">The ball buff's index in the NetworkBallManager.ballBuffs array.</param>
+    public void SetBuff(int buffInd)
     {
+        // Reset to default values
         throwSpeed = originalSpeed;
         deadlyTime = originalDeadlyTime;
         bounceLimit = originalBounceLimit;
+
+        // Remove the ball's old buff
         if (this.buff != null && this.buff.transform.parent == transform)
         {
             Destroy(this.buff.gameObject);
             this.buff = null;
         }
-        buffId = buffID;
-        BallBuff buff = NetworkBallManager.Instance.GetBuff(buffID);
+
+        // Add the new buff
+        buffIndex = buffInd;
+        BallBuff buff = NetworkBallManager.Instance.GetBuff(buffInd);
         this.buff = buff;
         buff.transform.SetParent(transform);
         buff.OnSpawn(this);
+
+        // Invoke spawn event
+        OnSpawned.Invoke(this);
     }
 
+    /// <summary>
+    /// Adds the given ball buff to this ball.
+    /// </summary>
+    /// <param name="buff">The ball buff instance to attach to this ball.</param>
     public void SetBuff(BallBuff buff)
     {
+        // Reset to default values
         throwSpeed = originalSpeed;
         deadlyTime = originalDeadlyTime;
         bounceLimit = originalBounceLimit;
+
+        // Remove the ball's old buff
         if (this.buff != null)
         {
             Destroy(this.buff.gameObject);
             this.buff = null;
         }
+
+        // Add the new buff
         this.buff = buff;
         buff.transform.SetParent(transform);
         buff.OnSpawn(this);
+
+        // Invoke spawn event
+        OnSpawned?.Invoke(this);
     }
+
+    // Materials set by ball buff
 
     public void SetMaterial(Material material)
     {
@@ -365,7 +458,12 @@ public class NetworkDodgeball : NetworkBehaviour
 
     // ------------
     
-    private void OnThrow(PlayerRef player, Vector3 throwDirection)
+    /// <summary>
+    /// Invoked when the ball is thrown.
+    /// </summary>
+    public event ThrowEvent OnThrow;
+
+    private void NetworkOnThrow(PlayerRef player, Vector3 throwDirection)
     {
         if (Runner.IsServer)
         {
@@ -376,12 +474,19 @@ public class NetworkDodgeball : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer)]
     public void RPC_OnThrow(PlayerRef player, Vector3 throwDirection)
     {
-        buff?.OnThrow(NetworkPlayerManager.Instance.GetPlayer(player), throwDirection);
+        var netPlayer = NetworkPlayerManager.Instance.GetPlayer(player);
+        buff?.OnThrow(netPlayer, throwDirection);
+        OnThrow?.Invoke(netPlayer, throwDirection);
     }
 
     // ------------
 
-    private void OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface)
+    /// <summary>
+    /// Invoked when the ball bounces on a surface, while it is deadly.
+    /// </summary>
+    public event BounceEvent OnBounce;
+
+    private void NetworkOnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface)
     {
         if (Runner.IsServer)
         {
@@ -393,11 +498,17 @@ public class NetworkDodgeball : NetworkBehaviour
     public void RPC_OnBounce(Vector3 normal, Vector3 newDirection, int bounceCount, bool hitSurface)
     {
         buff?.OnBounce(normal, newDirection, bounceCount, hitSurface);
+        OnBounce?.Invoke(normal, newDirection, bounceCount, hitSurface);
     }
 
     // ------------
 
-    public void OnPlayerHit(PlayerRef player)
+    /// <summary>
+    /// Invoked when the ball hits a player while it is deadly.
+    /// </summary>
+    public event PlayerEvent OnPlayerHit;
+
+    public void NetworkOnPlayerHit(PlayerRef player)
     {
         if (Runner.IsServer)
         {
@@ -409,11 +520,17 @@ public class NetworkDodgeball : NetworkBehaviour
     public void RPC_OnPlayerHit(PlayerRef player)
     {
         buff?.OnPlayerHit(NetworkPlayerManager.Instance.GetPlayer(player));
+        OnPlayerHit?.Invoke(NetworkPlayerManager.Instance.GetPlayer(player));
     }
 
     // ------------
 
-    public void OnPickup(PlayerRef player)
+    /// <summary>
+    /// Invoked when the ball is picked up by a player.
+    /// </summary>
+    public event PlayerEvent OnPickup;
+
+    public void NetworkOnPickup(PlayerRef player)
     {
         if (Owner == NetworkPlayer.Local.GetRef)
         {
@@ -429,11 +546,17 @@ public class NetworkDodgeball : NetworkBehaviour
     public void RPC_OnPickup(PlayerRef player)
     {
         buff?.OnPickup(NetworkPlayerManager.Instance.GetPlayer(player));
+        OnPickup?.Invoke(NetworkPlayerManager.Instance.GetPlayer(player));
     }
 
     // ------------
 
-    public void OnDropped(PlayerRef player)
+    /// <summary>
+    /// Invoked when a player drops the ball.
+    /// </summary>
+    public event PlayerEvent OnDropped;
+
+    public void NetworkOnDropped(PlayerRef player)
     {
         if (Runner.IsServer)
         {
@@ -445,11 +568,17 @@ public class NetworkDodgeball : NetworkBehaviour
     public void RPC_OnDropped(PlayerRef player)
     {
         buff?.OnDropped(NetworkPlayerManager.Instance.GetPlayer(player));
+        OnDropped?.Invoke(NetworkPlayerManager.Instance.GetPlayer(player));
     }
 
     // ------------
 
-    private void OnNotDeadly()
+    /// <summary>
+    /// Invoked when the ball becomes not deadly.
+    /// </summary>
+    public event Notify OnNotDeadly;
+
+    private void NetworkOnNotDeadly()
     {
         if (Runner.IsServer)
         {
@@ -461,6 +590,7 @@ public class NetworkDodgeball : NetworkBehaviour
     public void RPC_OnNotDeadly()
     {
         buff?.OnNotDeadly();
+        OnNotDeadly?.Invoke();
     }
 
     // ------------
@@ -508,6 +638,8 @@ public class NetworkDodgeball : NetworkBehaviour
     public void SetOwner(PlayerRef player)
     {
         owner = player;
+
+        // Set the ball's parent to null on drop
         if (player == PlayerRef.None)
         {
             transform.SetParent(null);
@@ -515,6 +647,7 @@ public class NetworkDodgeball : NetworkBehaviour
         }
         else
         {
+            // Set the ball's parent to the player's hand on pickup
             transform.SetParent(NetworkPlayerManager.Instance.GetPlayer(owner).throwPoint);
         }
     }

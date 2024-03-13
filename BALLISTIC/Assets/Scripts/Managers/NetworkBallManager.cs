@@ -244,7 +244,7 @@ public class NetworkBallManager : MonoBehaviour
         if (!Runner.IsServer) return;
         foreach (var ball in active)
         {
-            BallManagerMessages.RPC_SendBallState(Runner, receiver, ball.NetworkID, ball.gameObject.activeInHierarchy, ball.transform.position, ball.BuffID);
+            BallManagerMessages.RPC_SendBallState(Runner, receiver, ball.NetworkID, ball.gameObject.activeInHierarchy, ball.transform.position, ball.BuffIndex);
         }
     }
 
