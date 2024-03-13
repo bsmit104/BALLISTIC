@@ -274,7 +274,38 @@ public class NetworkLevelManager : MonoBehaviour
     {
         clientsLoaded++;
     }
-    public bool AllClientsLoaded { get { return clientsLoaded >= Runner.ActivePlayers.Count(); } }
+
+    private bool _allClientsLoaded = false;
+    public bool AllClientsLoaded 
+    { 
+        get 
+        { 
+            if (Runner.IsServer)
+            {
+                return clientsLoaded >= NetworkPlayerManager.Instance.PlayerCount; 
+            }
+            else
+            {
+                return _allClientsLoaded;
+            }
+        }
+        set
+        {
+            _allClientsLoaded = value;
+            if (!value) clientsLoaded = 0;
+        }
+    }
+
+    private bool _localLevelLoaded = false;
+    public bool LocalLevelLoaded
+    {
+        get { return _localLevelLoaded; }
+        set
+        {
+            _localLevelLoaded = value;
+            LevelManagerMessages.RPC_ClientHasLoaded(Runner);
+        }
+    }
 
     private void StartLevelTransition(int buildIndex)
     {
@@ -286,7 +317,7 @@ public class NetworkLevelManager : MonoBehaviour
         fullTransition = StartCoroutine(LevelTransition(buildIndex));
         if (Runner.IsServer)
         {
-            LevelManagerRPC.RPC_GoToLevel(Runner, buildIndex);
+            LevelManagerMessages.RPC_GoToLevel(Runner, buildIndex);
         }
     }
 
@@ -305,17 +336,26 @@ public class NetworkLevelManager : MonoBehaviour
         {
             Spawner.Instance.Destroy();
             Runner.LoadScene(SceneRef.FromIndex(buildIndex));
+            while (!LocalLevelLoaded)
+            {
+                yield return new WaitForSeconds(loadCompletionCheck);
+            }
+            ResetLevel();
+            while (!AllClientsLoaded || IsResetting)
+            {
+                yield return new WaitForSeconds(loadCompletionCheck);
+            }
+            LevelManagerMessages.RPC_EnterLevel(Runner);
         }
-        while (!LoadingDetector.IsLoaded)
+        else
         {
-            yield return new WaitForSeconds(loadCompletionCheck);
+            while (!AllClientsLoaded)
+            {
+                yield return new WaitForSeconds(loadCompletionCheck);
+            }
         }
-        if (Runner.IsServer) ResetLevel();
-        while (!AllClientsLoaded || IsResetting)
-        {
-            yield return new WaitForSeconds(loadCompletionCheck);
-        }
-        clientsLoaded = 0;
+        AllClientsLoaded = false;
+        _localLevelLoaded = false;
 
         StartEnterTransition();
         while (EnterRunning)
@@ -432,7 +472,7 @@ public class NetworkLevelManager : MonoBehaviour
 
         if (Runner.IsServer)
         {
-            LevelManagerRPC.RPC_DeclareWinner(Runner, player);
+            LevelManagerMessages.RPC_DeclareWinner(Runner, player);
         }
     }
 
@@ -576,18 +616,34 @@ public class NetworkLevelManager : MonoBehaviour
     }
 }
 
-public class LevelManagerRPC : SimulationBehaviour
+public class LevelManagerMessages : SimulationBehaviour
 {
     [Rpc]
     public static void RPC_DeclareWinner(NetworkRunner runner, PlayerRef player)
     {
+        if (runner.IsServer) return;
         NetworkLevelManager.Instance.DeclareWinner(player);
     }
 
     [Rpc]
     public static void RPC_GoToLevel(NetworkRunner runner, int buildIndex)
     {
+        if (runner.IsServer) return;
         if (NetworkLevelManager.Instance.LevelChangeRunning) return;
         NetworkLevelManager.Instance.GoToLevel(buildIndex);
+    }
+
+    [Rpc]
+    public static void RPC_ClientHasLoaded(NetworkRunner runner)
+    {
+        if (runner.IsClient) return;
+        NetworkLevelManager.Instance.ClientLoaded();
+    }
+
+    [Rpc]
+    public static void RPC_EnterLevel(NetworkRunner runner)
+    {
+        if (runner.IsServer) return;
+        NetworkLevelManager.Instance.AllClientsLoaded = true;
     }
 }

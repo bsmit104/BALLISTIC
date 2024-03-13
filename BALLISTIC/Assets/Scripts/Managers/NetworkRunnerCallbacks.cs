@@ -295,7 +295,10 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnSceneLoadDone(NetworkRunner runner)
     {
-
+        if (!NetworkLevelManager.Instance.IsAtLobby)
+        {
+            NetworkLevelManager.Instance.LocalLevelLoaded = true;
+        }
     }
     public void OnSceneLoadStart(NetworkRunner runner) { }
 
