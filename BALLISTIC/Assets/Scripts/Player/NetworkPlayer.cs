@@ -412,7 +412,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // Init player number specific stuff
         SetColor(Color.material);
         RagdollActivator.Init(this);
-        NetworkSetPosition(Spawner.GetSpawnPoint());
+        if (Object.HasInputAuthority)
+        {
+            NetworkSetPosition(Spawner.GetSpawnPoint());
+        }
 
         Debug.Log("Spawned " + GetRef.PlayerId + " player");
     }
