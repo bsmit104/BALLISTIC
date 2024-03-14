@@ -16,6 +16,9 @@ public class GroundedCollider : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Returns true if the player is grounded.
+    /// </summary>
     public bool IsGrounded 
     { 
         get { 
@@ -23,7 +26,8 @@ public class GroundedCollider : MonoBehaviour
         } 
     }
 
-    [SerializeField] private int inContactWith = 0;
+    // track ground colliders
+    private int inContactWith = 0;
     private List<Collider> cols = new List<Collider>();
 
     void OnTriggerEnter(Collider col)
@@ -44,6 +48,9 @@ public class GroundedCollider : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Reset the collision tracking to ensure counts stay consistent.
+    /// </summary>
     public void Reset()
     {
         for (int i = 0; i < cols.Count; i++) 
