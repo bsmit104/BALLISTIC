@@ -26,7 +26,7 @@ public class NetworkPosition : NetworkBehaviour
     private bool hasParent = false;
 
     // Override to force the client to follow the host's simulation
-    public bool ForceUpdate = false;
+    [HideInInspector] public bool ForceUpdate = false;
 
     private Rigidbody rig;
 

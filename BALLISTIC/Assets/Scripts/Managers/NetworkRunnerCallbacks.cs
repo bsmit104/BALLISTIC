@@ -330,7 +330,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
         // Notify the level manager that the next level has been loaded
         // Sends message to host
-        if (!NetworkLevelManager.Instance.IsAtLobby)
+        if (!NetworkLevelManager.Instance?.IsAtLobby ?? false)
         {
             NetworkLevelManager.Instance.LocalLevelLoaded = true;
         }

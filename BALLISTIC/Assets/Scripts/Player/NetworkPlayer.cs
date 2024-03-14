@@ -644,6 +644,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         {
             // Set the last throw time to the current time
             lastThrowTime = Time.time;
+            alreadyPressed = true;
 
             // If not already holding ball, pickup closest ball
             if (!IsHoldingBall)

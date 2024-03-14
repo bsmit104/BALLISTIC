@@ -66,7 +66,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23678cfb003f0934299a19abcb7bed87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inContactWith: 0
 --- !u!1 &2590589603176322512
 GameObject:
   m_ObjectHideFlags: 0
@@ -669,14 +668,12 @@ MonoBehaviour:
       m_LegacyVelocityFilterStrength: 0
   walkSpeed: 5
   sprintSpeed: 8
-  realSpeed: 0
-  rotationSpeed: 250
   jumpImpulse: 7
   grounded: {fileID: 8206915894160566038}
   ragdollActivator: {fileID: 8316736064853450462}
-  dir: {x: 0, y: 0, z: 0}
+  localLeniency: 0
   throwPoint: {fileID: 8874166371456309043}
-  throwCooldown: 0.3
+  actionCooldown: 0.3
   aimDist: 100
   pickupCollider: {fileID: 7337151837620291511}
   markerRender: {fileID: -4899786965520844064, guid: 5a4327471a58c2c4299b24b88681fa63, type: 2}
@@ -705,6 +702,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1654,6 +1652,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1696,6 +1695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1737,6 +1737,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1781,6 +1782,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1824,6 +1826,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1866,6 +1869,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1908,6 +1912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1949,6 +1954,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -1997,6 +2003,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2041,6 +2048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2082,6 +2090,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2124,6 +2133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2167,6 +2177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2215,6 +2226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2270,6 +2282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2342,6 +2355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
@@ -2393,6 +2407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leniency: 0
   _position: {x: 0, y: 0, z: 0}
   _rotation: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}

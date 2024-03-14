@@ -413,7 +413,7 @@ public class NetworkDodgeball : NetworkBehaviour
         buff.OnSpawn(this);
 
         // Invoke spawn event
-        OnSpawned.Invoke(this);
+        OnSpawned?.Invoke(this);
     }
 
     /// <summary>
