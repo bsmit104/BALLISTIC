@@ -102,7 +102,6 @@ public class NetworkPlayerManager : MonoBehaviour
     {
         // Create a unique position for the player
         Vector3 spawnPosition = Spawner.GetSpawnPoint();
-        if (runner == null) Debug.Log("wtf");
         NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
         NetworkPlayer netPlayer = networkPlayerObject.gameObject.GetComponent<NetworkPlayer>();
 

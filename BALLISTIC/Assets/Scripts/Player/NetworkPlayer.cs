@@ -269,7 +269,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // Position ======================================
 
-    [HideInInspector] public NetworkPosition netPos;
+    [HideInInspector] public PlayerPosition netPos;
 
     // ===============================================
 
@@ -366,7 +366,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         animator = GetComponentInChildren<Animator>();
 
         // get the networked position
-        netPos = GetComponentInChildren<NetworkPosition>();
+        netPos = GetComponentInChildren<PlayerPosition>();
 
         _isAlive = true;
 
@@ -375,6 +375,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         {
             _local = this;
             SetLayer("LocalPlayer");
+            netPos.HasAuthority = true;
 
             // Set up local camera
             cmra.SetActive(true);
@@ -411,6 +412,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // Init player number specific stuff
         SetColor(Color.material);
         RagdollActivator.Init(this);
+        NetworkSetPosition(Spawner.GetSpawnPoint());
 
         Debug.Log("Spawned " + GetRef.PlayerId + " player");
     }
@@ -649,6 +651,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // If not already holding ball, pickup closest ball
             if (!IsHoldingBall)
             {
+                Debug.Log("pickup0");
                 pickupCollider.GetAllDodgeballs(ref nearbyDodgeballs);
                 NetworkDodgeball ball = FindClosestDodgeball();
                 SetBallMaterial(ball);
@@ -801,7 +804,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
         cmraParent.localRotation = Quaternion.Euler(new Vector3(pitch, 0, 0));
         // Send y rotation to host so players can see them turning
-        RPC_UpdateLookDirection(yRot);
+        //RPC_UpdateLookDirection(yRot);
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
@@ -826,19 +829,23 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.transform.position = throwPoint.position;
         ball.transform.localPosition = Vector3.zero;
         ball.NetworkOnPickup(GetRef);
+        Debug.Log("pickup");
     }
 
     public void PickupBall(NetworkDodgeball ball)
     {
         // RPCs require network ID
         NetworkId networkID = ball.NetworkID;
+        Debug.Log("pickup1");
 
         if (Runner.IsServer)
         {
+            Debug.Log("pickup2");
             RPC_EnforcePickupBall(networkID);
         }
         else
         {
+            Debug.Log("pickup3");
             RPC_RequestPickupBall(networkID);
         }
     }
@@ -846,6 +853,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer, TickAligned = false)]
     public void RPC_EnforcePickupBall(NetworkId networkID)
     {
+        Debug.Log("pickup4");
         if (Runner.TryFindObject(networkID, out var obj))
         {
             ApplyPickupBall(obj.GetComponent<NetworkDodgeball>());
@@ -858,11 +866,13 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         // If host has already received a request to pick up the same ball, deny request
         if (Runner.TryFindObject(networkID, out var obj))
         {
-            if (!obj.GetComponent<NetworkDodgeball>()?.IsHeld ?? false)
+            if ((obj.GetComponent<NetworkDodgeball>()?.IsHeld) ?? false)
             {
+                Debug.Log("pickup-1");
                 return;
             }
         }
+        Debug.Log("pickup5");
         RPC_EnforcePickupBall(networkID);
     }
 
@@ -950,6 +960,35 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     }
 
     // ======================================
+
+    // Enforce Position =====================
+
+    public void NetworkSetPosition(Vector3 position)
+    {
+        if (netPos.HasAuthority)
+        {
+            RPC_EnforcePosition(position);
+        }
+        else
+        {
+            RPC_RequestPosition(position);
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_EnforcePosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_RequestPosition(Vector3 position)
+    {
+        if (netPos.HasAuthority)
+        {
+            RPC_EnforcePosition(position);
+        }
+    }
 
     // * ==================================================
 

@@ -483,7 +483,7 @@ public class NetworkLevelManager : MonoBehaviour
         // Give players random spawn points
         foreach (var player in playerManager.Players)
         {
-            player.Value.transform.position = Spawner.GetSpawnPoint();
+            player.Value.NetworkSetPosition(Spawner.GetSpawnPoint());
         }
 
         isResetting = false;
