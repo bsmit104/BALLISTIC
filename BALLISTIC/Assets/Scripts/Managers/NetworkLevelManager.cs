@@ -214,7 +214,6 @@ public class NetworkLevelManager : MonoBehaviour
         {
             timer -= Time.deltaTime;
 
-            // TODO: create exit transition animation
             transitionElement.anchoredPosition -= speed * Time.deltaTime * dir;
 
             yield return null;
@@ -271,7 +270,6 @@ public class NetworkLevelManager : MonoBehaviour
         {
             timer -= Time.deltaTime;
 
-            // TODO: create enter transition animation
             transitionElement.anchoredPosition += speed * Time.deltaTime * dir;
 
             yield return null;
