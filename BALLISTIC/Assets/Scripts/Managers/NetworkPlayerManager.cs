@@ -138,7 +138,7 @@ public class NetworkPlayerManager : MonoBehaviour
     public NetworkPlayer GetDummy()
     {
         var obj = runner.Spawn(playerPrefab, Vector3.zero);
-        obj.GetComponent<NetworkPlayer>().isDummy = true;
+        obj.GetComponent<NetworkPlayer>().IsDummy = true;
         return obj.GetComponent<NetworkPlayer>();
     }
 

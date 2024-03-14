@@ -32,6 +32,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         {
             if (_playerRef == PlayerRef.None)
             {
+                // Search for a player ref that's mapped to this
                 foreach (var playerRef in Runner.ActivePlayers)
                 {
                     if (Runner.TryGetPlayerObject(playerRef, out NetworkObject obj))
@@ -48,8 +49,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     }
     private PlayerRef _playerRef = PlayerRef.None;
 
-    private bool _isAlive = true;
+    /// <summary>
+    /// Returns true if the player is currently alive.
+    /// </summary>
     public bool IsAlive { get { return _isAlive; } }
+    private bool _isAlive = true;
 
     /// <summary>
     /// Returns the color assigned to this player.
@@ -109,26 +113,37 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [SerializeField] private float minCmraDist;
     [Tooltip("How far the camera will sit off of the surface it is colliding with.")]
     [SerializeField] private float cmraWallOffset;
+    [Tooltip("How far the camera will swing out from the player as the camera is drawn in.")]
     [SerializeField] private float cmraShoulderOffset;
-    public Cinemachine.AxisState xAxis, yAxis;
-    private Transform cmraParent;
-    private Transform cmraReferencePos;
+    [SerializeField] private Cinemachine.AxisState xAxis, yAxis;
 
+    private Transform cmraParent; // parent transform for the camera
+    private Transform cmraReferencePos; // where the ideal position for the camera is, used as a reference
+
+    /// <summary>
+    /// Returns true if the player's HUD is currently visible.
+    /// </summary>
     public bool IsHUDActive { get { return cmra?.transform.GetChild(0).gameObject.activeInHierarchy ?? false; } }
 
+    /// <summary>
+    /// Activate or deactivate the player's HUD.
+    /// </summary>
     public void SetHUDActive(bool state)
     {
         cmra?.transform.GetChild(0).gameObject.SetActive(state);
     }
 
     [Header("Movement Settings")]
-    public float walkSpeed = 2f;
-    public float sprintSpeed = 5f;
-    public float realSpeed = 0f;
-    public float rotationSpeed = 10f;
-    public float jumpImpulse;
-    public GroundedCollider grounded;
-    public RagdollActivator ragdollActivator;
+    [Tooltip("The speed the player will walk at.")]
+    [SerializeField] private float walkSpeed;
+    [Tooltip("The speed the player will run at.")]
+    [SerializeField] private float sprintSpeed;
+    private float realSpeed = 0f;
+
+    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float jumpImpulse;
+    [SerializeField] private GroundedCollider grounded;
+    [SerializeField] private RagdollActivator ragdollActivator;
 
     [HideInInspector] public Vector3 dir;
     float horizontal;
@@ -171,21 +186,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // List of dodgeballs near player in "pickup" range
     private List<NetworkDodgeball> nearbyDodgeballs;
 
-    public bool NearbyBallsContains(NetworkDodgeball ball)
-    {
-        return nearbyDodgeballs?.Contains(ball) ?? false;
-    }
-
-    public void AddNearbyBall(NetworkDodgeball ball)
-    {
-        nearbyDodgeballs?.Add(ball);
-    }
-
-    public void RemoveNearbyBall(NetworkDodgeball ball)
-    {
-        nearbyDodgeballs?.Remove(ball);
-    }
-
     // ========================================
 
     private NetworkDodgeball prevClosestBall;
@@ -197,7 +197,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private Animator animator;
 
     private bool _isDummy = false;
-    public bool isDummy
+    public bool IsDummy
     {
         get { return _isDummy; }
         set
