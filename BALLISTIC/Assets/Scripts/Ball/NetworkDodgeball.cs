@@ -129,6 +129,8 @@ public class NetworkDodgeball : NetworkBehaviour
 
     // * Spawning and Despawning =======================================
 
+    private Vector3 originalScale;
+
     public override void Spawned()
     {
         // Dodgeballs will be recycled between levels
@@ -156,6 +158,7 @@ public class NetworkDodgeball : NetworkBehaviour
         originalDeadlyTime = deadlyTime;
         originalBounceLimit = bounceLimit;
         normalMat = rend.material;
+        originalScale = transform.localScale;
     }
 
     /// <summary>
@@ -166,6 +169,7 @@ public class NetworkDodgeball : NetworkBehaviour
     {
         NetworkSetOwner(PlayerRef.None);
         transform.position = Vector3.zero;
+        transform.localScale = originalScale;
         rig.velocity = Vector3.zero;
         rig.angularVelocity = Vector3.zero;
         NetworkSetBuff(newBuff);

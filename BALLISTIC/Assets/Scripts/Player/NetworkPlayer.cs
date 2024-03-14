@@ -651,7 +651,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // If not already holding ball, pickup closest ball
             if (!IsHoldingBall)
             {
-                Debug.Log("pickup0");
                 pickupCollider.GetAllDodgeballs(ref nearbyDodgeballs);
                 NetworkDodgeball ball = FindClosestDodgeball();
                 SetBallMaterial(ball);
@@ -829,23 +828,19 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         ball.transform.position = throwPoint.position;
         ball.transform.localPosition = Vector3.zero;
         ball.NetworkOnPickup(GetRef);
-        Debug.Log("pickup");
     }
 
     public void PickupBall(NetworkDodgeball ball)
     {
         // RPCs require network ID
         NetworkId networkID = ball.NetworkID;
-        Debug.Log("pickup1");
 
         if (Runner.IsServer)
         {
-            Debug.Log("pickup2");
             RPC_EnforcePickupBall(networkID);
         }
         else
         {
-            Debug.Log("pickup3");
             RPC_RequestPickupBall(networkID);
         }
     }
@@ -853,7 +848,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Rpc(RpcSources.StateAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsServer, TickAligned = false)]
     public void RPC_EnforcePickupBall(NetworkId networkID)
     {
-        Debug.Log("pickup4");
         if (Runner.TryFindObject(networkID, out var obj))
         {
             ApplyPickupBall(obj.GetComponent<NetworkDodgeball>());
@@ -868,11 +862,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         {
             if ((obj.GetComponent<NetworkDodgeball>()?.IsHeld) ?? false)
             {
-                Debug.Log("pickup-1");
                 return;
             }
         }
-        Debug.Log("pickup5");
         RPC_EnforcePickupBall(networkID);
     }
 
