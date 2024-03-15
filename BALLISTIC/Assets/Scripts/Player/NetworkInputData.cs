@@ -10,7 +10,6 @@ using UnityEngine;
 /// </summary>
 public struct NetworkInputData : INetworkInput
 {
-    // TODO: fill with needed data for input transport
     public float horizontal;
     public float vertical;
     public bool sprintButtonPressed;

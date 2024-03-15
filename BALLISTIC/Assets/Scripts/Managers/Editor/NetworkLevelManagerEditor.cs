@@ -34,6 +34,7 @@ public class NetworkLevelManagerEditor : Editor
         TUTORIAL:
             Open the prefab and press Play to use the test transition buttons.");
 
+        // Enter transition
         EditorGUILayout.PropertyField(serializedObject.FindProperty("enterTransitionDuration"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("enterTransitionEndPos"));
         if (GUILayout.Button("Test Enter Transition") && !manager.EnterRunning)
@@ -41,6 +42,7 @@ public class NetworkLevelManagerEditor : Editor
             manager.StartEnterTransition();
         }
 
+        // Exit transition
         EditorGUILayout.PropertyField(serializedObject.FindProperty("exitTransitionDuration"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("exitTransitionStartPos"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("waitBetweenTransitions"));
@@ -49,6 +51,7 @@ public class NetworkLevelManagerEditor : Editor
             manager.StartExitTransition();
         }
 
+        // Level setup
         EditorGUILayout.PropertyField(serializedObject.FindProperty("loadCompletionCheck"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("ballsPerLevel"));
 

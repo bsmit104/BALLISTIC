@@ -79,22 +79,31 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     // * Joining and Leaving: Host Controlled =============
 
     [Header("Joining and Leaving Popups")]
+    [Tooltip("The canvas used to display player join & leave events.")]
     [SerializeField] private GameObject joinLeaveCanvas;
+    [Tooltip("The text attached to the joinLeaveCanvas used to display which player joined or left.")]
     [SerializeField] private TextMeshProUGUI joinLeaveText;
+    [Tooltip("The duration the join/leave UI will be displayed for.")]
     [SerializeField] private float joinLeaveDisplayTime;
 
+    // Animate UI elements for showing which player just joined/left the game
     private Coroutine joinLeaveTween;
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
+        // Re-initialize managers for host now that the runner is ready to start spawning
+        // First initialization is in OnConnectedToServer()
         if (runner.IsServer && NotInitialized)
         {
             InitManagers();
         }
 
+        // Only let the host spawn players
         if (runner.IsServer)
         {
             playerManager.SpawnPlayer(player).SetColor(playerManager.GetColor(player).material);
+
+            // Balls need to be enabled for clients who join mid-game
             ballManager.SendBallStates(player);
 
             Debug.Log($"Added player no. {player.PlayerId}");
@@ -104,6 +113,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             Debug.Log($"Player {player.PlayerId} Joined The Game");
         }
 
+        // Show that player has joined in top-right corner
         if (joinLeaveTween != null)
         {
             StopCoroutine(joinLeaveTween);
@@ -114,6 +124,8 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
         playerManager.DespawnPlayer(player);
+
+        // Show that the player has left in top-right corner
         if (joinLeaveTween != null)
         {
             StopCoroutine(joinLeaveTween);
@@ -121,19 +133,23 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         joinLeaveTween = StartCoroutine(DisplayJoinLeave(playerManager.GetColor(player).colorName + " Has Left"));
     }
 
+    // Animate UI to show that a player has joined/left the game
     private IEnumerator DisplayJoinLeave(string message)
     {
         float timer = joinLeaveDisplayTime;
 
+        // Display message
         joinLeaveText.text = message;
         joinLeaveCanvas.SetActive(true);
 
+        // Wait for timer to end
         while (timer > 0)
         {
             timer -= Time.deltaTime;
             yield return null;
         }
 
+        // Stop displaying message
         joinLeaveCanvas.SetActive(false);
     }
 
@@ -142,11 +158,19 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     // * Input Reading: Client-Sided ======================
 
     [Header("Pause Menu")]
+    [Tooltip("The canvas that contains the pause menu.")]
     [SerializeField] private GameObject PauseCanvas;
+    [Tooltip("The text on the pause menu used to display the lobby code.")]
     [SerializeField] private TextMeshProUGUI lobbyCodeText;
 
+    /// <summary>
+    /// Returns true if the local player has paused their game.
+    /// </summary>
     public bool IsPaused { get { return PauseCanvas.activeInHierarchy; } }
 
+    /// <summary>
+    /// Unpause the local player.
+    /// </summary>
     public void Unpause()
     {
         // toggle cursor visibility and lock state
@@ -159,6 +183,8 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     void Update()
     {
+        // Pause game if local player presses ESC
+        // TODO: remove U cheat key, added because ESC doesn't work in editor
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.U))
         {
             // toggle cursor visibility and lock state
@@ -171,6 +197,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             lobbyCodeText.text = "Lobby Code: " + runner.SessionInfo.Name;
         }
 
+        // Deactivate HUD
         if (Input.GetKeyDown(KeyCode.O))
         {
             NetworkPlayer.Local.SetHUDActive(!NetworkPlayer.Local.IsHUDActive);
@@ -181,7 +208,8 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
         var data = new NetworkInputData();
 
-        if (!IsPaused)
+        // Read local input if the local player isn't paused
+        if (!IsPaused || levelManager.LevelChangeRunning || levelManager.WinSequenceRunning)
         {
             data.horizontal = Input.GetAxis("Horizontal");
             data.vertical = Input.GetAxis("Vertical");
@@ -192,6 +220,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             data.crouchButtonPressed = Input.GetKey(KeyCode.C);
         }
 
+        // Send input to host
         input.Set(data);
     }
 
@@ -203,7 +232,8 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     [Space]
     [Header("Connection Status Popups")]
-    [SerializeField] ConnectionPopup popupPrefab;
+    [Tooltip("The popup that will be instantiated when the NetworkRunner is shutdown.")]
+    [SerializeField] ConnectionPopup networkPopupPrefab;
 
     /// <summary>
     /// Leave the current lobby. If the player is the host, then the lobby will be shutdown,
@@ -245,14 +275,16 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
                 message += "Network Error.";
                 break;
         }
-        var popup = Instantiate(popupPrefab);
+        var popup = Instantiate(networkPopupPrefab);
         popup.SetText(message);
     }
 
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
+        // Initialize managers for clients, dummy init for host
         InitManagers();
+        // Set to true so that host has its real init in OnPlayerJoined()
         notInitialized = true;
     }
 
@@ -274,6 +306,7 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
     {
+        // Accept join request if the lobby has space
         if (playerManager.LobbyHasSpace)
         {
             request.Accept();
@@ -295,7 +328,9 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnSceneLoadDone(NetworkRunner runner)
     {
-        if (!NetworkLevelManager.Instance.IsAtLobby)
+        // Notify the level manager that the next level has been loaded
+        // Sends message to host
+        if (!NetworkLevelManager.Instance?.IsAtLobby ?? false)
         {
             NetworkLevelManager.Instance.LocalLevelLoaded = true;
         }

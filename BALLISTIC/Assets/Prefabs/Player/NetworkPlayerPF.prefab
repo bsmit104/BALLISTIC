@@ -66,7 +66,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23678cfb003f0934299a19abcb7bed87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inContactWith: 0
 --- !u!1 &2590589603176322512
 GameObject:
   m_ObjectHideFlags: 0
@@ -537,7 +536,7 @@ GameObject:
   - component: {fileID: 2037646192157341663}
   - component: {fileID: 4425013651642101085}
   - component: {fileID: 2504418674498671000}
-  - component: {fileID: 1469680522173836522}
+  - component: {fileID: 2594206152294689869}
   - component: {fileID: 2661341747001151863}
   m_Layer: 8
   m_Name: NetworkPlayerPF
@@ -669,14 +668,11 @@ MonoBehaviour:
       m_LegacyVelocityFilterStrength: 0
   walkSpeed: 5
   sprintSpeed: 8
-  realSpeed: 0
-  rotationSpeed: 250
   jumpImpulse: 7
   grounded: {fileID: 8206915894160566038}
   ragdollActivator: {fileID: 8316736064853450462}
-  dir: {x: 0, y: 0, z: 0}
   throwPoint: {fileID: 8874166371456309043}
-  throwCooldown: 0.3
+  actionCooldown: 0.3
   aimDist: 100
   pickupCollider: {fileID: 7337151837620291511}
   markerRender: {fileID: -4899786965520844064, guid: 5a4327471a58c2c4299b24b88681fa63, type: 2}
@@ -693,7 +689,7 @@ MonoBehaviour:
   _isCrouchingBackward: 0
   _isCrouchingRight: 0
   _isCrouchingLeft: 0
---- !u!114 &1469680522173836522
+--- !u!114 &2594206152294689869
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -702,15 +698,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5370809112802973460}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a09ff68aded19ea4dbfc9f28bdc1e077, type: 3}
+  m_Script: {fileID: 11500000, guid: ab85e3f8bc45ea143854573f5e5b8201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _position: {x: 0, y: 0, z: 0}
-  _rotation: {x: 0, y: 0, z: 0}
-  _velocity: {x: 0, y: 0, z: 0}
-  _angVelocity: {x: 0, y: 0, z: 0}
-  _networkEnabled: 0
-  ForceUpdate: 0
+  HasAuthority: 0
 --- !u!114 &2661341747001151863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -746,7 +737,7 @@ MonoBehaviour:
   - {fileID: 423533526393422688}
   NetworkedBehaviours:
   - {fileID: 2504418674498671000}
-  - {fileID: 1469680522173836522}
+  - {fileID: 2594206152294689869}
 --- !u!1 &6548789152056384617
 GameObject:
   m_ObjectHideFlags: 0

@@ -2643,7 +2643,7 @@ MonoBehaviour:
   joinLeaveDisplayTime: 5
   PauseCanvas: {fileID: 5709046996748276498}
   lobbyCodeText: {fileID: 8529459244341935899}
-  popupPrefab: {fileID: 8005574791962314160, guid: e0af9534b14bb924fb312ba17ad2d5d4, type: 3}
+  networkPopupPrefab: {fileID: 8005574791962314160, guid: e0af9534b14bb924fb312ba17ad2d5d4, type: 3}
 --- !u!114 &3370978793957886318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2744,8 +2744,8 @@ MonoBehaviour:
   winScreenDuration: 5
   winScreen: {fileID: 5692641985167843846}
   winText: {fileID: 5527874522076470968}
-  localWinText: {fileID: 5612739044647167319}
   remoteWinText: {fileID: 7431761734804666493}
+  localWinText: {fileID: 5612739044647167319}
 --- !u!1 &7431761734804666493
 GameObject:
   m_ObjectHideFlags: 0

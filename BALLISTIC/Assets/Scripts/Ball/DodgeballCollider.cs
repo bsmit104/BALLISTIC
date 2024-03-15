@@ -4,7 +4,7 @@ using Fusion;
 using UnityEngine;
 
 /// <summary>
-/// Client-sided script used by NetworkDodgeball to register collisions
+/// Client-sided script used by NetworkDodgeball to register collisions.
 /// </summary>
 public class DodgeballCollider : MonoBehaviour
 {
@@ -13,19 +13,22 @@ public class DodgeballCollider : MonoBehaviour
     public void OnCollisionEnter(Collision col)
     {
         AudioManager.Instance?.PlaySound("BallHit", gameObject);
-        // Check if the collided GameObject has the "Player" tag
+
+        // Check if ball can kill players
         if (networkBall.IsDeadly && networkBall.enabled)
         {
+            // Check if the collided GameObject is a player
             if (col.gameObject.CompareTag("Player"))
             {
-                // Activate the ragdoll for the player
                 NetworkPlayer player = col.gameObject.GetComponent<NetworkPlayer>();
 
+                // Ball cannot kill the player who threw it
                 if (player?.GetRef == networkBall.Owner) return;
 
                 if (player) // add " && networkBall.Runner.IsServer" to make collision detection host priority
                 {
-                    networkBall.OnPlayerHit(player.GetRef);
+                    // Kill the player
+                    networkBall.NetworkOnPlayerHit(player.GetRef);
                     player.ActivatePlayerRagdoll();
                 }
             }

@@ -5,11 +5,23 @@ using Fusion.Sockets;
 using UnityEngine;
 using System;
 
+/// <summary>
+/// Serialized struct that contains all of the color info for each player.
+/// </summary>
 [Serializable]
 public struct PlayerColor
 {
+    /// <summary>
+    /// The name of the color displayed as the player's name.
+    /// </summary>
     public string colorName;
+    /// <summary>
+    /// The material used by the player's model.
+    /// </summary>
     public Material material;
+    /// <summary>
+    /// The color that can be used for any other purposes.
+    /// </summary>
     public Color color;
 }
 
@@ -29,6 +41,9 @@ public class NetworkPlayerManager : MonoBehaviour
     private NetworkRunner runner;
     private NetworkLevelManager levelManager;
 
+    /// <summary>
+    /// Should only be called by NetworkRunnerCallbacks.
+    /// </summary>
     public void Init(NetworkRunner runner, NetworkLevelManager levelManager)
     {
         if (_instance != null && _instance != this)
@@ -48,14 +63,6 @@ public class NetworkPlayerManager : MonoBehaviour
         this.levelManager = levelManager;
     }
 
-    void OnDestroy()
-    {
-        foreach (var pair in spawnedPlayers)
-        {
-            if (pair.Value) Destroy(pair.Value.gameObject);
-        }
-    }
-
     // * ==================================================
 
     // * Spawning and Despawning ==========================
@@ -65,8 +72,11 @@ public class NetworkPlayerManager : MonoBehaviour
     [Tooltip("The colors mapped to each player. Length of this list defines the max number of players.")]
     [SerializeField] private PlayerColor[] playerColors;
 
-    private Dictionary<PlayerRef, NetworkPlayer> spawnedPlayers = new Dictionary<PlayerRef, NetworkPlayer>();
+    /// <summary>
+    /// Get the map of players currently in the game. DO NOT MUTATE.
+    /// </summary>
     public Dictionary<PlayerRef, NetworkPlayer> Players { get { return spawnedPlayers; } }
+    private Dictionary<PlayerRef, NetworkPlayer> spawnedPlayers = new Dictionary<PlayerRef, NetworkPlayer>();
 
     /// <summary>
     /// Returns the number of players currently in the lobby.
@@ -92,7 +102,6 @@ public class NetworkPlayerManager : MonoBehaviour
     {
         // Create a unique position for the player
         Vector3 spawnPosition = Spawner.GetSpawnPoint();
-        if (runner == null) Debug.Log("wtf");
         NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
         NetworkPlayer netPlayer = networkPlayerObject.gameObject.GetComponent<NetworkPlayer>();
 
@@ -128,18 +137,13 @@ public class NetworkPlayerManager : MonoBehaviour
     public NetworkPlayer GetDummy()
     {
         var obj = runner.Spawn(playerPrefab, Vector3.zero);
-        obj.GetComponent<NetworkPlayer>().isDummy = true;
+        obj.GetComponent<NetworkPlayer>().IsDummy = true;
         return obj.GetComponent<NetworkPlayer>();
     }
 
     // * ==================================================
 
     // * Getting ==========================================
-
-    private void AddPlayer(PlayerRef pRef, NetworkPlayer player)
-    {
-        spawnedPlayers.Add(pRef, player);
-    }
 
     /// <summary>
     /// Get the NetworkPlayer linked to the given playerRef
@@ -148,11 +152,12 @@ public class NetworkPlayerManager : MonoBehaviour
     /// <returns>NetworkPlayer instance, or null if no matching player is found</returns>
     public NetworkPlayer GetPlayer(PlayerRef playerRef)
     {
+        // Player objects will need to be retrieved from the Runner on clients
         if (!spawnedPlayers.ContainsKey(playerRef))
         {
             if (runner.TryGetPlayerObject(playerRef, out var obj))
             {
-                AddPlayer(playerRef, obj.GetComponent<NetworkPlayer>());
+                spawnedPlayers.Add(playerRef, obj.GetComponent<NetworkPlayer>());
             }
             else
             {
@@ -162,6 +167,12 @@ public class NetworkPlayerManager : MonoBehaviour
         return spawnedPlayers[playerRef];
     }
 
+    /// <summary>
+    /// Get the PlayerColor associated with the given player.
+    /// This will loop back to the first color if the end of the list is reached.
+    /// </summary>
+    /// <param name="player">The PlayerRef for the specific player.</param>
+    /// <returns>The PlayerColor, which is NOT a Color struct.</returns>
     public PlayerColor GetColor(PlayerRef player)
     {
         return playerColors[Mathf.Max(0, player.PlayerId - 1) % playerColors.Length];
@@ -171,6 +182,7 @@ public class NetworkPlayerManager : MonoBehaviour
 
     // * Track Living Players =============================
 
+    // Tracks the currently alive players
     private List<PlayerRef> alivePlayers = new List<PlayerRef>();
 
     /// <summary>
@@ -182,8 +194,10 @@ public class NetworkPlayerManager : MonoBehaviour
     {
         if (alivePlayers.Contains(player))
         {
+            // Remove player after they die
             alivePlayers.Remove(player);
 
+            // If no one is left, declare the winner
             if (alivePlayers.Count == 1 && spawnedPlayers.Count > 1)
             {
                 levelManager.DeclareWinner(alivePlayers[0]);
@@ -203,10 +217,13 @@ public class NetworkPlayerManager : MonoBehaviour
         if (runner.IsServer)
         {
             alivePlayers.Clear();
+            // All players drop the ball they're holding before reset
+            // Ensures players whose ragdolls are being held reset properly
             foreach (var pair in spawnedPlayers)
             {
                 pair.Value.DropBall();
             }
+            // Reset each player. Calls a reset RPC on each player
             foreach (var pair in spawnedPlayers)
             {
                 pair.Value.Reset();

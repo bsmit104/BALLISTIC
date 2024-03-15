@@ -93,6 +93,14 @@ public class RagdollActivator : MonoBehaviour
         if ((col = root.gameObject.GetComponent<Collider>()) != null && NetworkPlayer.Local.Runner.IsServer)
         {
             col.enabled = state;
+            if (state)
+            {
+                col.gameObject.layer = LayerMask.NameToLayer("Ragdolls");
+            }
+            else
+            {
+                col.gameObject.layer = LayerMask.NameToLayer(player.HasInputAuthority ? "LocalPlayer" : "Players");
+            }
             var rb = root.gameObject.GetComponent<Rigidbody>();
             if (rb)
             {
@@ -147,6 +155,6 @@ public class RagdollActivatorMessages : SimulationBehaviour
     [Rpc]
     public static void RPC_SendRagdollBall(NetworkRunner runner, PlayerRef player, NetworkId ballId)
     {
-        NetworkPlayerManager.Instance.GetPlayer(player).ragdollActivator.SetRagdollBall(ballId);
+        NetworkPlayerManager.Instance.GetPlayer(player).RagdollActivator.SetRagdollBall(ballId);
     }
 }
