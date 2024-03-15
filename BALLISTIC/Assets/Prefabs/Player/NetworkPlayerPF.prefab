@@ -667,6 +667,7 @@ MonoBehaviour:
       m_LegacyHeadingDefinition: 0
       m_LegacyVelocityFilterStrength: 0
   walkSpeed: 5
+  crouchSpeed: 3
   sprintSpeed: 8
   jumpImpulse: 7
   grounded: {fileID: 8206915894160566038}

@@ -136,6 +136,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Header("Movement Settings")]
     [Tooltip("The speed the player will walk at.")]
     [SerializeField] private float walkSpeed;
+    [Tooltip("The speed the player will crouch walk at.")]
+    [SerializeField] private float crouchSpeed;
     [Tooltip("The speed the player will run at.")]
     [SerializeField] private float sprintSpeed;
     [Tooltip("Controls jump height.")]
@@ -304,7 +306,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             AudioManager.Instance?.StopSound("Footsteps", gameObject);
             Debug.Log("footsteps inactive");
         }
-            
+
     }
 
     [Networked, HideInInspector] public bool isJumping { get; set; }
@@ -501,7 +503,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         // Crouch movement ---------------------
         // start crouching
-        if (data.crouchButtonPressed && !isSprinting)
+        if (data.crouchButtonPressed)
         {
             // TODO: adjust collider height and center of player to be smaller
             isCrouching = true;
@@ -511,19 +513,19 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // TODO: adjust collider height and center of player to be normal
             isCrouching = false;
         }
-        bool isCrouchForward = isCrouching && isMovingForward;
-        bool isCrouchBackward = isCrouching && isMovingBackward;
-        bool isCrouchRight = isCrouching && isStrafingRight;
-        bool isCrouchLeft = isCrouching && isStrafingLeft;
+        bool isCrouchForward = data.crouchButtonPressed && isMovingForward;
+        bool isCrouchBackward = data.crouchButtonPressed && isMovingBackward;
+        bool isCrouchRight = data.crouchButtonPressed && isStrafingRight;
+        bool isCrouchLeft = data.crouchButtonPressed && isStrafingLeft;
 
         // Sprint movement
         isSprinting = isMovingForward && data.sprintButtonPressed;
 
         // Set the speed based on the input
-        float realSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        float realSpeed = isSprinting ? sprintSpeed : (isCrouching ? crouchSpeed : walkSpeed);
 
         // Start jump
-        if (data.jumpButtonPressed && grounded.IsGrounded && !isCrouching)
+        if (data.jumpButtonPressed && grounded.IsGrounded)
         {
             rb.velocity = new Vector3(0, jumpImpulse, 0);
             isJumping = true;
@@ -542,10 +544,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         isWalkingBack = isMovingBackward && !isSprinting && !isMovingForward;
 
         // Trigger the crouch animations when crouching in that direction and not holding the sprint key
-        isCrouchingForward = isCrouchForward && !isSprinting && !isCrouchBackward;
-        isCrouchingBackward = isCrouchBackward && !isSprinting && !isCrouchForward;
-        isCrouchingRight = isCrouchRight && !isSprinting && !isCrouchLeft;
-        isCrouchingLeft = isCrouchLeft && !isSprinting && !isCrouchRight;
+        isCrouchingForward = isCrouchForward && !isCrouchBackward;
+        isCrouchingBackward = isCrouchBackward && !isCrouchForward;
+        isCrouchingRight = isCrouchRight && !isCrouchLeft;
+        isCrouchingLeft = isCrouchLeft && !isCrouchRight;
 
         // Trigger the idle animation when standing still and not pressing any movement keys
         isIdle = vertical == 0 && horizontal == 0;
