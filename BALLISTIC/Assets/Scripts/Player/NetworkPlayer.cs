@@ -417,6 +417,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             NetworkSetPosition(Spawner.GetSpawnPoint());
         }
 
+        if (!Runner.IsServer) NetworkPlayerManager.Instance.SetPlayer(GetRef, this);
+
         Debug.Log("Spawned " + GetRef.PlayerId + " player");
     }
 

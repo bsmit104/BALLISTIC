@@ -23,6 +23,10 @@ public struct PlayerColor
     /// The color that can be used for any other purposes.
     /// </summary>
     public Color color;
+    /// <summary>
+    /// The player icon of the colored robot's head.
+    /// </summary>
+    public Sprite icon;
 }
 
 /// <summary>
@@ -106,8 +110,7 @@ public class NetworkPlayerManager : MonoBehaviour
         NetworkPlayer netPlayer = networkPlayerObject.gameObject.GetComponent<NetworkPlayer>();
 
         // Keep track of the player avatars for easy access
-        spawnedPlayers.Add(player, netPlayer);
-        alivePlayers.Add(player);
+        SetPlayer(player, netPlayer);
         runner.SetPlayerObject(player, networkPlayerObject);
 
         return netPlayer;
@@ -119,14 +122,15 @@ public class NetworkPlayerManager : MonoBehaviour
     /// <param name="player">The player who will be despawned.</param>
     public void DespawnPlayer(PlayerRef player)
     {
-        if (runner.IsServer && spawnedPlayers.TryGetValue(player, out var netPlayer))
+        if (spawnedPlayers.TryGetValue(player, out var netPlayer))
         {
             spawnedPlayers.Remove(player);
+            RemoveFromPlayerList(player);
             if (alivePlayers.Contains(player))
             {
                 alivePlayers.Remove(player);
             }
-            runner.Despawn(netPlayer.GetComponent<NetworkObject>());
+            if (runner.IsServer) runner.Despawn(netPlayer.GetComponent<NetworkObject>());
         }
     }
 
@@ -143,7 +147,15 @@ public class NetworkPlayerManager : MonoBehaviour
 
     // * ==================================================
 
-    // * Getting ==========================================
+    // * Getting & Setting ================================
+
+    public void SetPlayer(PlayerRef playerRef, NetworkPlayer player)
+    {
+        if (spawnedPlayers.ContainsKey(playerRef)) return;
+
+        spawnedPlayers[playerRef] = player;
+        AddToPlayerList(playerRef);
+    }
 
     /// <summary>
     /// Get the NetworkPlayer linked to the given playerRef
@@ -231,4 +243,90 @@ public class NetworkPlayerManager : MonoBehaviour
             }
         }
     }
+
+    // * ==================================================
+
+    // * UI ===============================================
+
+    [Space]
+    [Header("Player List & Quick Chat")]
+    [SerializeField] private RectTransform playerListMenu;
+    [SerializeField] private float hiddenX;
+    [SerializeField] private float displayX;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private PlayerListElement playerListElementPrefab;
+
+    private Dictionary<PlayerRef, PlayerListElement> playerListElements = new Dictionary<PlayerRef, PlayerListElement>();
+
+    private void AddToPlayerList(PlayerRef playerRef)
+    {
+        var playerElem = Instantiate(playerListElementPrefab, playerListMenu.transform.GetChild(1));
+        playerElem.SetPlayer(playerRef);
+        playerListElements.Add(playerRef, playerElem);
+    }
+
+    private void RemoveFromPlayerList(PlayerRef playerRef)
+    {
+        if (playerListElements.TryGetValue(playerRef, out var playerElem))
+        {
+            Destroy(playerElem.gameObject);
+            playerListElements.Remove(playerRef);
+        }
+    }
+
+    private Coroutine movePlayerList;
+    
+    public bool PlayerListDisplayed { get { return playerListDisplayed; } }
+    private bool playerListDisplayed;
+
+
+    public void DisplayPlayerList()
+    {
+        if (movePlayerList != null)
+        {
+            StopCoroutine(movePlayerList);
+        }
+        playerListDisplayed = true;
+        movePlayerList = StartCoroutine(MovePlayerList(displayX));
+    }
+
+    public void HidePlayerList()
+    {
+        if (movePlayerList != null)
+        {
+            StopCoroutine(movePlayerList);
+        }
+        playerListDisplayed = false;
+        movePlayerList = StartCoroutine(MovePlayerList(hiddenX));
+    }
+
+    IEnumerator MovePlayerList(float pos)
+    {
+        float timer = Mathf.Abs(playerListMenu.anchoredPosition.x - pos) / moveSpeed;
+        float dir = pos - playerListMenu.anchoredPosition.x > 0 ? 1 : -1;
+        while (timer > 0)
+        {
+            playerListMenu.anchoredPosition += new Vector2(dir * moveSpeed * Time.deltaTime, 0);
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+        playerListMenu.anchoredPosition = new Vector2(pos, playerListMenu.anchoredPosition.y);
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (PlayerListDisplayed)
+            {
+                HidePlayerList();
+            }
+            else
+            {
+                DisplayPlayerList();
+            }
+        }
+    }
+
+    // * ==================================================
 }
