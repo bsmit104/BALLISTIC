@@ -417,6 +417,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             NetworkSetPosition(Spawner.GetSpawnPoint());
         }
 
+        if (!Runner.IsServer) NetworkPlayerManager.Instance.SetPlayer(GetRef, this);
+
         Debug.Log("Spawned " + GetRef.PlayerId + " player");
     }
 
@@ -781,7 +783,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
         ApplyDropBall();
         RagdollActivator.ActivateRagdoll();
-        if (Runner.IsServer) NetworkPlayerManager.Instance.PlayerDied(GetRef);
+        NetworkPlayerManager.Instance.PlayerDied(GetRef);
         SetBallMaterial(null);
     }
 
@@ -952,29 +954,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     public void NetworkSetPosition(Vector3 position)
     {
-        if (netPos.HasAuthority)
-        {
-            RPC_EnforcePosition(position);
-        }
-        else
-        {
-            RPC_RequestPosition(position);
-        }
-    }
-
-    [Rpc(RpcSources.InputAuthority, RpcTargets.All, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_EnforcePosition(Vector3 position)
-    {
-        transform.position = position;
-    }
-
-    [Rpc(RpcSources.All, RpcTargets.All, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_RequestPosition(Vector3 position)
-    {
-        if (netPos.HasAuthority)
-        {
-            RPC_EnforcePosition(position);
-        }
+        netPos.RPC_RequestPosition(position);
     }
 
     // * ==================================================

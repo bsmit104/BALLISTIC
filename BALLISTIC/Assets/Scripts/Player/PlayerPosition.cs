@@ -33,6 +33,18 @@ public class PlayerPosition : NetworkBehaviour
         if (HasAuthority) return;
         transform.position = position;
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRotation, transform.eulerAngles.z);
-        rig.velocity = new Vector3(rig.velocity.x, yVelocity, rig.velocity.z);
+        if (!rig.isKinematic) rig.velocity = new Vector3(rig.velocity.x, yVelocity, rig.velocity.z);
+    }
+
+    public void RequestPosition(Vector3 position)
+    {
+        RPC_RequestPosition(position);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All, HostMode = RpcHostMode.SourceIsHostPlayer)]
+    public void RPC_RequestPosition(Vector3 position)
+    {
+        if (!HasAuthority) return;
+        transform.position = position;
     }
 }
