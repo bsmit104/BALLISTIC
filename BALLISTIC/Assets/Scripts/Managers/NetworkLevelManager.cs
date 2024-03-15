@@ -400,6 +400,7 @@ public class NetworkLevelManager : MonoBehaviour
             {
                 yield return new WaitForSeconds(loadCompletionCheck);
             }
+            playerManager.ResetPlayers();
         }
 
         // Reset dirty bools for next level transition

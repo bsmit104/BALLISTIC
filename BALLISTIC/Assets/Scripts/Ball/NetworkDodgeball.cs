@@ -218,7 +218,7 @@ public class NetworkDodgeball : NetworkBehaviour
     }
 
     private float deadlyTimer; // Time left before ball becomes not deadly
-    private Vector3 travelDir; // Direction ball is traveling while deadly
+    [Networked, HideInInspector] public Vector3 travelDir { get; set; } // Direction ball is traveling while deadly
     private int bounceCount;   // Number of times the ball has bounced since being throw
 
     public override void FixedUpdateNetwork()

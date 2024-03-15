@@ -52,6 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerIcon: {fileID: 8299147599645417992}
   nameText: {fileID: 3714940085587188866}
+  deadColor: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 1}
 --- !u!1 &4606380982769148743
 GameObject:
   m_ObjectHideFlags: 0

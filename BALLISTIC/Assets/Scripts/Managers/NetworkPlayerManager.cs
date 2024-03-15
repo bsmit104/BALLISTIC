@@ -204,6 +204,8 @@ public class NetworkPlayerManager : MonoBehaviour
     /// <param name="player">The PlayerRef to the player that died.</param>
     public void PlayerDied(PlayerRef player)
     {
+        playerListElements[player].PlayerDied();
+        if (!runner.IsServer) return;
         if (alivePlayers.Contains(player))
         {
             // Remove player after they die
@@ -241,6 +243,12 @@ public class NetworkPlayerManager : MonoBehaviour
                 pair.Value.Reset();
                 alivePlayers.Add(pair.Value.GetRef);
             }
+        }
+
+        // Reset player list visuals
+        foreach (var pair in spawnedPlayers)
+        {
+            playerListElements[pair.Key].PlayerAlive();
         }
     }
 

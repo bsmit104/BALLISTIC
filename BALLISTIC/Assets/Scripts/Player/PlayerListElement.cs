@@ -11,6 +11,7 @@ public class PlayerListElement : MonoBehaviour
 
     [SerializeField] private Image playerIcon;
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private Color deadColor;
 
     public void SetPlayer(PlayerRef player)
     {
@@ -18,5 +19,15 @@ public class PlayerListElement : MonoBehaviour
         playerIcon.sprite = NetworkPlayerManager.Instance.GetColor(player).icon;
         playerIcon.color = NetworkPlayerManager.Instance.GetColor(player).color;
         nameText.text = NetworkPlayerManager.Instance.GetColor(player).colorName;
+    }
+
+    public void PlayerDied()
+    {
+        nameText.color = deadColor;
+    }
+
+    public void PlayerAlive()
+    {
+        nameText.color = Color.white;
     }
 }
