@@ -446,6 +446,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         HandleThrowBall(data);
     }
 
+    // Look Direction ======================
+
     void HandleLook()
     {
         // Camera control is applied locally
@@ -474,6 +476,15 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             cmra.transform.position = cmraParent.position + (dir * maxCmraDist);
         }
     }
+
+    private void UpdateLookDirection(float yRot, float pitch)
+    {
+        // Apply local rotations
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
+        cmraParent.localRotation = Quaternion.Euler(new Vector3(pitch, 0, 0));
+    }
+
+    // ======================================
 
     void HandleMovement(NetworkInputData data)
     {
@@ -797,25 +808,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     }
 
     // =====================================
-
-    // Look Direction ======================
-
-    private void UpdateLookDirection(float yRot, float pitch)
-    {
-        // Apply local rotations
-        transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
-        cmraParent.localRotation = Quaternion.Euler(new Vector3(pitch, 0, 0));
-        // Send y rotation to host so players can see them turning
-        //RPC_UpdateLookDirection(yRot);
-    }
-
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
-    public void RPC_UpdateLookDirection(float yRot)
-    {
-        transform.eulerAngles = new Vector3(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
-    }
-
-    // ======================================
 
     // Ball Pickup ==========================
 
