@@ -261,7 +261,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             { nameof(isCrouchingForward), IsCrouchingForwardOnChange },
             { nameof(isCrouchingBackward), IsCrouchingBackwardOnChange },
             { nameof(isCrouchingRight), IsCrouchingRightOnChange },
-            { nameof(isCrouchingLeft), IsCrouchingLeftOnChange }
+            { nameof(isCrouchingLeft), IsCrouchingLeftOnChange },
+            { nameof(isEmote1), IsEmote1OnChange },
+            { nameof(isEmote2), IsEmote2OnChange },
+            { nameof(isEmote3), IsEmote3OnChange },
+            { nameof(isEmote4), IsEmote4OnChange }
         };
     }
 
@@ -312,6 +316,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [Networked, HideInInspector] public bool isJumping { get; set; }
     void IsJumpingOnChange() { animator.SetBool("isJump", isJumping); }
 
+    // Crouch =======================================
     [Networked, HideInInspector] public bool isCrouching { get; set; }
     void IsCrouchingOnChange() { animator.SetBool("isCrouching", isCrouching); }
 
@@ -326,6 +331,19 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     [Networked, HideInInspector] public bool isCrouchingLeft { get; set; }
     void IsCrouchingLeftOnChange() { animator.SetBool("isCrouchingLeft", isCrouchingLeft); }
+
+    // Emotes =======================================
+    [Networked, HideInInspector] public bool isEmote1 { get; set; }
+    void IsEmote1OnChange() { animator.SetBool("isEmote1", isEmote1); }
+
+    [Networked, HideInInspector] public bool isEmote2 { get; set; }
+    void IsEmote2OnChange() { animator.SetBool("isEmote2", isEmote2); }
+
+    [Networked, HideInInspector] public bool isEmote3 { get; set; }
+    void IsEmote3OnChange() { animator.SetBool("isEmote3", isEmote3); }
+
+    [Networked, HideInInspector] public bool isEmote4 { get; set; }
+    void IsEmote4OnChange() { animator.SetBool("isEmote4", isEmote4); }
 
     // ===============================================
 
@@ -534,6 +552,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         {
             isJumping = false;
         }
+
+        // Emotes
+        isEmote1 = data.emote1ButtonPressed;
+        isEmote2 = data.emote2ButtonPressed;
+        isEmote3 = data.emote3ButtonPressed;
+        isEmote4 = data.emote4ButtonPressed;
 
         // Move the character based on the input
         Vector3 movement = (transform.forward * vertical + transform.right * horizontal) * realSpeed;

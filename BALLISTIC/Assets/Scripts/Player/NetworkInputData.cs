@@ -17,5 +17,10 @@ public struct NetworkInputData : INetworkInput
     public bool jumpButtonPressed;
     public bool crouchButtonPressed;
 
+    public bool emote1ButtonPressed;
+    public bool emote2ButtonPressed;
+    public bool emote3ButtonPressed;
+    public bool emote4ButtonPressed;
+
     public bool testButtonPressed;
 }

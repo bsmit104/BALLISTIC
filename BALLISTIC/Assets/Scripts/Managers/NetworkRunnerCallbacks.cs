@@ -218,6 +218,11 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             data.testButtonPressed = Input.GetKey(KeyCode.R);
             data.jumpButtonPressed = Input.GetKey(KeyCode.Space);
             data.crouchButtonPressed = Input.GetKey(KeyCode.C);
+
+            data.emote1ButtonPressed = Input.GetKey(KeyCode.Alpha1);
+            data.emote2ButtonPressed = Input.GetKey(KeyCode.Alpha2);
+            data.emote3ButtonPressed = Input.GetKey(KeyCode.Alpha3);
+            data.emote4ButtonPressed = Input.GetKey(KeyCode.Alpha4);
         }
 
         // Send input to host

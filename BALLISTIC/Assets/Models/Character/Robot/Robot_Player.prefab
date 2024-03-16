@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1370163755675389232}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.0012999999, y: 0.003915008, z: 0.00178}
   m_LocalScale: {x: 0.01, y: 0.009999996, z: 0.009999996}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1759379269177824772}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &291184688956911442
 Light:
@@ -143,13 +143,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4692417673936066924}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.0012999999, y: 0.003915008, z: 0.00178}
   m_LocalScale: {x: 0.01, y: 0.009999996, z: 0.009999996}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1759379269177824772}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &4610816462118233486
 Light:
@@ -508,6 +508,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Robot_Player
       objectReference: {fileID: 0}
+    - target: {fileID: 950369917856960152, guid: 180909f4288086c4d817132f126845f4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1182480143536952343, guid: 180909f4288086c4d817132f126845f4, type: 3}
       propertyPath: m_LocalScale.y
       value: 1
@@ -564,6 +568,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: a543e2c5271030e4e96a9e6449a6b9f4, type: 2}
+    - target: {fileID: 5155171088772822964, guid: 180909f4288086c4d817132f126845f4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5677357594492072811, guid: 180909f4288086c4d817132f126845f4, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.7071068
