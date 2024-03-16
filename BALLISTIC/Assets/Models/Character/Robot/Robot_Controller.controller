@@ -1978,7 +1978,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Robot_CrouchIdle
-  m_Speed: 0.3
+  m_Speed: 0.15
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -4774962050404879890}
