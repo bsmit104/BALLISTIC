@@ -95,8 +95,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         for (int i = 0; i < root.childCount; i++)
         {
-            Debug.Log(Layer);
-            Debug.Log(root);
             SetLayerRecursive(root.GetChild(i), Layer);
         }
     }

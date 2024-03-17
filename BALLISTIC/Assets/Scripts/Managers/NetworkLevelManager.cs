@@ -51,6 +51,13 @@ public class NetworkLevelManager : MonoBehaviour
         // Init level picking values
         numLevels = lastLevelIndex - firstLevelIndex + 1;
         remainingLevels = new List<int>(numLevels);
+
+        // If starting level isn't the lobby, then the level si being tested
+        if (IsInLevel)
+        {
+            ResetLevel();
+            return;
+        }
         
         // Display the lobby code while waiting for the game to start
         if (Runner.IsServer)
@@ -98,6 +105,14 @@ public class NetworkLevelManager : MonoBehaviour
     public bool IsAtLobby { get { 
         return SceneManager.GetActiveScene().buildIndex == lobbySceneIndex;
     } }
+
+    /// <summary>
+    /// Returns true if the current scene loaded is one of the levels.
+    /// </summary>
+    public bool IsInLevel { get {
+        return firstLevelIndex <= SceneManager.GetActiveScene().buildIndex
+            && SceneManager.GetActiveScene().buildIndex <= lastLevelIndex;
+    }}
 
     // * Level Picking ==========================================
 
@@ -468,7 +483,7 @@ public class NetworkLevelManager : MonoBehaviour
         {
             yield return null;
         }
-
+        Debug.Log("resetting");
 
         // Reset all balls in pool
         ballManager.ReleaseAllBalls();
