@@ -10,7 +10,7 @@ public class SpawnBalls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             var ball = NetworkBallManager.Instance.GetBall();
-            ball.transform.position = new Vector3(0, 1, 0.75f);
+            ball.transform.position = Spawner.GetSpawnPoint(ball.Col.bounds);
         }
 
         if (Input.GetKeyDown(KeyCode.E))
@@ -22,6 +22,6 @@ public class SpawnBalls : MonoBehaviour
     void SpawnDummies()
     {
         var dummy = NetworkPlayerManager.Instance.GetDummy();
-        dummy.transform.position = new Vector3(0, 0, 0);
+        dummy.transform.position = Spawner.GetSpawnPoint();
     }
 }

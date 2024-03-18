@@ -32,6 +32,7 @@ public class BallBuffTester : MonoBehaviour
         {
             var ball = NetworkBallManager.Instance.GetBall();
             ball.SetBuff(Instantiate(buffPrefab));
+            ball.transform.position = Spawner.GetSpawnPoint(ball.Col.bounds);
         }
     }
 }
