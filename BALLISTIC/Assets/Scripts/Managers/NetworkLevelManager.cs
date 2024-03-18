@@ -53,7 +53,7 @@ public class NetworkLevelManager : MonoBehaviour
         remainingLevels = new List<int>(numLevels);
 
         // If starting level isn't the lobby, then the level si being tested
-        if (IsInLevel)
+        if (IsInLevel || SceneManager.GetActiveScene().name == "BallBuffTest")
         {
             ResetLevel();
             return;

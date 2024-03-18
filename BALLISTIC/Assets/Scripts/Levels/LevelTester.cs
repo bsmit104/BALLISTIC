@@ -17,6 +17,7 @@ public class LevelTester : MonoBehaviour
 
     void Awake()
     {
+        Destroy(transform.GetChild(0).gameObject); // Delete reference player
         if (FindFirstObjectByType<NetworkRunner>() != null)
         {
             return;
