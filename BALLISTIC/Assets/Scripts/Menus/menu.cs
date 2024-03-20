@@ -13,6 +13,9 @@ public class Menu : MonoBehaviour
     }
     public void Setting() {
         SceneManager.LoadScene("SettingMenu");
+        SettingsManager.Instance.OpenMenu();
+        SettingsManager.Instance.OnMenuClosed -= Back;
+        SettingsManager.Instance.OnMenuClosed += Back;
     }
     public void Tutorial() {
         SceneManager.LoadScene("Tutorial");

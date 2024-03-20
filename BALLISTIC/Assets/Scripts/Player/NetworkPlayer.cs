@@ -115,6 +115,19 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     [SerializeField] private float cmraShoulderOffset;
     [SerializeField] private Cinemachine.AxisState xAxis, yAxis;
 
+    /// <summary>
+    /// Set the mouse sensitivity for this player. Only meaningful when applied to the Local player.
+    /// </summary>
+    public float Sensitivity { 
+        get {
+            return xAxis.m_MaxSpeed;
+        }
+        set {
+            xAxis.m_MaxSpeed = value;
+            yAxis.m_MaxSpeed = value;
+        }
+    }
+
     private Transform cmraParent; // parent transform for the camera
     private Transform cmraReferencePos; // where the ideal position for the camera is, used as a reference
 
@@ -411,6 +424,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             // Set pickup collider
             pickupCollider.gameObject.SetActive(true);
             pickupCollider.player = this;
+
+            // Apply settings
+            Sensitivity = SettingsManager.Sensitivity;
 
             StartCoroutine(PickupTweenCheck());
         }

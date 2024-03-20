@@ -181,6 +181,11 @@ public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         PauseCanvas.SetActive(false);
     }
 
+    public void OpenSettings()
+    {
+        SettingsManager.Instance?.OpenMenu();
+    }
+
     void Update()
     {
         // Pause game if local player presses ESC
