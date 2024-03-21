@@ -185,7 +185,7 @@ public class NetworkDodgeball : NetworkBehaviour
     private float originalSpeed; // caches the original speed for resets
 
     /// <summary>
-    /// The speed the ball will travel at when thrown, must be greater than 0.
+    /// The speed the ball will travel at when deadly, must be greater than 0.
     /// </summary>
     public float ThrowSpeed {
         get { return throwSpeed; }

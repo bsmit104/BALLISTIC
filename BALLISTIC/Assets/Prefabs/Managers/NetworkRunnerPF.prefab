@@ -3387,6 +3387,10 @@ MonoBehaviour:
     chance: 1
   - ballBuffPrefab: {fileID: 374080402542533747, guid: 8644989654b1cd047b4cecacf672ac80, type: 3}
     chance: 1
+  - ballBuffPrefab: {fileID: 6499139899341304688, guid: 6841973a0f9b5044abfb71e1f60ba9cc, type: 3}
+    chance: 1
+  - ballBuffPrefab: {fileID: 8199304297278162064, guid: 72d50a0c468aa7448b2704d93c248a7e, type: 3}
+    chance: 1
   ballBuffCanvas: {fileID: 29489969013634332}
   buffTitleText: {fileID: 3066665000566676741}
   buffDescText: {fileID: 7767656342859385370}
