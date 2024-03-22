@@ -217,8 +217,23 @@ public class NetworkDodgeball : NetworkBehaviour
         set { bounceLimit = Mathf.Max(1, value); }
     }
 
-    private float deadlyTimer; // Time left before ball becomes not deadly
+    /// <summary>
+    /// The direction the ball is currently traveling. If the ball is not deadly,
+    /// returns Vector3.zero.
+    /// </summary>
+    public Vector3 TravelDir {
+        get {
+            if (!IsDeadly)
+            {
+                return Vector3.zero;
+            }
+            return travelDir;
+        }
+        set { travelDir = value.normalized; }
+    }
     [Networked, HideInInspector] public Vector3 travelDir { get; set; } // Direction ball is traveling while deadly
+
+    private float deadlyTimer; // Time left before ball becomes not deadly
     private int bounceCount;   // Number of times the ball has bounced since being throw
 
     public override void FixedUpdateNetwork()
