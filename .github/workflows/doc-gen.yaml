@@ -16,18 +16,8 @@ jobs:
       with:
         python-version: '3.10.11'
     
-    - name: Show dirs
-      run: ls -a
-    
-    - name: Move into Tools
-      run: cd Tools
-      working-directory: ./Tools
-    
-    - name: Show dirs
-      run: ls -a
-    
     - name: Build docs
-      run: python doc-gen.py
+      run: python Tools/doc-gen.py
       
     - name: Add generated files
       run: |

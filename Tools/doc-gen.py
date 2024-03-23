@@ -5,8 +5,8 @@ Run with: $ python doc-gen.py
 Creates md documentation for C# scripts in Assets/Scripts using summary comments.
 '''
 
-FOLDER_PATH = "../BALLISTIC/Assets/Scripts"
-DOCS_PATH = "../Docs"
+FOLDER_PATH = "BALLISTIC/Assets/Scripts"
+DOCS_PATH = "Docs"
 
 comments = ["<summary>", "Tooltip"]
 
@@ -176,7 +176,7 @@ def build_docs(filenames):
         cs_file = open(FOLDER_PATH + filename[1] + "/" + filename[0], "r")
 
         # Create header for doc
-        full_path = FOLDER_PATH + filename[1] + '/' + filename[0]
+        full_path = "../" + FOLDER_PATH + filename[1] + '/' + filename[0]
         doc.write(f"# {filename[0]}\n**Found in [{filename[1]}]({full_path})**\n\n")
         doc.write(f"[Return to glossary](glossary.md)\n\n")
 
