@@ -21,14 +21,9 @@ jobs:
     - name: Build docs
       run: python Tools/doc-gen.py
       
-    - name: Add generated files
+    - name: Push generated files
       run: |
         git config user.name "Docs Generator"
         git config user.email "ballistic@gmail.com"
-        git add .
-        git diff-index --quiet HEAD || git commit -m "Add generated files"
-      
-    - name: Push changes
-      uses: ad-m/github-push-action@v0.6.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        git commit -am "Automated Documentation Generation"
+        git push
