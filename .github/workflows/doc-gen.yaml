@@ -21,6 +21,7 @@ jobs:
     
     - name: Move into Tools
       run: cd Tools
+      working-directory: ./Tools
     
     - name: Show dirs
       run: ls -a
