@@ -81,7 +81,7 @@ def find_next_summary(file):
         signature = ""
         sign_type = "method"
         buffer = last_line
-        while "RequireComponent" in buffer:
+        while "RequireComponent" in buffer or "Serializable" in buffer:
             buffer = file.readline()
         ind = 0
         while ind < len(buffer):
