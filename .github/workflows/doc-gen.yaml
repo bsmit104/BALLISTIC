@@ -22,6 +22,9 @@ jobs:
     - name: Move into Tools
       run: cd Tools
     
+    - name: Show dirs
+      run: ls -a
+    
     - name: Build docs
       run: python doc-gen.py
       
