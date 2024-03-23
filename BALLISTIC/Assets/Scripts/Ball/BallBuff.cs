@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
 
+/// <summary>
+/// The super class used to create all ball buffs. All ball buffs need to inherit from this class.
+/// </summary>
 public abstract class BallBuff : MonoBehaviour
 {
     // * Getters ================================
