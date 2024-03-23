@@ -1,7 +1,7 @@
 # SpawnArea.cs
 **Found in [/SpawnArea/Scripts](../BALLISTIC/Assets/Scripts/SpawnArea/Scripts/SpawnArea.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class SpawnArea : MonoBehaviour`
 > **A 2D mesh that represents a valid spawn area.Drawn using in-editor tool.**

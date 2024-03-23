@@ -1,7 +1,7 @@
 # SettingsManager.cs
 **Found in [/Managers](../BALLISTIC/Assets/Scripts/Managers/SettingsManager.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class SettingsManager : MonoBehaviour`
 > **Script used to control and save player settings.**

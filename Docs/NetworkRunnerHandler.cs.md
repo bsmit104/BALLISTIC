@@ -1,7 +1,7 @@
 # NetworkRunnerHandler.cs
 **Found in [/Managers](../BALLISTIC/Assets/Scripts/Managers/NetworkRunnerHandler.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class NetworkRunnerHandler : MonoBehaviour`
 > **Spawns the NetworkRunner to start the online lobby.OnHost(), and OnClient() methods are main interface for starting the game.**

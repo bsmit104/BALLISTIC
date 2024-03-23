@@ -1,7 +1,7 @@
 # NetworkRunnerCallbacks.cs
 **Found in [/Managers](../BALLISTIC/Assets/Scripts/Managers/NetworkRunnerCallbacks.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks`
 > **Implements all network events, and initializes managers.**

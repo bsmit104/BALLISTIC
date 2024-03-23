@@ -1,7 +1,7 @@
 # NetworkPlayer.cs
 **Found in [/Player](../BALLISTIC/Assets/Scripts/Player/NetworkPlayer.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 >> **`public delegate void Notify()`**\
 >> General event listener delegate.

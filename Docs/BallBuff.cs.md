@@ -1,7 +1,7 @@
 # BallBuff.cs
 **Found in [/Ball](../BALLISTIC/Assets/Scripts/Ball/BallBuff.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public abstract class BallBuff : MonoBehaviour`
 > **The super class used to create all ball buffs. All ball buffs need to inherit from this class.**

@@ -1,7 +1,7 @@
 # NetworkDodgeball.cs
 **Found in [/Ball](../BALLISTIC/Assets/Scripts/Ball/NetworkDodgeball.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class NetworkDodgeball : NetworkBehaviour`
 > **Networked object to manage dodgeball. Spawn and release using the NetworkBallManager.**

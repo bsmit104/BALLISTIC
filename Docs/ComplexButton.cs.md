@@ -1,7 +1,7 @@
 # ComplexButton.cs
 **Found in [/Menus](../BALLISTIC/Assets/Scripts/Menus/ComplexButton.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class ComplexButton : MonoBehaviour`
 > **Used for buttons that have multiple images that should change color withhover and click events.**

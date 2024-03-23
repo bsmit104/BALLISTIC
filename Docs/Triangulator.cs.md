@@ -1,5 +1,5 @@
 # Triangulator.cs
 **Found in [/SpawnArea/Geometry](../BALLISTIC/Assets/Scripts/SpawnArea/Geometry/Triangulator.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 

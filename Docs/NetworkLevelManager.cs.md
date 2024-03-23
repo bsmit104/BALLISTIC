@@ -1,7 +1,7 @@
 # NetworkLevelManager.cs
 **Found in [/Managers](../BALLISTIC/Assets/Scripts/Managers/NetworkLevelManager.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class NetworkLevelManager : MonoBehaviour`
 > **Manages scene transitions between levels.Tracks how many players are alive to know when to end the game, and then move on to the next level.**

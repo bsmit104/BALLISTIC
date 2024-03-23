@@ -1,7 +1,7 @@
 # Analytics.cs
 **Found in [/Analytics](../BALLISTIC/Assets/Scripts/Analytics/Analytics.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 >> **`bool allowCheatKeys = false`**\
 >> Press 'Q' to trigger analytics events manually.

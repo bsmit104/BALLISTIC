@@ -1,7 +1,7 @@
 # NetworkPlayerManager.cs
 **Found in [/Managers](../BALLISTIC/Assets/Scripts/Managers/NetworkPlayerManager.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `[Serializable]
 public struct PlayerColor`

@@ -1,7 +1,7 @@
 # NetworkBallManager.cs
 **Found in [/Managers](../BALLISTIC/Assets/Scripts/Managers/NetworkBallManager.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 >> **`public BallBuff ballBuffPrefab`**\
 >> The ball buff prefab that will be added as a child to the actual ball.

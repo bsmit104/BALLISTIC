@@ -178,7 +178,7 @@ def build_docs(filenames):
         # Create header for doc
         full_path = "../" + FOLDER_PATH + filename[1] + '/' + filename[0]
         doc.write(f"# {filename[0]}\n**Found in [{filename[1]}]({full_path})**\n\n")
-        doc.write(f"[Return to glossary](glossary.md)\n\n")
+        doc.write(f"[Return to glossary](Glossary.md)\n\n")
 
         # Iterate through each summary and tooltip
         classes = {}

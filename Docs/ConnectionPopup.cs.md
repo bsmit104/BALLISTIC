@@ -1,7 +1,7 @@
 # ConnectionPopup.cs
 **Found in [/Menus](../BALLISTIC/Assets/Scripts/Menus/ConnectionPopup.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class ConnectionPopup : MonoBehaviour`
 > **Instantiated to display disconnections. Should only be created by NetworkRunnerCallbacks.**

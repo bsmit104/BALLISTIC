@@ -1,7 +1,7 @@
 # LoadingPopup.cs
 **Found in [/Menus](../BALLISTIC/Assets/Scripts/Menus/LoadingPopup.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class LoadingPopup : MonoBehaviour`
 > **Instantiated to show players the game is currently loading something.Only instantiate this if loading consistently takes a long time, and it will result in a scene change.**

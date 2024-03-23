@@ -1,7 +1,7 @@
 # Spawner.cs
 **Found in [/SpawnArea/Scripts](../BALLISTIC/Assets/Scripts/SpawnArea/Scripts/Spawner.cs)**
 
-[Return to glossary](glossary.md)
+[Return to glossary](Glossary.md)
 
 > ## `public class Spawner : MonoBehaviour`
 > **Singleton which should exist on every level. Used to get valid spawn positions.Provides an editor interface for level designers to define valid spawn areas.**

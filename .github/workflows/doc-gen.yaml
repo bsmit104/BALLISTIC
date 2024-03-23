@@ -2,6 +2,8 @@ name: Generate Documentation
 
 on:
   push:
+    branches:
+      - master
   
 jobs:
   run_script:
@@ -22,7 +24,7 @@ jobs:
     - name: Add generated files
       run: |
         git add .
-        git diff-index --quiet HEAD || git commit -m "Add generated files"
+        git diff-index --quiet HEAD || git commit -m "Add generated files" --author="GitHub <noreply@github.com>"
       
     - name: Push changes
       uses: ad-m/github-push-action@v0.6.0
