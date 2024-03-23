@@ -3,8 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
-> ## `[Serializable]
-public struct PlayerColor`
+> ## `public struct PlayerColor`
 > **Serialized struct that contains all of the color info for each player.**
 > 
 > ### **Methods, Getters, and Setters:**
