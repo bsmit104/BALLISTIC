@@ -3,3 +3,8 @@
 
 [Return to glossary](Glossary.md)
 
+
+> ## `public class Shape`
+> **Missing summary...**
+> 
+

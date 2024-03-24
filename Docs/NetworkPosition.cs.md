@@ -3,6 +3,8 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class NetworkPosition : NetworkBehaviour`
 > **Replacement for NetworkTransform. Gives host complete authority over transforms.DO NOT EDIT THIS SCRIPT UNLESS YOU KNOW WHAT YOU'RE DOING.**
 > 
+

@@ -3,3 +3,8 @@
 
 [Return to glossary](Glossary.md)
 
+
+> ## `public class AudioManager : MonoBehaviour`
+> **Missing summary...**
+> 
+

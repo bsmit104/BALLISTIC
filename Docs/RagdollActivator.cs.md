@@ -3,3 +3,12 @@
 
 [Return to glossary](Glossary.md)
 
+
+> ## `public class RagdollActivator : MonoBehaviour`
+> **Missing summary...**
+> 
+
+> ## `public class RagdollActivatorMessages : SimulationBehaviour`
+> **Missing summary...**
+> 
+

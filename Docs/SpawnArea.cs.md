@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class SpawnArea : MonoBehaviour`
 > **A 2D mesh that represents a valid spawn area.Drawn using in-editor tool.**
 > 
@@ -59,3 +60,4 @@
 >>
 >>**Returns:** The random position within this area.
 > 
+

@@ -3,3 +3,12 @@
 
 [Return to glossary](Glossary.md)
 
+
+> ## `public class CompositeShapeData`
+> **Missing summary...**
+> 
+
+> ## `public struct LineSegment`
+> **Missing summary...**
+> 
+

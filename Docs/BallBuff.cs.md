@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public abstract class BallBuff : MonoBehaviour`
 > **The super class used to create all ball buffs. All ball buffs need to inherit from this class.**
 > 
@@ -123,3 +124,4 @@
 >> **Arguments:**\
 >> *player:* The player holding the ball.
 > 
+

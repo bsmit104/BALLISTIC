@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class SettingsManager : MonoBehaviour`
 > **Script used to control and save player settings.**
 > 
@@ -23,3 +24,4 @@
 >> Sensitivity based on a normalized 0 to 1 scale.
 >> 
 > 
+

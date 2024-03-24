@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class Spawner : MonoBehaviour`
 > **Singleton which should exist on every level. Used to get valid spawn positions.Provides an editor interface for level designers to define valid spawn areas.**
 > 
@@ -25,3 +26,4 @@
 >>
 >>**Returns:** The spawn position in global space.
 > 
+

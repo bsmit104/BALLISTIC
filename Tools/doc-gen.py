@@ -38,6 +38,8 @@ def find_next_summary(file):
             if comment in line:
                 comment_type = comment
                 break
+        if "public class" in line or "public struct" in line:
+            comment_type = "<summary>"
         if comment_type is not None:
             break
     
@@ -48,10 +50,29 @@ def find_next_summary(file):
     if comment_type == "<summary>":
         # Get summary
         summary_str = ""
-        for line in file:
-            if "/summary" in line:
-                break
-            summary_str += line.replace("///", "").strip()
+        if "public class" in last_line or "public struct" in last_line:
+            summary_str = "Missing summary..."
+            buffer = last_line
+            class_name = ""
+            ind = 0
+            while ind < len(buffer):
+                if buffer[ind] == '{' or buffer[ind] == ';':
+                    break
+                class_name += buffer[ind]
+                if buffer[ind] == ')':
+                    break
+                elif buffer[ind] == '\n':
+                    buffer = file.readline()
+                    ind = 0
+                else:
+                    ind += 1
+            class_name = class_name.replace("  ", "").strip()
+            return "summary", ("class", class_name, summary_str, None, "")
+        else:
+            for line in file:
+                if "/summary" in line:
+                    break
+                summary_str += line.replace("///", "").strip()
 
         # Get params
         params = []
@@ -81,11 +102,15 @@ def find_next_summary(file):
         signature = ""
         sign_type = "method"
         buffer = last_line
+        prop_or_method = "summary"
         while "RequireComponent" in buffer or "Serializable" in buffer:
             buffer = file.readline()
         ind = 0
         while ind < len(buffer):
-            if buffer[ind] == '{' or buffer[ind] == ';':
+            if buffer[ind] == '{':
+                break
+            if buffer[ind] == ';':
+                prop_or_method = "tip"
                 break
             signature += buffer[ind]
             if buffer[ind] == ')':
@@ -100,12 +125,25 @@ def find_next_summary(file):
             sign_type = "class"
             params = None
 
+        if prop_or_method == "tip":
+            return "tip", (summary_str, signature)
         return "summary", (sign_type, signature, summary_str, params, returns)
     
     elif comment_type == "Tooltip":
         start_ind = last_line.find('(')
-        end_ind = last_line.find(')')
-        tip_str = last_line[start_ind + 2:end_ind - 1]
+        tip_str = ""
+
+        if '@' in last_line and last_line.find(')') == -1:
+            tip_str = last_line[start_ind + 3:]
+            last_line = file.readline()
+            while last_line.find(')') == -1:
+                tip_str += ' ' + last_line.strip()
+                last_line = file.readline()
+            tip_str = last_line[:last_line.find(')') - 1]
+
+        else:
+            end_ind = last_line.find(')')
+            tip_str = last_line[start_ind + (3 if '@' in last_line else 2):end_ind - 1]
 
         last_line = file.readline()
         ind = 0
@@ -210,6 +248,8 @@ def build_docs(filenames):
                 doc.write("> ### **Methods, Getters, and Setters:**\n")
             for method in classes[cls]["methods"]:
                 write_summary(doc, method)
+            
+            doc.write("\n")
         
         doc.close()
         cs_file.close()

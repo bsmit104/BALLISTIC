@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class NetworkRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks`
 > **Implements all network events, and initializes managers.**
 > 
@@ -46,3 +47,4 @@
 >> Leave the current lobby. If the player is the host, then the lobby will be shutdown,and all players will be disconnected.
 >> 
 > 
+

@@ -7,6 +7,7 @@
 >> General event listener delegate.
 >> 
 > 
+
 > ## `public class NetworkPlayer : NetworkBehaviour, IPlayerLeft`
 > **Networked player controller, must be attached to the root game object of the player prefab.**
 > 
@@ -101,3 +102,4 @@
 >> Synchronously activate player ragdoll across all clients.
 >> 
 > 
+

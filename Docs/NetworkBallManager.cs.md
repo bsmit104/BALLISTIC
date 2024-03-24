@@ -3,12 +3,18 @@
 
 [Return to glossary](Glossary.md)
 
+
+> ## `public struct BallBuffChance`
+> **Missing summary...**
+> 
+> ### **Serialized Properties:**
 >> **`public BallBuff ballBuffPrefab`**\
 >> The ball buff prefab that will be added as a child to the actual ball.
 > 
->> **``**\
->> "The chances of a ball having this buff. Value will be normalized.
+>> **`public int chance`**\
+>>         The higher it is compared to other buffs, the more likely it will appear.
 > 
+
 > ## `public class NetworkBallManager : MonoBehaviour`
 > **Singleton object manager for Dodgeballs, makes sure they are networked properly.Manager is set to DontDestroyOnLoad.All balls spawned will be children of this object.**
 > 
@@ -95,6 +101,7 @@
 >> *position:* The current position of the ball.\
 >> *buffIndex:* The ball buff attached to this ball.
 > 
+
 > ## `public class BallManagerMessages : SimulationBehaviour`
 > **Message broker for NetworkBallManager.**
 > 
@@ -110,3 +117,4 @@ public static void RPC_SendBallState(NetworkRunner runner, PlayerRef receiver, N
 >> *position:* The current position of the ball.\
 >> *buffIndex:* The ball buff attached to the ball.
 > 
+

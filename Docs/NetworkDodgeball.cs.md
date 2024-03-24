@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class NetworkDodgeball : NetworkBehaviour`
 > **Networked object to manage dodgeball. Spawn and release using the NetworkBallManager.**
 > 
@@ -15,6 +16,27 @@
 > 
 >> **`private int bounceLimit`**\
 >> The ball will stop being deadly after bouncing this many times.
+> 
+>> **`public event DodgeballEvent OnSpawned`**\
+>> Invoked when the ball is activated in the level, and has been given a new ball buff.
+> 
+>> **`public event ThrowEvent OnThrow`**\
+>> Invoked when the ball is thrown.
+> 
+>> **`public event BounceEvent OnBounce`**\
+>> Invoked when the ball bounces on a surface, while it is deadly.
+> 
+>> **`public event PlayerEvent OnPlayerHit`**\
+>> Invoked when the ball hits a player while it is deadly.
+> 
+>> **`public event PlayerEvent OnPickup`**\
+>> Invoked when the ball is picked up by a player.
+> 
+>> **`public event PlayerEvent OnDropped`**\
+>> Invoked when a player drops the ball.
+> 
+>> **`public event Notify OnNotDeadly`**\
+>> Invoked when the ball becomes not deadly.
 > 
 > ### **Methods, Getters, and Setters:**
 >> **`public DodgeballCollider BallCol`**\
@@ -103,10 +125,6 @@
 >> The index of this ball's buff in the NetworkBallManager.ballBuffs array.Use with GetBuff(BuffIndex) to get a new instance of this ball buff.
 >> 
 > 
->> **`public event DodgeballEvent OnSpawned`**\
->> Invoked when the ball is activated in the level, and has been given a new ball buff.
->> 
-> 
 >> **`public void NetworkSetBuff(int buffInd)`**\
 >> Called by host to tell all clients to add the specified ball buff to this ball.
 >> 
@@ -125,30 +143,6 @@
 >> **Arguments:**\
 >> *buff:* The ball buff instance to attach to this ball.
 > 
->> **`public event ThrowEvent OnThrow`**\
->> Invoked when the ball is thrown.
->> 
-> 
->> **`public event BounceEvent OnBounce`**\
->> Invoked when the ball bounces on a surface, while it is deadly.
->> 
-> 
->> **`public event PlayerEvent OnPlayerHit`**\
->> Invoked when the ball hits a player while it is deadly.
->> 
-> 
->> **`public event PlayerEvent OnPickup`**\
->> Invoked when the ball is picked up by a player.
->> 
-> 
->> **`public event PlayerEvent OnDropped`**\
->> Invoked when a player drops the ball.
->> 
-> 
->> **`public event Notify OnNotDeadly`**\
->> Invoked when the ball becomes not deadly.
->> 
-> 
 >> **`public void NetworkSetActive(bool state)`**\
 >> Use instead of gameObject.SetActive(). Ensures game object is in the same stateacross all clients.
 >> 
@@ -161,3 +155,4 @@
 >> **Arguments:**\
 >> *player:* The player who owns the ball.
 > 
+

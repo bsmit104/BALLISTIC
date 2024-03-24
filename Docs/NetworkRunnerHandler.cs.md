@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class NetworkRunnerHandler : MonoBehaviour`
 > **Spawns the NetworkRunner to start the online lobby.OnHost(), and OnClient() methods are main interface for starting the game.**
 > 
@@ -32,3 +33,4 @@
 >> Joins an existing game as a client, fails if a fetched lobby name is not found.
 >> 
 > 
+

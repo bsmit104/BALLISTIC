@@ -3,6 +3,11 @@
 
 [Return to glossary](Glossary.md)
 
+
+> ## `public class Analytics : MonoBehaviour`
+> **Missing summary...**
+> 
+> ### **Serialized Properties:**
 >> **`bool allowCheatKeys = false`**\
 >> Press 'Q' to trigger analytics events manually.
 > 
@@ -18,3 +23,4 @@
 >> **`int levelsPlayed`**\
 >> Number of levels that have been played.
 > 
+

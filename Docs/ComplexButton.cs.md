@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class ComplexButton : MonoBehaviour`
 > **Used for buttons that have multiple images that should change color withhover and click events.**
 > 
@@ -16,3 +17,4 @@
 >> **`private Image[] listeners`**\
 >> The UI elements that should be colored.
 > 
+

@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class ConnectionPopup : MonoBehaviour`
 > **Instantiated to display disconnections. Should only be created by NetworkRunnerCallbacks.**
 > 
@@ -15,3 +16,4 @@
 >> Sets the text the popup will display.
 >> 
 > 
+

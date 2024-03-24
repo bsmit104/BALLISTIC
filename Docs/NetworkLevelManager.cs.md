@@ -3,6 +3,7 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class NetworkLevelManager : MonoBehaviour`
 > **Manages scene transitions between levels.Tracks how many players are alive to know when to end the game, and then move on to the next level.**
 > 
@@ -143,6 +144,7 @@
 >> **Arguments:**\
 >> *player:* The winning player
 > 
+
 > ## `public class LevelManagerMessages : SimulationBehaviour`
 > **Message broker for NetworkLevelManager.**
 > 
@@ -167,3 +169,4 @@ public static void RPC_EnterLevel(NetworkRunner runner)`**\
 >> Called by the host to tell clients to enter into the next level to resume play.
 >> 
 > 
+

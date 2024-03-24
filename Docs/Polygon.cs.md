@@ -3,3 +3,8 @@
 
 [Return to glossary](Glossary.md)
 
+
+> ## `public class Polygon`
+> **Missing summary...**
+> 
+

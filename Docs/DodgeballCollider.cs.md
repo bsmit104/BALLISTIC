@@ -3,6 +3,8 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public class DodgeballCollider : MonoBehaviour`
 > **Client-sided script used by NetworkDodgeball to register collisions.**
 > 
+

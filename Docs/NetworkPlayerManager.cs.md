@@ -3,26 +3,24 @@
 
 [Return to glossary](Glossary.md)
 
+
 > ## `public struct PlayerColor`
 > **Serialized struct that contains all of the color info for each player.**
 > 
-> ### **Methods, Getters, and Setters:**
+> ### **Serialized Properties:**
 >> **`public string colorName`**\
 >> The name of the color displayed as the player's name.
->> 
 > 
 >> **`public Material material`**\
 >> The material used by the player's model.
->> 
 > 
 >> **`public Color color`**\
 >> The color that can be used for any other purposes.
->> 
 > 
 >> **`public Sprite icon`**\
 >> The player icon of the colored robot's head.
->> 
 > 
+
 > ## `public class NetworkPlayerManager : MonoBehaviour`
 > **Manages instances of NetworkPlayers, each joined client will have a NetworkPlayer assigned to represent them in-game.**
 > 
@@ -102,3 +100,4 @@
 >> Reset all players to their alive state, and add them back to the living players list.
 >> 
 > 
+
