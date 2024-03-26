@@ -100,4 +100,24 @@
 >> Reset all players to their alive state, and add them back to the living players list.
 >> 
 > 
+>> **`public bool PlayerListDisplayed`**\
+>> Returns true if the player list menu is currently open.
+>> 
+> 
+>> **`public void DisplayPlayerList()`**\
+>> Show player list menu. Starts the slide-in-from-right animation.
+>> 
+> 
+>> **`public void HidePlayerList()`**\
+>> Hide player list menu. Starts the slide-out-from-right animation.
+>> 
+> 
+>> **`public bool IsQuickChatOpen`**\
+>> Returns true if the quick chat menu is open.
+>> 
+> 
+
+> ## `public class PlayerManagerMessages : SimulationBehaviour`
+> **Message broker for the NetworkPlayerManager.**
+> 
 
