@@ -3639,13 +3639,13 @@ MonoBehaviour:
   moveSpeed: 1100
   playerListElementPrefab: {fileID: 2296824037447245449, guid: 8905521927df20d439bbe9599a24b97e, type: 3}
   quickChats:
-  - NICE SHOT!
+  - NICE THROW!
   - HUH?!
   - GG!
   - DODGE THIS!
   - HEY!
   - LUCKY!
-  - NOT CLOSE!
+  - '#1 BALLER!'
   chatMenu: {fileID: 5678770990011736496}
   chatCooldown: 0.5
 --- !u!114 &2600095694235042499
