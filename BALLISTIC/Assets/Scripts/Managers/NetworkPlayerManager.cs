@@ -256,8 +256,10 @@ public class NetworkPlayerManager : MonoBehaviour
 
     // * UI ===============================================
 
+    // Player List ========================================
+
     [Space]
-    [Header("Player List & Quick Chat")]
+    [Header("Player List")]
     [SerializeField] private RectTransform playerListMenu;
     [SerializeField] private float hiddenX;
     [SerializeField] private float displayX;
@@ -284,10 +286,15 @@ public class NetworkPlayerManager : MonoBehaviour
 
     private Coroutine movePlayerList;
     
+    /// <summary>
+    /// Returns true if the player list menu is currently open.
+    /// </summary>
     public bool PlayerListDisplayed { get { return playerListDisplayed; } }
     private bool playerListDisplayed;
 
-
+    /// <summary>
+    /// Show player list menu. Starts the slide-in-from-right animation.
+    /// </summary>
     public void DisplayPlayerList()
     {
         if (movePlayerList != null)
@@ -298,6 +305,9 @@ public class NetworkPlayerManager : MonoBehaviour
         movePlayerList = StartCoroutine(MovePlayerList(displayX));
     }
 
+    /// <summary>
+    /// Hide player list menu. Starts the slide-out-from-right animation.
+    /// </summary>
     public void HidePlayerList()
     {
         if (movePlayerList != null)
@@ -321,6 +331,61 @@ public class NetworkPlayerManager : MonoBehaviour
         playerListMenu.anchoredPosition = new Vector2(pos, playerListMenu.anchoredPosition.y);
     }
 
+    // ======================================
+
+    // Quick Chat ===========================
+
+    [Space]
+    [Header("Quick Chat")]
+    [SerializeField] private string[] quickChats;
+    [SerializeField] private RadialMenu chatMenu;
+    [SerializeField] private float chatCooldown;
+
+    private int MatchChat(string message)
+    {
+        int result = -1;
+        for (int i = 0; i < quickChats.Length; i++)
+        {
+            if (message == quickChats[i])
+            {
+                result = i;
+                break;
+            }
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Returns true if the quick chat menu is open.
+    /// </summary>
+    public bool IsQuickChatOpen { get { return chatMenu.IsOpen; } }
+
+    void Start()
+    {
+        foreach (var chat in quickChats)
+        {
+            chatMenu.AddOption(chat);
+        }
+        chatMenu.OnOptionSelected += SendChat;
+        chatMenu.CloseMenu();
+    }
+
+    float chatCooldownTimer = 0;
+
+    public void SendChat(string chat)
+    {
+        if (chatCooldownTimer > 0) return;
+        PlayerManagerMessages.RPC_SendChatMessage(runner, MatchChat(chat), NetworkPlayer.Local.GetRef);
+        chatCooldownTimer = chatCooldown;
+    }
+
+    public void DisplayChat(int chatInd, PlayerRef sender)
+    {
+        playerListElements[sender].SetChat(quickChats[Mathf.Clamp(chatInd, 0, quickChats.Length - 1)]);
+    }
+
+    // ======================================
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
@@ -334,7 +399,44 @@ public class NetworkPlayerManager : MonoBehaviour
                 DisplayPlayerList();
             }
         }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            chatMenu.OpenMenu();
+
+            // toggle cursor visibility and lock state
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            chatMenu.CloseMenu();
+
+            // toggle cursor visibility and lock state
+            if (!NetworkRunnerCallbacks.Instance.IsPaused)
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+        }
+
+        if (chatCooldownTimer > 0)
+        {
+            chatCooldownTimer -= Time.deltaTime;
+        }
     }
 
     // * ==================================================
+}
+
+/// <summary>
+/// Message broker for the NetworkPlayerManager.
+/// </summary>
+public class PlayerManagerMessages : SimulationBehaviour
+{
+    [Rpc]
+    public static void RPC_SendChatMessage(NetworkRunner runner, int chatInd, PlayerRef sender)
+    {
+        NetworkPlayerManager.Instance.DisplayChat(chatInd, sender);
+    }
 }

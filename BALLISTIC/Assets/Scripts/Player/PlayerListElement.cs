@@ -12,6 +12,8 @@ public class PlayerListElement : MonoBehaviour
     [SerializeField] private Image playerIcon;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private Color deadColor;
+    [SerializeField] private TextMeshProUGUI chatText;
+    [SerializeField] private float chatDisplayDuration;
 
     public void SetPlayer(PlayerRef player)
     {
@@ -29,5 +31,48 @@ public class PlayerListElement : MonoBehaviour
     public void PlayerAlive()
     {
         nameText.color = Color.white;
+    }
+
+    private Coroutine displayChat;
+    private Vector2 originalPos;
+
+    void Awake()
+    {
+        originalPos = playerIcon.GetComponent<RectTransform>().anchoredPosition;
+    }
+
+    public void SetChat(string message)
+    {
+        if (displayChat != null)
+        {
+            StopCoroutine(displayChat);
+        }
+        displayChat = StartCoroutine(DisplayChat(message));
+    }
+
+    IEnumerator DisplayChat(string message)
+    {
+        chatText.gameObject.SetActive(true);
+        chatText.text = message;
+        float timer = chatDisplayDuration;
+
+        var pos = playerIcon.GetComponent<RectTransform>();
+
+        while (timer > 0)
+        {
+            if (NetworkPlayerManager.Instance.PlayerListDisplayed)
+            {
+                pos.anchoredPosition = originalPos;
+            }
+            else
+            {
+                pos.anchoredPosition = new Vector2(-305, pos.anchoredPosition.y);
+            }
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+
+        chatText.gameObject.SetActive(false);
+        pos.anchoredPosition = originalPos;
     }
 }

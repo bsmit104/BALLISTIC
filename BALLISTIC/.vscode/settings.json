@@ -53,5 +53,30 @@
     },
     "workbench.colorTheme": "Beach Day",
     "dotnet.preferCSharpExtension": true,
-    "dotnet.defaultSolution": "BALLISTIC.sln"
+    "dotnet.defaultSolution": "BALLISTIC.sln",
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#077eb788",
+        "activityBar.background": "#077eb788",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#7b0555",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "panel.border": "#077eb788",
+        "sash.hoverBorder": "#077eb788",
+        "sideBar.border": "#077eb788",
+        "statusBar.background": "#055c8688",
+        "statusBar.border": "#055c8688",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#077eb788",
+        "statusBarItem.remoteBackground": "#055c8688",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "tab.activeBorder": "#077eb788",
+        "titleBar.activeBackground": "#055c8688",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.border": "#055c8688",
+        "titleBar.inactiveBackground": "#055c8699",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#055C8688"
 }

@@ -490,7 +490,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         if (!Object.HasInputAuthority) return;
 
         // Ignore if the player is paused
-        if (NetworkRunnerCallbacks.Instance.IsPaused) return;
+        if (NetworkRunnerCallbacks.Instance.IsPaused || NetworkPlayerManager.Instance.IsQuickChatOpen) return;
 
         // Update cinemachine axis states
         xAxis.Update(Time.deltaTime);
